@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:better_player/better_player.dart';
+import 'package:video_player/video_player.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:http/http.dart' as http;
 import '../config/constants.dart';
 
-/// Simple player screen for mobile platforms using better_player
+/// Simple player screen for mobile platforms using video_player
 /// with automatic reconnection and lifecycle handling
 class SimplePlayerScreen extends StatefulWidget {
   const SimplePlayerScreen({super.key});
@@ -18,7 +18,7 @@ class SimplePlayerScreen extends StatefulWidget {
 }
 
 class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBindingObserver {
-  BetterPlayerController? _betterPlayerController;
+  VideoPlayerController? _videoPlayerController;
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<ConnectivityResult>? _connectivitySubscription;
@@ -48,7 +48,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
     _connectivitySubscription?.cancel();
     _reconnectTimer?.cancel();
     _statusCheckTimer?.cancel();
-    _betterPlayerController?.dispose();
+    _videoPlayerController?.dispose();
     // Disable wake lock when player is disposed
     WakelockPlus.disable();
     super.dispose();
@@ -86,58 +86,32 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
 
   Future<void> _initPlayer() async {
     try {
-      print('Initializing better player with URL: ${AppConstants.hlsManifestUrl}');
+      print('Initializing video player with URL: ${AppConstants.hlsManifestUrl}');
       
-      final betterPlayerConfiguration = BetterPlayerConfiguration(
-        autoPlay: true,
-        looping: false,
-        aspectRatio: 16 / 9,
-        fullScreenByDefault: false,
-        allowedScreenSleep: false,
-        handleLifecycle: false,
-        deviceOrientationsOnFullScreen: [
-          DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight,
-        ],
-        // Configure for HLS streams
-        fullScreenAspectRatio: 16 / 9,
-        errorBuilder: (context, errorMessage) {
-          print('Better player error: $errorMessage');
-          _errorMessage = errorMessage;
-          return const Center(
-            child: Icon(Icons.error, color: Colors.red),
-          );
-        },
-      );
-
-      final betterPlayerDataSource = BetterPlayerDataSource(
-        BetterPlayerDataSourceType.network,
-        AppConstants.hlsManifestUrl,
-        bufferingConfiguration: const BetterPlayerBufferingConfiguration(
-          minBufferMs: 3000,
-          maxBufferMs: 6000,
-          bufferForPlaybackMs: 1000,
-          bufferForPlaybackAfterRebufferMs: 2000,
+      _videoPlayerController = VideoPlayerController.networkUrl(
+        Uri.parse(AppConstants.hlsManifestUrl),
+        videoPlayerOptions: VideoPlayerOptions(
+          mixWithOthers: false,
+          allowBackgroundPlayback: false,
         ),
       );
 
-      _betterPlayerController = BetterPlayerController(
-        betterPlayerConfiguration,
-        betterPlayerDataSource: betterPlayerDataSource,
-      );
-
-      // Listen for player events
-      _betterPlayerController!.addEventsListener((event) {
-        print('Better player event: ${event.betterPlayerEventType}');
-        
-        if (event.betterPlayerEventType == BetterPlayerEventType.exception) {
-          print('Player exception: ${event.parameters}');
-          _errorMessage = event.parameters?['errorMessage'] ?? 'Unknown error';
+      // Initialize the controller
+      await _videoPlayerController!.initialize();
+      
+      // Set up error handling
+      _videoPlayerController!.addListener(() {
+        if (_videoPlayerController!.value.hasError) {
+          print('Video player error: ${_videoPlayerController!.value.errorDescription}');
+          _errorMessage = _videoPlayerController!.value.errorDescription ?? 'Unknown error';
           if (!_isReconnecting) {
             _attemptReconnect();
           }
         }
       });
+
+      // Start playing automatically
+      await _videoPlayerController!.play();
 
       setState(() {
         _isInitialized = true;
@@ -149,7 +123,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       await WakelockPlus.enable();
       print('Screen wake lock enabled');
       
-      print('Better player initialized successfully');
+      print('Video player initialized successfully');
     } catch (e) {
       print('Error initializing player: $e');
       _handleInitializationError(e);
@@ -215,7 +189,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
     try {
       print('Attempting to reconnect...');
       
-      _betterPlayerController?.dispose();
+      _videoPlayerController?.dispose();
       
       setState(() {
         _isInitialized = false;
@@ -238,13 +212,13 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
 
   void _pausePlayback() {
     if (_isInBackground) {
-      _betterPlayerController?.pause();
+      _videoPlayerController?.pause();
     }
   }
 
   void _resumePlayback() {
     if (!_isInBackground && !_isReconnecting) {
-      _betterPlayerController?.play();
+      _videoPlayerController?.play();
     }
   }
 
@@ -278,7 +252,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
           ? _buildReconnectingView()
           : _errorMessage != null
               ? _buildErrorView()
-              : _isInitialized && _betterPlayerController != null
+              : _isInitialized && _videoPlayerController != null
                   ? _buildPlayerView()
                   : _buildLoadingView(),
     );
@@ -394,7 +368,12 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   Widget _buildPlayerView() {
     return Stack(
       children: [
-        BetterPlayer(controller: _betterPlayerController!),
+        Center(
+          child: AspectRatio(
+            aspectRatio: _videoPlayerController!.value.aspectRatio,
+            child: VideoPlayer(_videoPlayerController!),
+          ),
+        ),
         // Live indicator overlay
         Positioned(
           top: 10,

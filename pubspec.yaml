@@ -13,8 +13,8 @@ dependencies:
   # WebRTC for P2P streaming
   flutter_webrtc: ^0.9.0
   
-  # Video player
-  better_player: ^0.0.84
+  # Video player - using video_player for better Android compatibility
+  video_player: ^2.8.0
   
   # Connectivity monitoring
   connectivity_plus: ^5.0.0
