@@ -66,4 +66,4 @@ flutter:
         - asset: assets/fonts/VT323-Regular.ttf
     - family: CourierPrimeCode
       fonts:
-        - asset: assets/fonts/CourierPrimeCode-Regular.ttf
+        - asset: assets/fonts/Courier Prime Code.ttf
