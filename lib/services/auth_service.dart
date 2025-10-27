@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../models/ticket.dart';
 import '../config/constants.dart';
 
-class AuthService {
+class AuthService extends ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   static const String _ticketKey = 'ticket_data';
   static const String _tokenKey = 'auth_token';

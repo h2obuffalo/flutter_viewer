@@ -1,7 +1,11 @@
 class AppConstants {
-  // API Endpoints
-  static const String signalingUrl = 'ws://localhost:8080';
-  static const String authApiUrl = 'http://localhost:3001';
+  // API Endpoints - Production URLs via Cloudflare Tunnel
+  static const String signalingUrl = 'wss://tv.danpage.uk/ws';
+  static const String authApiUrl = 'https://tv.danpage.uk';
+  
+  // HLS Stream URLs - Production URLs via Cloudflare Tunnel  
+  static const String hlsManifestUrl = 'https://tv.danpage.uk/live/playlist.m3u8';
+  static const String cloudflareR2BaseUrl = 'https://pub-81f1de5a4fc945bdaac36449630b5685.r2.dev';
   
   // P2P Configuration
   static const int maxCacheSize = 100 * 1024 * 1024; // 100MB

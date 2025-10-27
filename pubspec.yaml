@@ -14,7 +14,16 @@ dependencies:
   flutter_webrtc: ^0.9.0
   
   # Video player
-  better_player: ^0.0.83
+  better_player: ^0.0.84
+  
+  # Connectivity monitoring
+  connectivity_plus: ^5.0.0
+  
+  # Wake lock for video playback
+  wakelock_plus: ^1.1.0
+  
+  # Chromecast support
+  flutter_chrome_cast: ^0.0.2
   
   # HTTP server for P2P proxy
   shelf: ^1.4.0
@@ -30,7 +39,7 @@ dependencies:
   provider: ^6.0.0
   
   # Secure storage
-  flutter_secure_storage: ^9.0.0
+  flutter_secure_storage: ^8.1.0
   
   # Local storage
   shared_preferences: ^2.2.0
