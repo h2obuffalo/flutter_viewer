@@ -22,9 +22,6 @@ dependencies:
   # Wake lock for video playback
   wakelock_plus: ^1.1.0
   
-  # Chromecast support
-  flutter_chrome_cast: ^0.0.2
-  
   # HTTP server for P2P proxy
   shelf: ^1.4.0
   shelf_static: ^1.1.2
