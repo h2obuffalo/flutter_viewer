@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import '../config/constants.dart';
 import '../widgets/cast_button.dart';
 import '../services/cast_service.dart';
+import '../services/stream_health_monitor.dart';
 
 /// Simple player screen for mobile platforms using video_player
 /// with automatic reconnection and lifecycle handling
@@ -62,6 +63,11 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   // Cast state
   bool _isCasting = false;
   String? _castDeviceName;
+  
+  // Stream health monitoring
+  final StreamHealthMonitor _healthMonitor = StreamHealthMonitor();
+  bool _isStreamHealthy = true;
+  String _healthStatus = 'Stream healthy';
 
   @override
   void initState() {
@@ -126,6 +132,29 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
         });
       }
     });
+    
+    // Initialize stream health monitor
+    _healthMonitor.initialize(
+      onDeadStreamDetected: _handleDeadStreamDetected,
+      onStreamHealthy: _handleStreamHealthy,
+    );
+    
+    // Listen to health status changes
+    _healthMonitor.isHealthyStream.listen((isHealthy) {
+      if (mounted) {
+        setState(() {
+          _isStreamHealthy = isHealthy;
+        });
+      }
+    });
+    
+    _healthMonitor.healthStatusStream.listen((status) {
+      if (mounted) {
+        setState(() {
+          _healthStatus = status;
+        });
+      }
+    });
   }
 
   @override
@@ -141,6 +170,9 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
     
     // Dispose cast service
     _castService.dispose();
+    
+    // Dispose health monitor
+    _healthMonitor.dispose();
     
     // Dispose animation controllers
     _playPauseAnimationController.dispose();
@@ -205,13 +237,25 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       // Initialize the controller
       await _videoPlayerController!.initialize();
       
-      // Set up error handling
+      // Set up error handling and health monitoring
       _videoPlayerController!.addListener(() {
-        if (_videoPlayerController!.value.hasError) {
-          print('Video player error: ${_videoPlayerController!.value.errorDescription}');
-          _errorMessage = _videoPlayerController!.value.errorDescription ?? 'Unknown error';
+        final value = _videoPlayerController!.value;
+        
+        if (value.hasError) {
+          print('Video player error: ${value.errorDescription}');
+          _errorMessage = value.errorDescription ?? 'Unknown error';
+          _healthMonitor.reportError(value.errorDescription ?? 'Unknown error');
           if (!_isReconnecting) {
             _attemptReconnect();
+          }
+        } else {
+          // Report successful playback
+          _healthMonitor.reportSuccess();
+          
+          // For live streams, focus on buffered end changes rather than position
+          // Position monitoring is unreliable for live content
+          if (value.buffered.isNotEmpty) {
+            _healthMonitor.updateBufferedEnd(value.buffered.last.end);
           }
         }
       });
@@ -293,23 +337,74 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
 
   Future<void> _performReconnect() async {
     try {
-      print('Attempting to reconnect...');
+      print('Attempting to reconnect with fresh stream URL...');
       
+      // Dispose current controller
       _videoPlayerController?.dispose();
+      
+      // Reset health monitor
+      _healthMonitor.reset();
       
       setState(() {
         _isInitialized = false;
         _errorMessage = null;
       });
       
-      await _initPlayer();
+      // Add cache-busting parameter to force fresh stream
+      final cacheBuster = DateTime.now().millisecondsSinceEpoch;
+      final freshUrl = '${AppConstants.hlsManifestUrl}?t=$cacheBuster';
       
-      setState(() {
-        _isReconnecting = false;
-        _reconnectAttempt = 0;
+      print('Using fresh stream URL: $freshUrl');
+      
+      // Create new controller with fresh URL
+      _videoPlayerController = VideoPlayerController.networkUrl(
+        Uri.parse(freshUrl),
+        videoPlayerOptions: VideoPlayerOptions(
+          mixWithOthers: false,
+          allowBackgroundPlayback: false,
+        ),
+      );
+
+      // Initialize the controller
+      await _videoPlayerController!.initialize();
+      
+      // Set up error handling and health monitoring
+      _videoPlayerController!.addListener(() {
+        final value = _videoPlayerController!.value;
+        
+        if (value.hasError) {
+          print('Video player error: ${value.errorDescription}');
+          _errorMessage = value.errorDescription ?? 'Unknown error';
+          _healthMonitor.reportError(value.errorDescription ?? 'Unknown error');
+          if (!_isReconnecting) {
+            _attemptReconnect();
+          }
+        } else {
+          // Report successful playback
+          _healthMonitor.reportSuccess();
+          
+          // For live streams, focus on buffered end changes rather than position
+          // Position monitoring is unreliable for live content
+          if (value.buffered.isNotEmpty) {
+            _healthMonitor.updateBufferedEnd(value.buffered.last.end);
+          }
+        }
       });
+
+      // Start playing automatically
+      await _videoPlayerController!.play();
+
+      setState(() {
+        _isInitialized = true;
+        _errorMessage = null;
+        _reconnectAttempt = 0;
+        _isReconnecting = false;
+      });
+
+      // Keep screen awake during playback
+      await WakelockPlus.enable();
       
-      print('Reconnected successfully');
+      print('Reconnected successfully with fresh stream');
     } catch (e) {
       print('Reconnection failed: $e');
       _scheduleReconnect();
@@ -523,10 +618,42 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
             ),
           ),
           
+          // Stream health indicator overlay
+          Positioned(
+            top: 10,
+            left: 10,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: _isStreamHealthy ? Colors.green.withOpacity(0.8) : Colors.orange.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    _isStreamHealthy ? Icons.check_circle : Icons.warning,
+                    color: Colors.white,
+                    size: 12,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    _isStreamHealthy ? 'HEALTHY' : 'CHECKING',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
           // Casting indicator overlay
           if (_isCasting)
             Positioned(
-              top: 10,
+              top: 50,
               left: 10,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1057,5 +1184,26 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   void _stopHoldRewind() {
     _isHoldingRewind = false;
     _rewindTimer?.cancel();
+  }
+  
+  /// Handle dead stream detection
+  void _handleDeadStreamDetected() {
+    print('Dead stream detected - attempting reconnection');
+    print('Health status: $_healthStatus');
+    print('Is stream healthy: $_isStreamHealthy');
+    
+    // Reset health monitor
+    _healthMonitor.reset();
+    
+    // Attempt reconnection
+    if (!_isReconnecting) {
+      _attemptReconnect();
+    }
+  }
+  
+  /// Handle stream becoming healthy again
+  void _handleStreamHealthy() {
+    print('Stream health restored');
+    // Stream is healthy, no action needed
   }
 }

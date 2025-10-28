@@ -32,25 +32,123 @@
   <title>Live Stream Viewer</title>
   <link rel="manifest" href="manifest.json">
 
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.0.7/dist/hls.min.js"></script>
   <script>
     // Fix for HLS playback on web
     // Workaround for video_player HLS limitation
-    if (window.location.href.includes('player')) {
-      // Inject video element directly for HLS support
-      window.addEventListener('load', () => {
+    window.addEventListener('load', () => {
+      // Wait for Flutter to load, then inject HLS player
+      setTimeout(() => {
         const container = document.querySelector('flt-scene-host');
         if (container) {
+          // Create video element
           const video = document.createElement('video');
           video.id = 'hls-video';
           video.style.width = '100%';
           video.style.height = '100%';
+          video.style.position = 'absolute';
+          video.style.top = '0';
+          video.style.left = '0';
+          video.style.zIndex = '1000';
           video.controls = true;
           video.autoplay = true;
-          video.src = 'https://tv.danpage.uk/live/playlist.m3u8';
+          video.muted = true; // Required for autoplay
+          
+          // Hide Flutter content and show video
+          const flutterContent = container.querySelector('flt-scene');
+          if (flutterContent) {
+            flutterContent.style.display = 'none';
+          }
+          
           container.appendChild(video);
+          
+          // Initialize HLS.js
+          const streamUrl = 'https://tv.danpage.uk/live/playlist.m3u8';
+          console.log('Initializing HLS player with URL:', streamUrl);
+          
+          if (Hls.isSupported()) {
+            console.log('Using HLS.js for playback');
+            const hls = new Hls({
+              liveSyncDuration: 5,
+              liveMaxLatencyDuration: 15,
+              lowLatencyMode: false,
+              backBufferLength: 30,
+              maxBufferLength: 30,
+            });
+            
+            hls.loadSource(streamUrl);
+            hls.attachMedia(video);
+            
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+              console.log('HLS manifest loaded, starting playback');
+              video.play().catch(err => {
+                console.log('Autoplay blocked:', err);
+                // Show play button overlay
+                const playOverlay = document.createElement('div');
+                playOverlay.style.position = 'absolute';
+                playOverlay.style.top = '50%';
+                playOverlay.style.left = '50%';
+                playOverlay.style.transform = 'translate(-50%, -50%)';
+                playOverlay.style.color = '#00ffff';
+                playOverlay.style.fontSize = '24px';
+                playOverlay.style.fontFamily = 'monospace';
+                playOverlay.style.cursor = 'pointer';
+                playOverlay.style.zIndex = '1001';
+                playOverlay.textContent = 'Click to Play';
+                playOverlay.onclick = () => {
+                  video.play();
+                  playOverlay.remove();
+                };
+                container.appendChild(playOverlay);
+              });
+            });
+            
+            hls.on(Hls.Events.ERROR, function(event, data) {
+              console.error('HLS Error:', data);
+              if (data.fatal) {
+                switch(data.type) {
+                  case Hls.ErrorTypes.NETWORK_ERROR:
+                    console.log('Network error, retrying...');
+                    hls.startLoad();
+                    break;
+                  case Hls.ErrorTypes.MEDIA_ERROR:
+                    console.log('Media error, recovering...');
+                    hls.recoverMediaError();
+                    break;
+                  default:
+                    console.error('Fatal error, cannot recover');
+                    hls.destroy();
+                    break;
+                }
+              }
+            });
+            
+          } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            console.log('Using native HLS support (Safari)');
+            video.src = streamUrl;
+            video.addEventListener('loadedmetadata', function() {
+              video.play().catch(err => {
+                console.log('Autoplay blocked:', err);
+              });
+            });
+          } else {
+            console.error('HLS not supported in this browser');
+            video.style.display = 'none';
+            const errorDiv = document.createElement('div');
+            errorDiv.style.position = 'absolute';
+            errorDiv.style.top = '50%';
+            errorDiv.style.left = '50%';
+            errorDiv.style.transform = 'translate(-50%, -50%)';
+            errorDiv.style.color = '#ff6b6b';
+            errorDiv.style.fontSize = '18px';
+            errorDiv.style.fontFamily = 'monospace';
+            errorDiv.style.textAlign = 'center';
+            errorDiv.innerHTML = 'HLS playback not supported<br>in this browser';
+            container.appendChild(errorDiv);
+          }
         }
-      });
-    }
+      }, 2000); // Wait 2 seconds for Flutter to load
+    });
   </script>
 
   <style>

@@ -4,7 +4,7 @@ class AppConstants {
   static const String authApiUrl = 'https://tv.danpage.uk';
   
   // HLS Stream URLs - Production URLs via Cloudflare Tunnel  
-  static const String hlsManifestUrl = 'https://tv.danpage.uk/live/playlist.m3u8';
+  static const String hlsManifestUrl = 'https://tv.danpage.uk/hls/stream.m3u8';
   static const String cloudflareR2BaseUrl = 'https://pub-81f1de5a4fc945bdaac36449630b5685.r2.dev';
   
   // P2P Configuration

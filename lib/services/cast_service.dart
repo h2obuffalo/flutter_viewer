@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_chrome_cast/flutter_chrome_cast.dart';
 
 class CastService {
@@ -25,6 +26,13 @@ class CastService {
     _isConnectedController = StreamController<bool>.broadcast();
     _deviceNameController = StreamController<String?>.broadcast();
     
+    // Skip ChromeCast initialization on web platform
+    if (kIsWeb) {
+      print('CastService: ChromeCast not supported on web platform');
+      _isInitialized = true;
+      return;
+    }
+    
     try {
       // Initialize Google Cast context with default Chromecast app ID
       final castOptions = GoogleCastOptionsAndroid(
@@ -42,6 +50,10 @@ class CastService {
   Future<List<GoogleCastDevice>> discoverDevices() async {
     if (!_isInitialized) {
       await initialize();
+    }
+    
+    if (kIsWeb) {
+      return []; // No devices available on web
     }
     
     try {
@@ -80,6 +92,10 @@ class CastService {
       await initialize();
     }
     
+    if (kIsWeb) {
+      return false; // Not supported on web
+    }
+    
     try {
       final sessionManager = GoogleCastSessionManager.instance;
       await sessionManager.startSessionWithDevice(device);
@@ -114,6 +130,10 @@ class CastService {
       return false;
     }
 
+    if (kIsWeb) {
+      return false; // Not supported on web
+    }
+
     try {
       final mediaClient = GoogleCastRemoteMediaClient.instance;
       final mediaInformation = GoogleCastMediaInformation(
@@ -141,6 +161,10 @@ class CastService {
   Future<bool> togglePlayPause() async {
     if (!isConnected) return false;
 
+    if (kIsWeb) {
+      return false; // Not supported on web
+    }
+
     try {
       final mediaClient = GoogleCastRemoteMediaClient.instance;
       await mediaClient.play();
@@ -154,6 +178,10 @@ class CastService {
 
   Future<bool> setVolume(double volume) async {
     if (!isConnected) return false;
+
+    if (kIsWeb) {
+      return false; // Not supported on web
+    }
 
     try {
       // Note: Volume control might need different implementation
