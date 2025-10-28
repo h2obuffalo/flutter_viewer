@@ -6,6 +6,7 @@ import 'services/auth_service.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_menu_screen.dart';
+import 'screens/simple_player_screen.dart';
 
 void main() {
   runApp(const FlutterViewerApp());
@@ -28,6 +29,7 @@ class FlutterViewerApp extends StatelessWidget {
         routes: {
           '/login': (context) => const LoginScreen(),
           '/menu': (context) => const MainMenuScreen(),
+          '/player': (context) => const SimplePlayerScreen(),
         },
       ),
     );

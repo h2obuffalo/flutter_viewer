@@ -66,16 +66,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     Timer(AppConstants.splashScreenDuration, () async {
       if (!mounted) return;
       
-      // Check if user is authenticated
-      final authService = Provider.of<AuthService>(context, listen: false);
-      final isAuth = await authService.isAuthenticated();
-      
-      if (mounted) {
-        Navigator.pushReplacementNamed(
-          context,
-          isAuth ? '/menu' : '/login',
-        );
-      }
+      // Go to menu screen
+      Navigator.pushReplacementNamed(context, '/menu');
     });
   }
 

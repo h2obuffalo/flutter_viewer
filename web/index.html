@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="Live Stream Viewer">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Live Stream">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>Live Stream Viewer</title>
+  <link rel="manifest" href="manifest.json">
+
+  <script>
+    // Fix for HLS playback on web
+    // Workaround for video_player HLS limitation
+    if (window.location.href.includes('player')) {
+      // Inject video element directly for HLS support
+      window.addEventListener('load', () => {
+        const container = document.querySelector('flt-scene-host');
+        if (container) {
+          const video = document.createElement('video');
+          video.id = 'hls-video';
+          video.style.width = '100%';
+          video.style.height = '100%';
+          video.controls = true;
+          video.autoplay = true;
+          video.src = 'https://tv.danpage.uk/live/playlist.m3u8';
+          container.appendChild(video);
+        }
+      });
+    }
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      background-color: #000000;
+    }
+    #loading {
+      color: #00ffff;
+      font-family: 'Courier New', monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <script>
+    var serviceWorkerVersion = null;
+    var serviceWorker = null;
+    var engineLoaded = false;
+
+    window.addEventListener('load', function(ev) {
+      _flutter.loader.loadEntrypoint({
+        serviceWorker: {
+          serviceWorkerVersion: serviceWorkerVersion,
+        },
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine().then(function(appRunner) {
+            engineLoaded = true;
+            appRunner.runApp();
+          });
+        }
+      });
+    });
+  </script>
+
+  <script>
+    // Install serviceWorker
+    if (serviceWorkerVersion != null) {
+      navigator.serviceWorker.register('/flutter_service_worker.js?v=${serviceWorkerVersion}');
+    }
+  </script>
+  
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

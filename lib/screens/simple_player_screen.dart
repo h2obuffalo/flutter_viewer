@@ -7,6 +7,8 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:http/http.dart' as http;
 import '../config/constants.dart';
+import '../widgets/cast_button.dart';
+import '../services/cast_service.dart';
 
 /// Simple player screen for mobile platforms using video_player
 /// with automatic reconnection and lifecycle handling
@@ -17,7 +19,7 @@ class SimplePlayerScreen extends StatefulWidget {
   State<SimplePlayerScreen> createState() => _SimplePlayerScreenState();
 }
 
-class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBindingObserver {
+class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBindingObserver, TickerProviderStateMixin {
   VideoPlayerController? _videoPlayerController;
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
@@ -33,13 +35,97 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   bool _streamOnline = true;
   int _statusCheckAttempts = 0;
   static const int _maxStatusCheckAttempts = 3;
+  
+  // Fullscreen and animation state
+  bool _isFullscreen = false;
+  late AnimationController _playPauseAnimationController;
+  late AnimationController _seekBackAnimationController;
+  late AnimationController _seekForwardAnimationController;
+  late AnimationController _fullscreenAnimationController;
+  
+  // Controls visibility state
+  bool _showControls = true;
+  Timer? _hideControlsTimer;
+  
+  // Tap zone animation state
+  bool _showLeftTapZone = false;
+  bool _showRightTapZone = false;
+  Timer? _tapZoneTimer;
+  
+  // Hold rewind state
+  bool _isHoldingRewind = false;
+  Timer? _rewindTimer;
+  
+  // Cast service
+  final CastService _castService = CastService();
+  
+  // Cast state
+  bool _isCasting = false;
+  String? _castDeviceName;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    
+    // Initialize animation controllers
+    _playPauseAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _seekBackAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _seekForwardAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _fullscreenAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    
+    // Start in landscape/fullscreen mode
+    Future.microtask(() async {
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      setState(() {
+        _isFullscreen = true;
+      });
+    });
+    
     _initConnectivityListener();
     _initPlayer();
+    
+    // Start auto-hide timer for controls
+    _startHideControlsTimer();
+    
+    // Initialize cast service
+    _castService.initialize();
+    
+    // Listen to cast state changes
+    _castService.isConnectedStream.listen((connected) {
+      if (mounted) {
+        setState(() {
+          _isCasting = connected;
+        });
+      }
+    });
+    
+    // Note: For live streaming, local playback continues when casting
+    // Both devices play the same live stream independently - no sync needed
+    
+    _castService.deviceNameStream.listen((deviceName) {
+      if (mounted) {
+        setState(() {
+          _castDeviceName = deviceName;
+        });
+      }
+    });
   }
 
   @override
@@ -48,7 +134,27 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
     _connectivitySubscription?.cancel();
     _reconnectTimer?.cancel();
     _statusCheckTimer?.cancel();
+    _hideControlsTimer?.cancel();
+    _tapZoneTimer?.cancel();
+    _rewindTimer?.cancel();
     _videoPlayerController?.dispose();
+    
+    // Dispose cast service
+    _castService.dispose();
+    
+    // Dispose animation controllers
+    _playPauseAnimationController.dispose();
+    _seekBackAnimationController.dispose();
+    _seekForwardAnimationController.dispose();
+    _fullscreenAnimationController.dispose();
+    
+    // Restore portrait mode and system UI
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    
     // Disable wake lock when player is disposed
     WakelockPlus.disable();
     super.dispose();
@@ -226,17 +332,29 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: AppBar(
+      appBar: _isFullscreen ? null : AppBar(
         backgroundColor: Colors.transparent,
-        elevation: 0,
+        elevation: 1,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () async {
+            // Restore portrait mode
+            await SystemChrome.setPreferredOrientations([
+              DeviceOrientation.portraitUp,
+              DeviceOrientation.portraitDown,
+            ]);
+            await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+            
+            // Return to menu
+            if (mounted) {
+              Navigator.pushReplacementNamed(context, '/menu');
+            }
+          },
         ),
         title: Row(
           children: [
             const Text(
-              'LIVE STREAM',
+              'Bangface STREAM',
               style: TextStyle(
                 color: Colors.cyan,
                 fontWeight: FontWeight.bold,
@@ -366,42 +484,578 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   }
 
   Widget _buildPlayerView() {
+    return GestureDetector(
+      onTapDown: _onVideoTap,
+      child: Stack(
+        children: [
+          Center(
+            child: AspectRatio(
+              aspectRatio: _videoPlayerController!.value.aspectRatio,
+              child: VideoPlayer(_videoPlayerController!),
+            ),
+          ),
+          
+          // Live indicator overlay
+          Positioned(
+            top: 10,
+            right: 10,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.fiber_manual_record, color: Colors.white, size: 12),
+                  SizedBox(width: 4),
+                  Text(
+                    'LIVE',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          // Casting indicator overlay
+          if (_isCasting)
+            Positioned(
+              top: 10,
+              left: 10,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.cast_connected,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Casting to $_castDeviceName',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'VT323',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          
+          // Fullscreen controls - centered play button with tap zones
+          if (_isFullscreen) _buildFullscreenControls(),
+          
+          // Portrait controls - traditional bottom controls
+          if (!_isFullscreen) _buildPortraitControls(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildControlButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    required AnimationController animationController,
+    bool isMainButton = false,
+  }) {
+    return AnimatedBuilder(
+      animation: animationController,
+      builder: (context, child) {
+        final scale = Tween<double>(
+          begin: 1.0,
+          end: 0.85,
+        ).animate(CurvedAnimation(
+          parent: animationController,
+          curve: Curves.easeInOut,
+        ));
+        
+        final glowIntensity = Tween<double>(
+          begin: 0.3,
+          end: 0.8,
+        ).animate(CurvedAnimation(
+          parent: animationController,
+          curve: Curves.easeInOut,
+        ));
+        
+        return Transform.scale(
+          scale: scale.value,
+          child: GestureDetector(
+            onTapDown: (_) {
+              HapticFeedback.lightImpact();
+              animationController.forward();
+            },
+            onTapUp: (_) {
+              animationController.reverse();
+              onPressed();
+            },
+            onTapCancel: () {
+              animationController.reverse();
+            },
+            child: Container(
+              width: isMainButton ? 60 : 50,
+              height: isMainButton ? 60 : 50,
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.48), // Reduced from 0.6 to 0.48 (20% less opaque)
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.cyan.withOpacity(glowIntensity.value),
+                    blurRadius: 8 + (glowIntensity.value * 8),
+                    spreadRadius: 1 + (glowIntensity.value * 2),
+                  ),
+                ],
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: isMainButton ? 30 : 24,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFullscreenControls() {
     return Stack(
       children: [
-        Center(
-          child: AspectRatio(
-            aspectRatio: _videoPlayerController!.value.aspectRatio,
-            child: VideoPlayer(_videoPlayerController!),
+        // Left tap zone for double-tap rewind and hold rewind
+        Positioned(
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: MediaQuery.of(context).size.width / 3,
+          child: GestureDetector(
+            onDoubleTap: () {
+              _seekBackward();
+              _showTapZoneAnimation('left');
+            },
+            onLongPressStart: (_) {
+              _startHoldRewind();
+            },
+            onLongPressEnd: (_) {
+              _stopHoldRewind();
+            },
+            child: Container(
+              color: Colors.transparent,
+            ),
           ),
         ),
-        // Live indicator overlay
+        
+        // Right tap zone for double-tap forward
         Positioned(
-          top: 10,
-          right: 10,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.8),
-              borderRadius: BorderRadius.circular(4),
+          right: 0,
+          top: 0,
+          bottom: 0,
+          width: MediaQuery.of(context).size.width / 3,
+          child: GestureDetector(
+            onDoubleTap: () {
+              _seekForward();
+              _showTapZoneAnimation('right');
+            },
+            child: Container(
+              color: Colors.transparent,
             ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.fiber_manual_record, color: Colors.white, size: 12),
-                SizedBox(width: 4),
-                Text(
-                  'LIVE',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
+          ),
+        ),
+        
+        // Left tap zone overlay animation
+        if (_showLeftTapZone)
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: MediaQuery.of(context).size.width / 3,
+            child: AnimatedOpacity(
+              opacity: 0.9,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      Colors.cyan.withOpacity(0.3),
+                      Colors.transparent,
+                    ],
                   ),
                 ),
-              ],
+                child: const Center(
+                  child: Icon(
+                    Icons.replay_30,
+                    color: Colors.white,
+                    size: 50,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        
+        // Right tap zone overlay animation
+        if (_showRightTapZone)
+          Positioned(
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: MediaQuery.of(context).size.width / 3,
+            child: AnimatedOpacity(
+              opacity: 0.9,
+              duration: const Duration(milliseconds: 200),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerRight,
+                    end: Alignment.centerLeft,
+                    colors: [
+                      Colors.cyan.withOpacity(0.3),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.forward_30,
+                    color: Colors.white,
+                    size: 50,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        
+        // Center play/pause button
+        Center(
+          child: AnimatedOpacity(
+            opacity: _showControls ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 300),
+            child: ValueListenableBuilder<VideoPlayerValue>(
+              valueListenable: _videoPlayerController!,
+              builder: (context, value, child) {
+                return _buildLargePlayButton(
+                  icon: value.isPlaying ? Icons.pause : Icons.play_arrow,
+                  onPressed: () {
+                    _togglePlayPause();
+                    _showControlsTemporarily();
+                  },
+                );
+              },
+            ),
+          ),
+        ),
+        
+        // Cast button in bottom right, left of fullscreen exit button
+        Positioned(
+          bottom: 20,
+          right: 80,
+          child: AnimatedOpacity(
+            opacity: _showControls ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 300),
+            child: CastButton(
+              hlsUrl: AppConstants.hlsManifestUrl,
+              title: 'Live Stream',
+            ),
+          ),
+        ),
+        
+        // Fullscreen exit button in bottom right
+        Positioned(
+          bottom: 20,
+          right: 20,
+          child: AnimatedOpacity(
+            opacity: _showControls ? 1.0 : 0.0,
+            duration: const Duration(milliseconds: 300),
+            child: _buildControlButton(
+              icon: Icons.fullscreen_exit,
+              onPressed: () {
+                _toggleFullscreen();
+                _showControlsTemporarily();
+              },
+              animationController: _fullscreenAnimationController,
             ),
           ),
         ),
       ],
     );
+  }
+
+  Widget _buildPortraitControls() {
+    return Positioned(
+      bottom: 80,
+      left: 0,
+      right: 0,
+      child: AnimatedOpacity(
+        opacity: _showControls ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 300),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 15,
+          ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Colors.black.withOpacity(0.8),
+              ],
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Back 30s button
+              _buildControlButton(
+                icon: Icons.replay_30,
+                onPressed: () {
+                  _seekBackward();
+                  _showControlsTemporarily();
+                },
+                animationController: _seekBackAnimationController,
+              ),
+              
+              // Play/Pause button - reactive to player state
+              ValueListenableBuilder<VideoPlayerValue>(
+                valueListenable: _videoPlayerController!,
+                builder: (context, value, child) {
+                  return _buildControlButton(
+                    icon: value.isPlaying ? Icons.pause : Icons.play_arrow,
+                    onPressed: () {
+                      _togglePlayPause();
+                      _showControlsTemporarily();
+                    },
+                    animationController: _playPauseAnimationController,
+                    isMainButton: true,
+                  );
+                },
+              ),
+              
+              // Forward 30s button
+              _buildControlButton(
+                icon: Icons.forward_30,
+                onPressed: () {
+                  _seekForward();
+                  _showControlsTemporarily();
+                },
+                animationController: _seekForwardAnimationController,
+              ),
+              
+              // Fullscreen button
+              _buildControlButton(
+                icon: Icons.fullscreen,
+                onPressed: () {
+                  _toggleFullscreen();
+                  _showControlsTemporarily();
+                },
+                animationController: _fullscreenAnimationController,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLargePlayButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return AnimatedBuilder(
+      animation: _playPauseAnimationController,
+      builder: (context, child) {
+        final scale = Tween<double>(
+          begin: 1.0,
+          end: 0.9,
+        ).animate(CurvedAnimation(
+          parent: _playPauseAnimationController,
+          curve: Curves.easeInOut,
+        ));
+        
+        final glowIntensity = Tween<double>(
+          begin: 0.3,
+          end: 0.8,
+        ).animate(CurvedAnimation(
+          parent: _playPauseAnimationController,
+          curve: Curves.easeInOut,
+        ));
+        
+        return Transform.scale(
+          scale: scale.value,
+          child: GestureDetector(
+            onTapDown: (_) {
+              HapticFeedback.lightImpact();
+              _playPauseAnimationController.forward();
+            },
+            onTapUp: (_) {
+              _playPauseAnimationController.reverse();
+              onPressed();
+            },
+            onTapCancel: () {
+              _playPauseAnimationController.reverse();
+            },
+            child: Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.48), // Reduced from 0.6 to 0.48 (20% less opaque)
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.cyan.withOpacity(glowIntensity.value),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Icon(
+                icon,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _togglePlayPause() {
+    if (_videoPlayerController != null) {
+      if (_videoPlayerController!.value.isPlaying) {
+        _videoPlayerController!.pause();
+      } else {
+        _videoPlayerController!.play();
+      }
+      // Trigger rebuild to update button icon
+      setState(() {});
+    }
+  }
+
+  void _seekBackward() {
+    if (_videoPlayerController != null) {
+      final currentPosition = _videoPlayerController!.value.position;
+      final newPosition = currentPosition - const Duration(seconds: 30);
+      _videoPlayerController!.seekTo(newPosition);
+    }
+  }
+
+  void _seekForward() {
+    if (_videoPlayerController != null) {
+      final currentPosition = _videoPlayerController!.value.position;
+      final newPosition = currentPosition + const Duration(seconds: 30);
+      _videoPlayerController!.seekTo(newPosition);
+    }
+  }
+
+  void _toggleFullscreen() async {
+    HapticFeedback.lightImpact();
+    
+    if (!_isFullscreen) {
+      // Enter fullscreen mode
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      setState(() {
+        _isFullscreen = true;
+      });
+    } else {
+      // Exit fullscreen mode
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      setState(() {
+        _isFullscreen = false;
+      });
+    }
+  }
+
+  void _startHideControlsTimer() {
+    _hideControlsTimer?.cancel();
+    _hideControlsTimer = Timer(const Duration(seconds: 3), () {
+      if (mounted && _showControls) {
+        setState(() {
+          _showControls = false;
+        });
+      }
+    });
+  }
+
+  void _showControlsTemporarily() {
+    setState(() {
+      _showControls = true;
+    });
+    _startHideControlsTimer();
+  }
+
+  void _onVideoTap(TapDownDetails details) {
+    // Only show controls on tap - no play/pause toggle
+    _showControlsTemporarily();
+  }
+
+  void _showTapZoneAnimation(String side) {
+    // Cancel any existing timer
+    _tapZoneTimer?.cancel();
+    
+    // Show the appropriate tap zone
+    setState(() {
+      if (side == 'left') {
+        _showLeftTapZone = true;
+        _showRightTapZone = false;
+      } else {
+        _showRightTapZone = true;
+        _showLeftTapZone = false;
+      }
+    });
+    
+    // Hide the tap zone after 500ms
+    _tapZoneTimer = Timer(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        setState(() {
+          _showLeftTapZone = false;
+          _showRightTapZone = false;
+        });
+      }
+    });
+  }
+
+  void _startHoldRewind() {
+    if (_isHoldingRewind) return;
+    
+    _isHoldingRewind = true;
+    _showTapZoneAnimation('left');
+    
+    // Start continuous rewind at 2x speed
+    _rewindTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+      if (_isHoldingRewind && _videoPlayerController != null) {
+        final currentPosition = _videoPlayerController!.value.position;
+        final newPosition = currentPosition - const Duration(seconds: 1); // 2x speed (1 second per 500ms)
+        _videoPlayerController!.seekTo(newPosition);
+      }
+    });
+  }
+
+  void _stopHoldRewind() {
+    _isHoldingRewind = false;
+    _rewindTimer?.cancel();
   }
 }

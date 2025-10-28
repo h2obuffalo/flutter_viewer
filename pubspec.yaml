@@ -10,9 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   
-  # WebRTC for P2P streaming
-  flutter_webrtc: ^0.9.0
-  
   # Video player - using video_player for better Android compatibility
   video_player: ^2.8.0
   
@@ -43,6 +40,9 @@ dependencies:
   
   # Retro fonts (available via Google Fonts)
   google_fonts: ^6.1.0
+  flutter_chrome_cast: ^1.2.5
+
+  # Chromecast casting support
 
 dev_dependencies:
   flutter_test:

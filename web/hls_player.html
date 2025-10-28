@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HLS Player</title>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.0.7/dist/hls.min.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .error {
+      color: #ff6b6b;
+      padding: 20px;
+      text-align: center;
+      font-family: monospace;
+    }
+    .loading {
+      color: #4ecdc4;
+      padding: 20px;
+      text-align: center;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div id="status" class="loading">Loading HLS player...</div>
+  <video id="video" controls style="display: none;"></video>
+  
+  <script>
+    (function() {
+      const url = window.location.search.substring(1); // Get URL from query string
+      const video = document.getElementById('video');
+      const status = document.getElementById('status');
+      
+      console.log('HLS Player: Loading stream:', url);
+      
+      if (!url) {
+        status.textContent = 'Error: No stream URL provided';
+        status.className = 'error';
+        return;
+      }
+      
+      // Check if HLS.js is loaded
+      if (typeof Hls === 'undefined') {
+        status.textContent = 'Error: HLS.js library not loaded';
+        status.className = 'error';
+        return;
+      }
+      
+      if (Hls.isSupported()) {
+        console.log('HLS Player: Using HLS.js');
+        status.textContent = 'Initializing HLS.js...';
+        
+        const hls = new Hls({
+          liveSyncDuration: 5,
+          liveMaxLatencyDuration: 15,
+          lowLatencyMode: false,
+          backBufferLength: 30,
+          maxBufferLength: 30,
+        });
+        
+        hls.loadSource(url);
+        hls.attachMedia(video);
+        
+        hls.on(Hls.Events.MANIFEST_PARSED, function() {
+          console.log('HLS Player: Manifest loaded, starting playback');
+          status.style.display = 'none';
+          video.style.display = 'block';
+          video.play().catch(function(err) {
+            console.log('HLS Player: Autoplay blocked:', err);
+            status.textContent = 'Click video to start playback';
+            status.className = 'loading';
+            status.style.display = 'block';
+          });
+        });
+        
+        hls.on(Hls.Events.FRAG_LOADED, function(event, data) {
+          const size = data.stats?.total || data.frag?.stats?.total || 0;
+          console.log('HLS Player: Fragment loaded:', data.frag.sn, '(', (size / 1024).toFixed(2), 'KB)');
+        });
+        
+        hls.on(Hls.Events.ERROR, function(event, data) {
+          console.error('HLS Player: Error:', data);
+          
+          if (data.fatal) {
+            status.style.display = 'block';
+            status.className = 'error';
+            
+            switch(data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                console.log('HLS Player: Network error, retrying...');
+                status.textContent = 'Network error - Retrying...';
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.log('HLS Player: Media error, recovering...');
+                status.textContent = 'Media error - Recovering...';
+                hls.recoverMediaError();
+                break;
+              default:
+                console.error('HLS Player: Fatal error, cannot recover');
+                status.textContent = 'Fatal error: ' + (data.details || 'Unknown error');
+                hls.destroy();
+                break;
+            }
+          } else {
+            // Non-fatal error
+            console.warn('HLS Player: Warning:', data.details);
+          }
+        });
+        
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        console.log('HLS Player: Using native HLS support (Safari)');
+        status.textContent = 'Using native HLS support...';
+        video.src = url;
+        video.addEventListener('loadedmetadata', function() {
+          status.style.display = 'none';
+          video.style.display = 'block';
+          video.play().catch(function(err) {
+            console.log('HLS Player: Autoplay blocked:', err);
+            status.textContent = 'Click video to start playback';
+            status.className = 'loading';
+            status.style.display = 'block';
+          });
+        });
+        video.addEventListener('error', function() {
+          status.style.display = 'block';
+          status.className = 'error';
+          status.textContent = 'Video error: ' + (video.error?.message || 'Unknown error');
+        });
+      } else {
+        console.error('HLS Player: HLS not supported');
+        status.textContent = 'Error: HLS playback not supported in this browser';
+        status.className = 'error';
+      }
+    })();
+  </script>
+</body>
+</html>
