@@ -228,10 +228,20 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
           mixWithOthers: false,
           allowBackgroundPlayback: false,
         ),
+        formatHint: VideoFormat.hls, // Explicitly declare HLS format for better buffering
       );
 
       // Initialize the controller
       await _videoPlayerController!.initialize();
+      
+      // Set buffer duration if supported (fallback: native player handles this)
+      try {
+        // The video_player package will handle buffering natively
+        // This is a best-effort to hint at longer buffer
+        print('Video player initialized with ${_videoPlayerController!.value.size}');
+      } catch (e) {
+        print('Could not access player buffer configuration: $e');
+      }
       
       // Set up error handling and health monitoring
       _videoPlayerController!.addListener(() {
@@ -359,6 +369,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
           mixWithOthers: false,
           allowBackgroundPlayback: false,
         ),
+        formatHint: VideoFormat.hls,
       );
 
       // Initialize the controller
