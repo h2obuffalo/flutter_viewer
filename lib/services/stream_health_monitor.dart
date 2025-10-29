@@ -19,7 +19,7 @@ class StreamHealthMonitor {
   
   // Configuration - Very conservative for live streaming
   static const int maxSamePositionCount = 50; // Much more tolerant for live streams
-  static const int maxSameBufferedEndCount = 20; // Very tolerant of stable buffered end
+  static const int maxSameBufferedEndCount = 200; // Very tolerant of stable buffered end (increased from 20 to 200 for poor bandwidth)
   static const int maxConsecutiveErrors = 10; // Allow many errors before giving up
   static const Duration healthCheckInterval = Duration(seconds: 60); // Very infrequent checks
   static const Duration segmentTimeout = Duration(seconds: 120); // Very long timeout for live
@@ -112,7 +112,8 @@ class StreamHealthMonitor {
     // Check if buffered end has changed (new segments loaded)
     if (_lastBufferedEnd != 0 && _lastBufferedEnd == bufferedEndSeconds) {
       _sameBufferedEndCount++;
-      if (kDebugMode) {
+      // Only log every 10 counts to reduce console spam
+      if (kDebugMode && _sameBufferedEndCount % 10 == 0) {
         print('StreamHealthMonitor: Same buffered end detected $_sameBufferedEndCount times: ${bufferedEndSeconds}s');
       }
     } else {
