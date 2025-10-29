@@ -4,6 +4,7 @@ import '../config/theme.dart';
 import '../models/artist.dart';
 import '../services/lineup_service.dart';
 import '../services/favorites_service.dart';
+import '../services/now_playing_service.dart';
 import 'artist_detail_screen.dart';
 
 // Stage color mapping
@@ -25,7 +26,9 @@ Color getStageColor(String stage) {
 }
 
 class LineupListScreen extends StatefulWidget {
-  const LineupListScreen({super.key});
+  final bool showNowPlaying;
+  
+  const LineupListScreen({super.key, this.showNowPlaying = false});
 
   @override
   State<LineupListScreen> createState() => _LineupListScreenState();
@@ -83,7 +86,16 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
 
   Future<void> _loadData() async {
     try {
-      final artists = await _lineupService.getAllArtists();
+      List<Artist> artists;
+      if (widget.showNowPlaying) {
+        // Load now playing data
+        await NowPlayingService.loadArtists();
+        artists = NowPlayingService.getNowPlayingAndUpcoming();
+      } else {
+        // Load all artists
+        artists = await _lineupService.getAllArtists();
+      }
+      
       final stages = await _lineupService.getAllStages();
       final favoriteIds = await FavoritesService.getFavoriteIds();
       
@@ -258,7 +270,7 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
           animation: _glitchController,
           builder: (context, child) {
             return Text(
-              'LINEUP',
+              widget.showNowPlaying ? 'WHAT\'S THE CRACK' : 'LINEUP',
               style: TextStyle(
                 color: RetroTheme.neonCyan,
                 fontSize: 24,

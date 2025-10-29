@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../config/theme.dart';
 import '../widgets/glitch_text.dart';
+import '../services/now_playing_service.dart';
+import '../widgets/bangface_popup.dart';
+import 'lineup_list_screen.dart';
+import 'simple_player_screen.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -111,15 +115,34 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
     await _buttonController.forward();
     await _buttonController.reverse();
     
-    // Navigate to now playing (todo)
     if (mounted) {
-      // TODO: Implement now playing screen
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('What\'s The Crack feature coming soon!'),
-          backgroundColor: RetroTheme.hotPink,
-        ),
-      );
+      // Load artists and check if there's scheduled content
+      await NowPlayingService.loadArtists();
+      
+      if (NowPlayingService.hasScheduledContent()) {
+        // Show lineup with now playing filter
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const LineupListScreen(showNowPlaying: true),
+          ),
+        );
+      } else {
+        // Show video player with popup
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const SimplePlayerScreen(),
+          ),
+        );
+        
+        // Show popup after a short delay to ensure player is loaded
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            BangFacePopup.showBangFaceTVPopup(context);
+          }
+        });
+      }
     }
   }
 
