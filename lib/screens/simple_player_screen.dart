@@ -421,9 +421,19 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: _isFullscreen ? null : AppBar(
+    return WillPopScope(
+      onWillPop: () async {
+        if (_isFullscreen) {
+          // Exit fullscreen first, don't exit app
+          _toggleFullscreen();
+          return false;
+        }
+        // In portrait mode, allow normal back navigation
+        return true;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: _isFullscreen ? null : AppBar(
         backgroundColor: Colors.transparent,
         elevation: 1,
         leading: IconButton(
@@ -464,6 +474,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
               : _isInitialized && _videoPlayerController != null
                   ? _buildPlayerView()
                   : _buildLoadingView(),
+      ),
     );
   }
 
@@ -583,34 +594,6 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
             child: AspectRatio(
               aspectRatio: _videoPlayerController!.value.aspectRatio,
               child: VideoPlayer(_videoPlayerController!),
-            ),
-          ),
-          
-          // Live indicator overlay
-          Positioned(
-            top: 10,
-            right: 10,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.8),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.fiber_manual_record, color: Colors.white, size: 12),
-                  SizedBox(width: 4),
-                  Text(
-                    'LIVE',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
           
