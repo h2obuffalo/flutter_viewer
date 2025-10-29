@@ -70,3 +70,9 @@ flutter:
     - family: CourierPrimeCode
       fonts:
         - asset: assets/fonts/Courier Prime Code.ttf
+    - family: Impact
+      fonts:
+        - asset: assets/fonts/impact.ttf
+    - family: Verdana
+      fonts:
+        - asset: assets/fonts/Verdana.ttf

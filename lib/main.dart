@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'config/theme.dart';
 import 'config/constants.dart';
@@ -11,6 +12,25 @@ import 'screens/lineup_list_screen.dart';
 import 'screens/artist_detail_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Configure system UI overlay style
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+      systemNavigationBarColor: Colors.black,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
+  
+  // Set preferred orientations (optional)
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+  
   runApp(const FlutterViewerApp());
 }
 

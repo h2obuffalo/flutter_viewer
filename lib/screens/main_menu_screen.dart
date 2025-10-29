@@ -180,20 +180,19 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Title
-                _buildGlitchText('BANG', RetroTheme.neonCyan),
+                _buildGlitchText('BANGFACE', Colors.white),
                 const SizedBox(height: 10),
-                _buildGlitchText('FACE', RetroTheme.hotPink),
+                _buildGlitchText('WEEKENDER', Colors.white),
                 const SizedBox(height: 5),
-                _buildGlitchText('WEEKENDER', RetroTheme.electricGreen),
-                
+                _buildGlitchText('2025', RetroTheme.electricGreen),
                 const SizedBox(height: 60),
                 
                 // Menu buttons
-                _buildMenuButton('LIVE STREAM', _onLiveStreamPressed, RetroTheme.neonCyan),
+                _buildMenuButton('BANGFACETV STREAM', _onLiveStreamPressed, RetroTheme.neonCyan),
                 const SizedBox(height: 20),
                 _buildMenuButton('LINEUP', _onLineupPressed, RetroTheme.hotPink),
                 const SizedBox(height: 20),
-                _buildMenuButton('WHAT\'S THE CRACK', _onWhatsTheCrackPressed, RetroTheme.electricGreen),
+                _buildMenuButton('WHAT\'S THE CRAIC', _onWhatsTheCrackPressed, RetroTheme.electricGreen),
                 
                 const SizedBox(height: 40),
                 
@@ -235,6 +234,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
             fontSize: 48,
             fontWeight: FontWeight.bold,
             letterSpacing: 2,
+            fontFamily: 'Impact',
           ),
         );
       },

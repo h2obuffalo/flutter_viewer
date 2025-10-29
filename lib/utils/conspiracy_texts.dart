@@ -39,9 +39,9 @@ class ConspiracyTexts {
 ╔══════════════════════════════════╗
 ║                                  ║
 ║   ALL YOUR BANGFACE              ║
-║   ARE BELONG TO US               ║
 ║                                  ║
-║   RAVE OR DIE                    ║
+║          ARE BELONG TO US        ║
+║                                  ║
 ║                                  ║
 ╚══════════════════════════════════╝""";
 

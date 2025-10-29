@@ -155,22 +155,24 @@ class _ConspiracySplashScreenState extends State<ConspiracySplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: GestureDetector(
-        onTap: _onTap,
-        child: Stack(
-          children: [
-            // Stage 1: Green CRT Terminal
-            if (_currentStage == 1)
-              _buildCRTTerminal(),
-            
-            // Stage 2: Red Warning Overlay
-            if (_currentStage == 2)
-              _buildWarningOverlay(),
-            
-            // Stage 3: All Your BangFace
-            if (_currentStage == 3)
-              _buildAllYourBangFace(),
-          ],
+      body: SafeArea(
+        child: GestureDetector(
+          onTap: _onTap,
+          child: Stack(
+            children: [
+              // Stage 1: Green CRT Terminal
+              if (_currentStage == 1)
+                _buildCRTTerminal(),
+              
+              // Stage 2: Red Warning Overlay
+              if (_currentStage == 2)
+                _buildWarningOverlay(),
+              
+              // Stage 3: All Your BangFace
+              if (_currentStage == 3)
+                _buildAllYourBangFace(),
+            ],
+          ),
         ),
       ),
     );

@@ -57,6 +57,7 @@ class Artist {
   final String? blurb;
   final List<String> stages;
   final List<SetTime> setTimes;
+  bool isFavorited = false;
 
   Artist({
     required this.id,

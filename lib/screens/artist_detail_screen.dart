@@ -146,10 +146,6 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
         return Container(
           width: double.infinity,
           decoration: BoxDecoration(
-            border: Border.all(
-              color: RetroTheme.hotPink,
-              width: 3,
-            ),
             boxShadow: [
               BoxShadow(
                 color: RetroTheme.hotPink.withOpacity(0.3),
@@ -166,7 +162,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
                 height: 300,
                 child: Image.asset(
                   widget.artist.photo,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
                     return Container(
                       color: RetroTheme.darkBlue,
@@ -190,10 +186,11 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
                 child: Text(
                   widget.artist.name,
                   style: const TextStyle(
-                    color: RetroTheme.electricGreen,
+                    color: Colors.white,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.5,
+                    fontFamily: 'Verdana',
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -487,6 +484,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
               color: RetroTheme.electricGreen,
               fontSize: 14,
               height: 1.5,
+              fontFamily: 'Verdana',
             ),
           ),
         ],

@@ -147,17 +147,20 @@ class CRTPainter extends CustomPainter {
       opacity = 0.7 + (flickerValue * 0.3);
     }
 
+    // Calculate text position with some top padding
+    final textOffset = Offset(16, 32); // Add padding from top and left
+
     // Draw glow effect
     if (showGlow) {
       paint.color = textColor.withOpacity(0.3 * glowValue);
       paint.maskFilter = const MaskFilter.blur(BlurStyle.normal, 3.0);
-      textPainter.paint(canvas, const Offset(0, 0));
+      textPainter.paint(canvas, textOffset);
     }
 
     // Draw main text
     paint.color = textColor.withOpacity(opacity);
     paint.maskFilter = null;
-    textPainter.paint(canvas, const Offset(0, 0));
+    textPainter.paint(canvas, textOffset);
 
     // Draw scanlines
     if (showScanlines) {
