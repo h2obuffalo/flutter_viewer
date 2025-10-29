@@ -857,7 +857,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
                 ),
                 child: const Center(
                   child: Icon(
-                    Icons.forward_30,
+                    Icons.forward_10,
                     color: Colors.white,
                     size: 50,
                   ),
@@ -1085,7 +1085,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   void _seekForward() {
     if (_videoPlayerController != null) {
       final currentPosition = _videoPlayerController!.value.position;
-      final newPosition = currentPosition + const Duration(seconds: 30);
+      final newPosition = currentPosition + const Duration(seconds: 10);
       _videoPlayerController!.seekTo(newPosition);
     }
   }

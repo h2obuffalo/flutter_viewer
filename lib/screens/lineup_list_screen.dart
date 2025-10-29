@@ -577,11 +577,11 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              // 8-bit heart icon
+              // 8-bit heart icon with larger tap area
               GestureDetector(
                 onTap: () => _toggleFavorite(artist),
                 child: Container(
-                  padding: const EdgeInsets.all(4),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: Icon(
                     artist.isFavorited ? Icons.favorite : Icons.favorite_border,
                     color: artist.isFavorited ? Colors.red : Colors.white,

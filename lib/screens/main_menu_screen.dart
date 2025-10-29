@@ -184,7 +184,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                 const SizedBox(height: 10),
                 _buildGlitchText('WEEKENDER', Colors.white),
                 const SizedBox(height: 5),
-                _buildGlitchText('2025', RetroTheme.electricGreen),
+                _buildGlitchText('2025', Colors.white),
                 const SizedBox(height: 60),
                 
                 // Menu buttons
@@ -232,7 +232,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
           style: TextStyle(
             color: color,
             fontSize: 48,
-            fontWeight: FontWeight.bold,
             letterSpacing: 2,
             fontFamily: 'Impact',
           ),
@@ -302,12 +301,12 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                 child: Container(
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: _isRaveMode ? _getStrobeColor() : RetroTheme.electricGreen,
+                      color: _isRaveMode ? _getStrobeColor() : Colors.red,
                       width: 3,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: (_isRaveMode ? _getStrobeColor() : RetroTheme.electricGreen).withOpacity(0.8),
+                        color: (_isRaveMode ? _getStrobeColor() : Colors.red).withOpacity(0.8),
                         blurRadius: _isRaveMode ? 30 : 15,
                         spreadRadius: _isRaveMode ? 5 : 2,
                       ),
@@ -322,7 +321,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                           _isRaveMode ? 'RAVING!' : 'READY TO RAVE',
                           style: TextStyle(
                             fontSize: 18,
-                            color: _isRaveMode ? _getStrobeColor() : RetroTheme.electricGreen,
+                            color: _isRaveMode ? _getStrobeColor() : Colors.red,
                             letterSpacing: 2,
                             fontWeight: FontWeight.bold,
                             shadows: _isRaveMode ? [
