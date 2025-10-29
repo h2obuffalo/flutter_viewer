@@ -428,8 +428,16 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
           _toggleFullscreen();
           return false;
         }
-        // In portrait mode, allow normal back navigation
-        return true;
+        // In portrait mode, navigate to menu instead of exiting app
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
+        await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/menu');
+        }
+        return false;
       },
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -960,6 +968,12 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
                   _showControlsTemporarily();
                 },
                 animationController: _seekForwardAnimationController,
+              ),
+              
+              // Cast button
+              CastButton(
+                hlsUrl: AppConstants.hlsManifestUrl,
+                title: 'Live Stream',
               ),
               
               // Fullscreen button
