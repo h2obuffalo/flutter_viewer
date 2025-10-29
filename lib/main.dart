@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'config/theme.dart';
 import 'config/constants.dart';
 import 'services/auth_service.dart';
-import 'screens/splash_screen.dart';
+import 'screens/conspiracy_splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_menu_screen.dart';
 import 'screens/simple_player_screen.dart';
@@ -27,7 +27,7 @@ class FlutterViewerApp extends StatelessWidget {
         title: 'Live Stream Viewer',
         debugShowCheckedModeBanner: false,
         theme: RetroTheme.darkTheme,
-        home: const SplashScreen(),
+        home: const ConspiracySplashScreen(),
         routes: {
           '/login': (context) => const LoginScreen(),
           '/menu': (context) => const MainMenuScreen(),

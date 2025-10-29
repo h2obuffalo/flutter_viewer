@@ -46,6 +46,7 @@ dependencies:
   
   # URL launcher for external links
   url_launcher: ^6.2.0
+  animated_text_kit: ^4.2.2
 
 dev_dependencies:
   flutter_test:
