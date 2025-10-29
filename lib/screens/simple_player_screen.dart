@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:http/http.dart' as http;
 import '../config/constants.dart';
 import '../widgets/cast_button.dart';
 import '../services/cast_service.dart';
@@ -33,9 +31,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   Timer? _reconnectTimer;
   bool _isInBackground = false;
   Timer? _statusCheckTimer;
-  bool _streamOnline = true;
-  int _statusCheckAttempts = 0;
-  static const int _maxStatusCheckAttempts = 3;
+  // Removed unused variables: _streamOnline, _statusCheckAttempts, _maxStatusCheckAttempts
   
   // Fullscreen and animation state
   bool _isFullscreen = false;
@@ -597,7 +593,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.8),
+                color: Colors.red.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: const Row(
@@ -625,7 +621,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: _isStreamHealthy ? Colors.green.withOpacity(0.8) : Colors.orange.withOpacity(0.8),
+                color: _isStreamHealthy ? Colors.green.withValues(alpha: 0.8) : Colors.orange.withValues(alpha: 0.8),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
@@ -658,7 +654,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.8),
+                  color: Colors.green.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Row(
@@ -737,11 +733,11 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
               width: isMainButton ? 60 : 50,
               height: isMainButton ? 60 : 50,
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.48), // Reduced from 0.6 to 0.48 (20% less opaque)
+                color: Colors.black.withValues(alpha: 0.48), // Reduced from 0.6 to 0.48 (20% less opaque)
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.cyan.withOpacity(glowIntensity.value),
+                    color: Colors.cyan.withValues(alpha: glowIntensity.value),
                     blurRadius: 8 + (glowIntensity.value * 8),
                     spreadRadius: 1 + (glowIntensity.value * 2),
                   ),
@@ -818,7 +814,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                     colors: [
-                      Colors.cyan.withOpacity(0.3),
+                      Colors.cyan.withValues(alpha: 0.3),
                       Colors.transparent,
                     ],
                   ),
@@ -850,7 +846,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
                     begin: Alignment.centerRight,
                     end: Alignment.centerLeft,
                     colors: [
-                      Colors.cyan.withOpacity(0.3),
+                      Colors.cyan.withValues(alpha: 0.3),
                       Colors.transparent,
                     ],
                   ),
@@ -940,7 +936,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
               end: Alignment.bottomCenter,
               colors: [
                 Colors.transparent,
-                Colors.black.withOpacity(0.8),
+                Colors.black.withValues(alpha: 0.8),
               ],
             ),
           ),
@@ -1040,11 +1036,11 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.48), // Reduced from 0.6 to 0.48 (20% less opaque)
+                color: Colors.black.withValues(alpha: 0.48), // Reduced from 0.6 to 0.48 (20% less opaque)
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.cyan.withOpacity(glowIntensity.value),
+                    color: Colors.cyan.withValues(alpha: glowIntensity.value),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),

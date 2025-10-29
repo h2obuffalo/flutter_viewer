@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../config/theme.dart';
 import '../config/constants.dart';
 import '../utils/glitch_animations.dart';
-import '../services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -149,7 +147,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
           colors: List.generate(
             100,
             (index) => index % 2 == 0
-                ? RetroTheme.darkBlue.withOpacity(0.3)
+                ? RetroTheme.darkBlue.withValues(alpha: 0.3)
                 : Colors.transparent,
           ),
         ),
@@ -170,7 +168,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
               style: TextStyle(
                 fontSize: 64,
                 fontWeight: FontWeight.bold,
-                color: color.withOpacity(0.5),
+                color: color.withValues(alpha: 0.5),
                 letterSpacing: 4,
               ),
             ),

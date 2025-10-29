@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'config/theme.dart';
-import 'config/constants.dart';
 import 'services/auth_service.dart';
 import 'screens/conspiracy_splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_menu_screen.dart';
 import 'screens/simple_player_screen.dart';
 import 'screens/lineup_list_screen.dart';
-import 'screens/artist_detail_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

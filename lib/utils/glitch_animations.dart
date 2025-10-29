@@ -17,7 +17,7 @@ class GlitchPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final random = Random();
     final paint = Paint()
-      ..color = RetroTheme.neonCyan.withOpacity(0.3)
+      ..color = RetroTheme.neonCyan.withValues(alpha: 0.3)
       ..strokeWidth = 2;
 
     // Random glitch lines

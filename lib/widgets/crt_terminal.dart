@@ -152,13 +152,13 @@ class CRTPainter extends CustomPainter {
 
     // Draw glow effect
     if (showGlow) {
-      paint.color = textColor.withOpacity(0.3 * glowValue);
+      paint.color = textColor.withValues(alpha: 0.3 * glowValue);
       paint.maskFilter = const MaskFilter.blur(BlurStyle.normal, 3.0);
       textPainter.paint(canvas, textOffset);
     }
 
     // Draw main text
-    paint.color = textColor.withOpacity(opacity);
+    paint.color = textColor.withValues(alpha: opacity);
     paint.maskFilter = null;
     textPainter.paint(canvas, textOffset);
 
@@ -175,7 +175,7 @@ class CRTPainter extends CustomPainter {
 
   void _drawScanlines(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.black.withOpacity(0.1)
+      ..color = Colors.black.withValues(alpha: 0.1)
       ..strokeWidth = 1.0;
 
     for (double y = 0; y < size.height; y += 2) {
@@ -189,7 +189,7 @@ class CRTPainter extends CustomPainter {
 
   void _drawVHSTracking(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.1)
+      ..color = Colors.white.withValues(alpha: 0.1)
       ..strokeWidth = 2.0;
 
     final random = Random();

@@ -11,15 +11,15 @@ import 'artist_detail_screen.dart';
 Color getStageColor(String stage) {
   switch (stage) {
     case 'Main Stage':
-      return RetroTheme.neonCyan.withOpacity(0.2);
+      return RetroTheme.neonCyan.withValues(alpha: 0.2);
     case 'BANG FACE TV Live':
-      return RetroTheme.hotPink.withOpacity(0.2);
+      return RetroTheme.hotPink.withValues(alpha: 0.2);
     case 'Hard Crew Heroes':
-      return RetroTheme.warningYellow.withOpacity(0.2);
+      return RetroTheme.warningYellow.withValues(alpha: 0.2);
     case 'MAD':
-      return const Color(0xFF9D00FF).withOpacity(0.2); // Purple
+      return const Color(0xFF9D00FF).withValues(alpha: 0.2); // Purple
     case 'Jungyals\'n\'Gays':
-      return RetroTheme.electricGreen.withOpacity(0.2);
+      return RetroTheme.electricGreen.withValues(alpha: 0.2);
     default:
       return RetroTheme.darkGray;
   }
@@ -459,7 +459,7 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
                                 Icon(
                                   Icons.music_off,
                                   size: 64,
-                                  color: RetroTheme.hotPink.withOpacity(0.5),
+                                  color: RetroTheme.hotPink.withValues(alpha: 0.5),
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
@@ -474,7 +474,7 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
                                 Text(
                                   'Try adjusting your search or filter',
                                   style: TextStyle(
-                                    color: RetroTheme.electricGreen.withOpacity(0.7),
+                                    color: RetroTheme.electricGreen.withValues(alpha: 0.7),
                                     fontSize: 14,
                                   ),
                                 ),
@@ -542,7 +542,7 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
                   style: const TextStyle(color: RetroTheme.electricGreen),
                   decoration: InputDecoration(
                     hintText: 'Search artists...',
-                    hintStyle: TextStyle(color: RetroTheme.electricGreen.withOpacity(0.5)),
+                    hintStyle: TextStyle(color: RetroTheme.electricGreen.withValues(alpha: 0.5)),
                     border: OutlineInputBorder(
                       borderSide: const BorderSide(color: RetroTheme.neonCyan, width: 2),
                       borderRadius: BorderRadius.circular(4),
@@ -578,7 +578,7 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
         color: stageColor,
         border: Border(
           bottom: BorderSide(
-            color: RetroTheme.neonCyan.withOpacity(0.3),
+            color: RetroTheme.neonCyan.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -615,7 +615,7 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
               ),
               Icon(
                 Icons.arrow_forward_ios,
-                color: RetroTheme.neonCyan.withOpacity(0.6),
+                color: RetroTheme.neonCyan.withValues(alpha: 0.6),
                 size: 16,
               ),
             ],

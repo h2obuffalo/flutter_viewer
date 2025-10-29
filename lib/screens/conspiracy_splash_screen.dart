@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import '../config/theme.dart';
 import '../utils/conspiracy_texts.dart';
 import '../widgets/crt_terminal.dart';
 
@@ -27,7 +24,6 @@ class _ConspiracySplashScreenState extends State<ConspiracySplashScreen>
   bool _isAlternativeMode = false;
 
   final List<String> _theories = ConspiracyTexts.theories;
-  final List<String> _alternativeTheories = ConspiracyTexts.alternativeTheories;
 
   @override
   void initState() {
@@ -211,7 +207,7 @@ class _ConspiracySplashScreenState extends State<ConspiracySplashScreen>
               Container(
                 width: double.infinity,
                 height: double.infinity,
-                color: Colors.red.withOpacity(0.3 * _warningController.value),
+                color: Colors.red.withValues(alpha: 0.3 * _warningController.value),
                 child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,

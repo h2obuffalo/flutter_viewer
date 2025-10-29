@@ -356,13 +356,13 @@ class _CastButtonState extends State<CastButton>
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.48),
+                color: Colors.black.withValues(alpha: 0.48),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
                     color: _isConnected 
-                        ? Colors.green.withOpacity(_glowAnimation.value)
-                        : Colors.cyan.withOpacity(_glowAnimation.value),
+                        ? Colors.green.withValues(alpha: _glowAnimation.value)
+                        : Colors.cyan.withValues(alpha: _glowAnimation.value),
                     blurRadius: 8 + (_glowAnimation.value * 8),
                     spreadRadius: 1 + (_glowAnimation.value * 2),
                   ),

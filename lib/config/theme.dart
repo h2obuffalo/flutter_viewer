@@ -95,7 +95,7 @@ class RetroTheme {
       end: Alignment.bottomCenter,
       colors: [
         darkBlue,
-        darkBlue.withOpacity(0.9),
+        darkBlue.withValues(alpha: 0.9),
         darkBlue,
       ],
       stops: const [0.0, 0.01, 0.02],

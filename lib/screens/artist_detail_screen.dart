@@ -148,7 +148,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: RetroTheme.hotPink.withOpacity(0.3),
+                color: RetroTheme.hotPink.withValues(alpha: 0.3),
                 blurRadius: 20,
                 spreadRadius: 2,
               ),
@@ -181,7 +181,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: RetroTheme.darkBlue.withOpacity(0.9),
+                  color: RetroTheme.darkBlue.withValues(alpha: 0.9),
                 ),
                 child: Text(
                   widget.artist.name,
@@ -229,7 +229,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         border: Border.all(color: color, width: 1),
         borderRadius: BorderRadius.circular(4),
       ),
@@ -269,7 +269,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
               return Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: RetroTheme.electricGreen.withOpacity(0.2),
+                  color: RetroTheme.electricGreen.withValues(alpha: 0.2),
                   border: Border.all(color: RetroTheme.electricGreen, width: 1),
                   borderRadius: BorderRadius.circular(4),
                 ),
@@ -315,14 +315,14 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
             if (setTime.isLive) {
               statusColor = RetroTheme.hotPink;
             } else if (setTime.isCompleted) {
-              statusColor = RetroTheme.neonCyan.withOpacity(0.6);
+              statusColor = RetroTheme.neonCyan.withValues(alpha: 0.6);
             }
 
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.1),
+                color: statusColor.withValues(alpha: 0.1),
                 border: Border.all(color: statusColor, width: 1),
                 borderRadius: BorderRadius.circular(4),
               ),
@@ -351,7 +351,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
                         Text(
                           '${_formatTime(setTime.startDateTime)} - ${_formatTime(setTime.endDateTime)}',
                           style: TextStyle(
-                            color: statusColor.withOpacity(0.8),
+                            color: statusColor.withValues(alpha: 0.8),
                             fontSize: 14,
                           ),
                         ),
@@ -433,7 +433,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           border: Border.all(color: color, width: 1),
           borderRadius: BorderRadius.circular(4),
         ),
@@ -452,7 +452,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
             const Spacer(),
             Icon(
               Icons.arrow_forward_ios,
-              color: color.withOpacity(0.6),
+              color: color.withValues(alpha: 0.6),
               size: 16,
             ),
           ],

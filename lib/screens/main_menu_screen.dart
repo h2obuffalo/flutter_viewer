@@ -284,7 +284,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: color.withOpacity(0.3),
+                        color: color.withValues(alpha: 0.3),
                         blurRadius: 15,
                         spreadRadius: 1,
                       ),
@@ -329,7 +329,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: (_isRaveMode ? _getStrobeColor() : Colors.red).withOpacity(0.8),
+                        color: (_isRaveMode ? _getStrobeColor() : Colors.red).withValues(alpha: 0.8),
                         blurRadius: _isRaveMode ? 30 : 15,
                         spreadRadius: _isRaveMode ? 5 : 2,
                       ),
@@ -413,7 +413,7 @@ class ScreenGlitchPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = strobeColor.withOpacity(0.3)
+      ..color = strobeColor.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
 
     final random = Random((animationValue * 1000).round());

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/foundation.dart';
 
 /// Service to monitor stream health and detect dead/stuck streams
