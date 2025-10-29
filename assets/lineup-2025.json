@@ -1,0 +1,2833 @@
+[
+  {
+    "id": 1,
+    "name": "Max Cooper",
+    "photo": "assets/lineup-photos/max-cooper.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Pendulum DJ Set",
+    "photo": "assets/lineup-photos/pendulum-dj-set.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "The Glitch Mob",
+    "photo": "assets/lineup-photos/the-glitch-mob.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Pastis & Buenri",
+    "photo": "assets/lineup-photos/pastis-buenri.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Teddy Killerz",
+    "photo": "assets/lineup-photos/teddy-killerz.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "Lil Texas",
+    "photo": "assets/lineup-photos/lil-texas.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "Ray Keith & Renegade Band",
+    "photo": "assets/lineup-photos/ray-keith-renegade-band.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "4am Kru",
+    "photo": "assets/lineup-photos/4am-kru.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "Mandidextrous",
+    "photo": "assets/lineup-photos/mandidextrous.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "name": "Altern 8",
+    "photo": "assets/lineup-photos/altern-8.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "name": "Luke Vibert",
+    "photo": "assets/lineup-photos/luke-vibert.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "name": "Tim Reaper",
+    "photo": "assets/lineup-photos/tim-reaper.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "name": "CeephaxAcid Crew",
+    "photo": "assets/lineup-photos/ceephaxacid-crew.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "name": "[IVY]",
+    "photo": "assets/lineup-photos/ivy.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "name": "Badger",
+    "photo": "assets/lineup-photos/badger.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "name": "Anna Morgan",
+    "photo": "assets/lineup-photos/anna-morgan.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "name": "JensenInterceptor",
+    "photo": "assets/lineup-photos/jenseninterceptor.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "name": "Thys",
+    "photo": "assets/lineup-photos/thys.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "name": "SamuraiBreaks",
+    "photo": "assets/lineup-photos/samuraibreaks.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "name": "Hixxy",
+    "photo": "assets/lineup-photos/hixxy.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "name": "DJ Sarah Bonito",
+    "photo": "assets/lineup-photos/dj-sarah-bonito.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "name": "Aquarian",
+    "photo": "assets/lineup-photos/aquarian.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "name": "Randomer",
+    "photo": "assets/lineup-photos/randomer.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "name": "Ophidian",
+    "photo": "assets/lineup-photos/ophidian.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "name": "Hellfish",
+    "photo": "assets/lineup-photos/hellfish.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "name": "Farrah",
+    "photo": "assets/lineup-photos/farrah.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "name": "Alex Wilcox",
+    "photo": "assets/lineup-photos/alex-wilcox.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "name": "Pete Cannon",
+    "photo": "assets/lineup-photos/pete-cannon.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "name": "Mixtress",
+    "photo": "assets/lineup-photos/mixtress.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "name": "Phace",
+    "photo": "assets/lineup-photos/phace.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "name": "The CaracalProject",
+    "photo": "assets/lineup-photos/the-caracalproject.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "name": "The OutsideAgency",
+    "photo": "assets/lineup-photos/the-outsideagency.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "name": "The DJ Producer",
+    "photo": "assets/lineup-photos/the-dj-producer.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "name": "Limewax",
+    "photo": "assets/lineup-photos/limewax.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "name": "DJ Fuckoff",
+    "photo": "assets/lineup-photos/dj-fuckoff.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "name": "Big Lad",
+    "photo": "assets/lineup-photos/big-lad.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "name": "Dope Ammo",
+    "photo": "assets/lineup-photos/dope-ammo.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "name": "Lobsta B",
+    "photo": "assets/lineup-photos/lobsta-b.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "name": "Hang The DJs",
+    "photo": "assets/lineup-photos/hang-the-djs.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "name": "DJ Scotch Egg",
+    "photo": "assets/lineup-photos/dj-scotch-egg.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 41,
+    "name": "Stazma",
+    "photo": "assets/lineup-photos/stazma.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "name": "Rotator",
+    "photo": "assets/lineup-photos/rotator.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 43,
+    "name": "Somniac One",
+    "photo": "assets/lineup-photos/somniac-one.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 44,
+    "name": "Baseck",
+    "photo": "assets/lineup-photos/baseck.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 45,
+    "name": "Wayne Adams",
+    "photo": "assets/lineup-photos/wayne-adams.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "name": "Anais",
+    "photo": "assets/lineup-photos/anais.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 47,
+    "name": "Napes",
+    "photo": "assets/lineup-photos/napes.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 48,
+    "name": "Spongebob Squarewave",
+    "photo": "assets/lineup-photos/spongebob-squarewave.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 49,
+    "name": "Cheetah",
+    "photo": "assets/lineup-photos/cheetah.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "name": "Duran Duran Duran",
+    "photo": "assets/lineup-photos/duran-duran-duran.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "name": "DJ Skull Vomit",
+    "photo": "assets/lineup-photos/dj-skull-vomit.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "name": "Toby Ross",
+    "photo": "assets/lineup-photos/toby-ross.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 53,
+    "name": "Scottish Gabber Punk",
+    "photo": "assets/lineup-photos/scottish-gabber-punk.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 54,
+    "name": "Lucy Stoner",
+    "photo": "assets/lineup-photos/lucy-stoner.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 55,
+    "name": "Sample Junkie",
+    "photo": "assets/lineup-photos/sample-junkie.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 56,
+    "name": "Dave Skywalker",
+    "photo": "assets/lineup-photos/dave-skywalker.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 57,
+    "name": "Saint Acid & BANG FACE HARD CREW",
+    "photo": "assets/lineup-photos/saint-acid-bang-face-hard-crew.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 58,
+    "name": "Sherelle",
+    "photo": "assets/lineup-photos/sherelle.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 59,
+    "name": "N A I N A",
+    "photo": "assets/lineup-photos/n-a-i-n-a.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 60,
+    "name": "Special Request",
+    "photo": "assets/lineup-photos/special-request.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 61,
+    "name": "Sully",
+    "photo": "assets/lineup-photos/sully.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 62,
+    "name": "Drumskull",
+    "photo": "assets/lineup-photos/drumskull.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 63,
+    "name": "V X R G O",
+    "photo": "assets/lineup-photos/v-x-r-g-o.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 64,
+    "name": "Melba",
+    "photo": "assets/lineup-photos/melba.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 65,
+    "name": "Nectax",
+    "photo": "assets/lineup-photos/nectax.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 66,
+    "name": "Pouty Rage",
+    "photo": "assets/lineup-photos/pouty-rage.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 67,
+    "name": "Nikki Nair",
+    "photo": "assets/lineup-photos/nikki-nair.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 68,
+    "name": "Crookers",
+    "photo": "assets/lineup-photos/crookers.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 69,
+    "name": "M M O",
+    "photo": "assets/lineup-photos/m-m-o.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 70,
+    "name": "D J A D H D",
+    "photo": "assets/lineup-photos/d-j-a-d-h-d.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 71,
+    "name": "Brava",
+    "photo": "assets/lineup-photos/brava.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 72,
+    "name": "Glosssd",
+    "photo": "assets/lineup-photos/glosssd.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 73,
+    "name": "Mark Archer",
+    "photo": "assets/lineup-photos/mark-archer.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 74,
+    "name": "Phil Hartnoll",
+    "photo": "assets/lineup-photos/phil-hartnoll.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 75,
+    "name": "Shades Of Rhythm",
+    "photo": "assets/lineup-photos/shades-of-rhythm.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 76,
+    "name": "Slipmatt",
+    "photo": "assets/lineup-photos/slipmatt.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 77,
+    "name": "Tasha",
+    "photo": "assets/lineup-photos/tasha.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 78,
+    "name": "D J Storm",
+    "photo": "assets/lineup-photos/d-j-storm.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 79,
+    "name": "Uncle Dugs",
+    "photo": "assets/lineup-photos/uncle-dugs.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 80,
+    "name": "Nookie",
+    "photo": "assets/lineup-photos/nookie.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 81,
+    "name": "M C Enamie",
+    "photo": "assets/lineup-photos/m-c-enamie.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 82,
+    "name": "M C Five Alive",
+    "photo": "assets/lineup-photos/m-c-five-alive.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 83,
+    "name": "T Cuts",
+    "photo": "assets/lineup-photos/t-cuts.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 84,
+    "name": "Serkus",
+    "photo": "assets/lineup-photos/serkus.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 85,
+    "name": "rdi",
+    "photo": "assets/lineup-photos/rdi.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 86,
+    "name": "Shaun C",
+    "photo": "assets/lineup-photos/shaun-c.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 87,
+    "name": "Aerbreak",
+    "photo": "assets/lineup-photos/aerbreak.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 88,
+    "name": "Sy Ran",
+    "photo": "assets/lineup-photos/sy-ran.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 89,
+    "name": "J A K A Zi D",
+    "photo": "assets/lineup-photos/j-a-k-a-zi-d.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 90,
+    "name": "Kaylene Sc@r",
+    "photo": "assets/lineup-photos/kaylene-scr.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 91,
+    "name": "D J- S A R I A",
+    "photo": "assets/lineup-photos/d-j-s-a-r-i-a.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 92,
+    "name": "Intraspekt",
+    "photo": "assets/lineup-photos/intraspekt.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 93,
+    "name": "D- Luc- D",
+    "photo": "assets/lineup-photos/d-luc-d.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 94,
+    "name": "P E P P A",
+    "photo": "assets/lineup-photos/p-e-p-p-a.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Jungyals'n'Gays"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Jungyals'n'Gays",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 95,
+    "name": "Lingz",
+    "photo": "assets/lineup-photos/lingz.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Jungyals'n'Gays"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Jungyals'n'Gays",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 96,
+    "name": "Mousai",
+    "photo": "assets/lineup-photos/mousai.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Jungyals'n'Gays"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Jungyals'n'Gays",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 97,
+    "name": "CHLOW333",
+    "photo": "assets/lineup-photos/chlow333.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Jungyals'n'Gays"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Jungyals'n'Gays",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 98,
+    "name": "Rodney",
+    "photo": "assets/lineup-photos/rodney.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Jungyals'n'Gays"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Jungyals'n'Gays",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 99,
+    "name": "BETTY",
+    "photo": "assets/lineup-photos/betty.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Jungyals'n'Gays"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Jungyals'n'Gays",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 100,
+    "name": "BOWEN",
+    "photo": "assets/lineup-photos/bowen.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Jungyals'n'Gays"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Jungyals'n'Gays",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 101,
+    "name": "Dirtywavez",
+    "photo": "assets/lineup-photos/dirtywavez.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Jungyals'n'Gays"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Jungyals'n'Gays",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 102,
+    "name": "Tooti B",
+    "photo": "assets/lineup-photos/tooti-b.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Jungyals'n'Gays"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Jungyals'n'Gays",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 103,
+    "name": "Slayphex Twins",
+    "photo": "assets/lineup-photos/slayphex-twins.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "MAD"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 104,
+    "name": "Shirley Temper",
+    "photo": "assets/lineup-photos/shirley-temper.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "MAD"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 105,
+    "name": "Holly Warcup",
+    "photo": "assets/lineup-photos/holly-warcup.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "MAD"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 106,
+    "name": "PewTwo!",
+    "photo": "assets/lineup-photos/pewtwo.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "MAD"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 107,
+    "name": "Booty Shakin Bestiez Princess Elf Bar",
+    "photo": "assets/lineup-photos/booty-shakin-bestiez-princess-elf-bar.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "MAD"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 108,
+    "name": "Booty Shakin Bestiez Princess Elf Bar",
+    "photo": "assets/lineup-photos/booty-shakin-bestiez-princess-elf-bar.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "MAD"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 109,
+    "name": "Nice'n'Spicy",
+    "photo": "assets/lineup-photos/nicenspicy.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "MAD"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 110,
+    "name": "Kuiasu",
+    "photo": "assets/lineup-photos/kuiasu.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "MAD"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 111,
+    "name": "TakenByMarshall",
+    "photo": "assets/lineup-photos/takenbymarshall.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "MAD"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 112,
+    "name": "DJ Slimey Monster",
+    "photo": "assets/lineup-photos/dj-slimey-monster.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "MAD"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 113,
+    "name": "Misterrcha",
+    "photo": "assets/lineup-photos/misterrcha.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "MAD"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 114,
+    "name": "Compulsive Leia",
+    "photo": "assets/lineup-photos/compulsive-leia.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "MAD"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 115,
+    "name": "Hurtdeer",
+    "photo": "assets/lineup-photos/hurtdeer.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 116,
+    "name": "DJ Can't Say No",
+    "photo": "assets/lineup-photos/dj-cant-say-no.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 117,
+    "name": "Mollie Rush",
+    "photo": "assets/lineup-photos/mollie-rush.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 118,
+    "name": "Breakforce One",
+    "photo": "assets/lineup-photos/breakforce-one.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 119,
+    "name": "Audiobubble",
+    "photo": "assets/lineup-photos/audiobubble.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 120,
+    "name": "Syntax",
+    "photo": "assets/lineup-photos/syntax.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 121,
+    "name": "JustRob",
+    "photo": "assets/lineup-photos/justrob.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 122,
+    "name": "A.N.T",
+    "photo": "assets/lineup-photos/ant.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 123,
+    "name": "Ellament",
+    "photo": "assets/lineup-photos/ellament.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 124,
+    "name": "Los Banditos De Baguette",
+    "photo": "assets/lineup-photos/los-banditos-de-baguette.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 125,
+    "name": "Paul Bradley",
+    "photo": "assets/lineup-photos/paul-bradley.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 126,
+    "name": "Tractorhands",
+    "photo": "assets/lineup-photos/tractorhands.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 127,
+    "name": "Wrong TV",
+    "photo": "assets/lineup-photos/wrong-tv.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 128,
+    "name": "Acid Morris",
+    "photo": "assets/lineup-photos/acid-morris.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 129,
+    "name": "Big Al",
+    "photo": "assets/lineup-photos/big-al.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 130,
+    "name": "Brain Rays & Quiet",
+    "photo": "assets/lineup-photos/brain-rays-quiet.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 131,
+    "name": "Dankle",
+    "photo": "assets/lineup-photos/dankle.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 132,
+    "name": "Diazepamela",
+    "photo": "assets/lineup-photos/diazepamela.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 133,
+    "name": "DJ Trev",
+    "photo": "assets/lineup-photos/dj-trev.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 134,
+    "name": "DOOMSCROLL",
+    "photo": "assets/lineup-photos/doomscroll.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 135,
+    "name": "Eraserhead",
+    "photo": "assets/lineup-photos/eraserhead.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 136,
+    "name": "Fuck Bees",
+    "photo": "assets/lineup-photos/fuck-bees.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 137,
+    "name": "Greggery Peccary",
+    "photo": "assets/lineup-photos/greggery-peccary.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 138,
+    "name": "In Bed With My Brother",
+    "photo": "assets/lineup-photos/in-bed-with-my-brother.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 139,
+    "name": "Krest The Best",
+    "photo": "assets/lineup-photos/krest-the-best.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 140,
+    "name": "Party Science",
+    "photo": "assets/lineup-photos/party-science.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 141,
+    "name": "Peggy Viennetta",
+    "photo": "assets/lineup-photos/peggy-viennetta.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 142,
+    "name": "Sensi",
+    "photo": "assets/lineup-photos/sensi.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 143,
+    "name": "Space Cassette",
+    "photo": "assets/lineup-photos/space-cassette.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 144,
+    "name": "Spinee",
+    "photo": "assets/lineup-photos/spinee.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 145,
+    "name": "Tina",
+    "photo": "assets/lineup-photos/tina.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 146,
+    "name": "Turbo",
+    "photo": "assets/lineup-photos/turbo.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 147,
+    "name": "Wavey G",
+    "photo": "assets/lineup-photos/wavey-g.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 148,
+    "name": "Yanny",
+    "photo": "assets/lineup-photos/yanny.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 149,
+    "name": "BDSM Gardener",
+    "photo": "assets/lineup-photos/bdsm-gardener.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-10-29T20:00:00Z",
+        "end": "2025-10-29T21:00:00Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  }
+]

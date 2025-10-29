@@ -43,6 +43,9 @@ dependencies:
   flutter_chrome_cast: ^1.2.5
 
   # Chromecast casting support
+  
+  # URL launcher for external links
+  url_launcher: ^6.2.0
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +59,8 @@ flutter:
     - assets/images/
     - assets/fonts/
     - assets/sounds/
+    - assets/lineup-photos/
+    - assets/lineup-2025.json
   
   fonts:
     - family: VT323

@@ -20,6 +20,14 @@ class CastService {
   bool get isConnected => _isConnected;
   String? get connectedDeviceName => _deviceName;
 
+  /// Reset connection state when session ends
+  void _resetConnectionState() {
+    _isConnected = false;
+    _deviceName = null;
+    _isConnectedController?.add(false);
+    _deviceNameController?.add(null);
+  }
+
   Future<void> initialize() async {
     if (_isInitialized) return;
     
@@ -108,11 +116,28 @@ class CastService {
           _isConnectedController?.add(true);
           _deviceNameController?.add(_deviceName);
           print('Connected to ${device.friendlyName}');
+          
+          // Listen to media status changes for debugging and state management
+          GoogleCastRemoteMediaClient.instance.mediaStatusStream.listen((status) {
+            print('📺 Chromecast Media Status: ${status?.playerState}');
+            print('📺 Media Info: ${status?.mediaInformation?.contentId}');
+            
+            // Check if the stream has ended or failed
+            final playerState = status?.playerState?.toString();
+            if (playerState == 'GoogleCastPlayerState.idle') {
+              print('⚠️  Chromecast is idle - stream may have failed to load');
+              // Don't automatically disconnect here - let user control it
+            } else if (playerState == 'GoogleCastPlayerState.buffering') {
+              print('🔄 Chromecast is buffering...');
+            } else if (playerState == 'GoogleCastPlayerState.playing') {
+              print('▶️  Chromecast is playing');
+            } else if (playerState == 'GoogleCastPlayerState.paused') {
+              print('⏸️  Chromecast is paused');
+            }
+          });
         } else {
-          _isConnected = false;
-          _deviceName = null;
-          _isConnectedController?.add(false);
-          _deviceNameController?.add(null);
+          // Session ended - reset state
+          _resetConnectionState();
           print('Disconnected from Chromecast');
         }
       });
@@ -136,9 +161,15 @@ class CastService {
 
     try {
       final mediaClient = GoogleCastRemoteMediaClient.instance;
+      
+      print('Attempting to cast HLS stream to $_deviceName');
+      print('HLS URL: $hlsUrl');
+      
+      // Try the alternative method first (simpler configuration)
       final mediaInformation = GoogleCastMediaInformation(
         contentId: hlsUrl,
-        contentType: 'application/vnd.apple.mpegurl',
+        contentUrl: Uri.parse(hlsUrl),
+        contentType: 'video/mp2t', // Alternative MIME type for HLS
         streamType: CastMediaStreamType.live,
         metadata: GoogleCastMediaMetadata(
           metadataType: GoogleCastMediaMetadataType.genericMediaMetadata,
@@ -147,14 +178,34 @@ class CastService {
 
       await mediaClient.loadMedia(mediaInformation);
       
-      print('Started casting: $title to $_deviceName');
-      print('HLS URL: $hlsUrl');
-      print('Local playback continues as preview - both devices play live stream');
+      print('✅ Successfully started casting HLS stream to $_deviceName');
+      print('Using video/mp2t content type (alternative method)');
       
       return true;
     } catch (e) {
-      print('Error starting cast: $e');
-      return false;
+      print('❌ Error starting HLS cast: $e');
+      print('Trying fallback method...');
+      
+      // Try fallback with different configuration
+      try {
+        final mediaClient = GoogleCastRemoteMediaClient.instance;
+        final fallbackMediaInfo = GoogleCastMediaInformation(
+          contentId: hlsUrl,
+          contentUrl: Uri.parse(hlsUrl),
+          contentType: 'application/vnd.apple.mpegurl',
+          streamType: CastMediaStreamType.buffered, // Try buffered instead of live
+          metadata: GoogleCastMediaMetadata(
+            metadataType: GoogleCastMediaMetadataType.genericMediaMetadata,
+          ),
+        );
+        
+        await mediaClient.loadMedia(fallbackMediaInfo);
+        print('✅ Fallback method successful - using buffered stream type');
+        return true;
+      } catch (fallbackError) {
+        print('❌ Fallback method also failed: $fallbackError');
+        return false;
+      }
     }
   }
 
@@ -194,16 +245,52 @@ class CastService {
     }
   }
 
+  /// Alternative HLS casting method with different configuration
+  /// Use this if the standard startCasting method doesn't work
+  Future<bool> startCastingHLSAlternative(String hlsUrl, String title) async {
+    if (!isConnected) {
+      print('No active cast session');
+      return false;
+    }
+
+    if (kIsWeb) {
+      return false; // Not supported on web
+    }
+
+    try {
+      final mediaClient = GoogleCastRemoteMediaClient.instance;
+      
+      // Alternative HLS configuration - simpler approach
+      final mediaInformation = GoogleCastMediaInformation(
+        contentId: hlsUrl,
+        contentUrl: Uri.parse(hlsUrl),
+        contentType: 'video/mp2t', // Alternative MIME type for HLS
+        streamType: CastMediaStreamType.live,
+        metadata: GoogleCastMediaMetadata(
+          metadataType: GoogleCastMediaMetadataType.genericMediaMetadata,
+        ),
+      );
+
+      await mediaClient.loadMedia(mediaInformation);
+      
+      print('Started casting HLS (alternative): $title to $_deviceName');
+      print('HLS URL: $hlsUrl');
+      print('Using video/mp2t content type');
+      
+      return true;
+    } catch (e) {
+      print('Error starting alternative HLS cast: $e');
+      return false;
+    }
+  }
+
   Future<bool> stopCasting() async {
     if (!isConnected) return false;
 
     try {
       final sessionManager = GoogleCastSessionManager.instance;
       await sessionManager.endSession();
-      _isConnected = false;
-      _deviceName = null;
-      _isConnectedController?.add(false);
-      _deviceNameController?.add(null);
+      _resetConnectionState();
       
       print('Stopped casting');
       return true;
@@ -211,6 +298,12 @@ class CastService {
       print('Error stopping cast: $e');
       return false;
     }
+  }
+
+  /// Force reset the casting state (useful when session ends unexpectedly)
+  void forceResetCastingState() {
+    print('Force resetting casting state');
+    _resetConnectionState();
   }
 
   void dispose() {

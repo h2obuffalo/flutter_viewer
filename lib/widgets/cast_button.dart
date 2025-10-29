@@ -268,7 +268,7 @@ class _CastButtonState extends State<CastButton>
       builder: (context) => AlertDialog(
         backgroundColor: Colors.black87,
         title: const Text(
-          'Stop Casting',
+          'Casting Options',
           style: TextStyle(
             color: Colors.cyan,
             fontFamily: 'VT323',
@@ -276,7 +276,7 @@ class _CastButtonState extends State<CastButton>
           ),
         ),
         content: Text(
-          'Stop casting to $_deviceName?',
+          'Connected to $_deviceName\n\nWhat would you like to do?',
           style: const TextStyle(
             color: Colors.white,
             fontFamily: 'CourierPrimeCode',
@@ -300,9 +300,22 @@ class _CastButtonState extends State<CastButton>
               await _castService.stopCasting();
             },
             child: const Text(
-              'Stop',
+              'Stop Casting',
               style: TextStyle(
                 color: Colors.red,
+                fontFamily: 'VT323',
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              _castService.forceResetCastingState();
+            },
+            child: const Text(
+              'Reset State',
+              style: TextStyle(
+                color: Colors.orange,
                 fontFamily: 'VT323',
               ),
             ),
