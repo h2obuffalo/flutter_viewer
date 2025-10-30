@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_chrome_cast/flutter_chrome_cast.dart';
 
@@ -42,13 +43,25 @@ class CastService {
     }
     
     try {
-      // Initialize Google Cast context with default Chromecast app ID
-      final castOptions = GoogleCastOptionsAndroid(
-        appId: 'CC1AD845', // Default Chromecast app ID
-      );
-      await GoogleCastContext.instance.setSharedInstanceWithOptions(castOptions);
-      _isInitialized = true;
-      print('CastService initialized with real Chromecast support');
+      // Initialize Google Cast context with platform-specific options
+      const appId = 'CC1AD845'; // Default Chromecast app ID
+      
+      if (Platform.isIOS) {
+        // iOS initialization with discovery criteria
+        final discoveryCriteria = GoogleCastDiscoveryCriteriaInitialize.initWithApplicationID(appId);
+        final castOptions = IOSGoogleCastOptions(discoveryCriteria);
+        await GoogleCastContext.instance.setSharedInstanceWithOptions(castOptions);
+        _isInitialized = true;
+        print('CastService initialized with Chromecast support (iOS)');
+      } else {
+        // Android initialization
+        final castOptions = GoogleCastOptionsAndroid(
+          appId: appId,
+        );
+        await GoogleCastContext.instance.setSharedInstanceWithOptions(castOptions);
+        _isInitialized = true;
+        print('CastService initialized with Chromecast support (Android)');
+      }
       
     } catch (e) {
       print('Error initializing ChromeCast: $e');
