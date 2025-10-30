@@ -69,42 +69,59 @@ class CastService {
   }
 
   Future<List<GoogleCastDevice>> discoverDevices() async {
+    print('CastService: discoverDevices() called');
+    
     if (!_isInitialized) {
+      print('CastService: Initializing...');
       await initialize();
     }
     
     if (kIsWeb) {
+      print('CastService: Web platform - no devices available');
       return []; // No devices available on web
     }
     
     try {
+      print('CastService: Getting discovery manager...');
       final discoveryManager = GoogleCastDiscoveryManager.instance;
-      await discoveryManager.startDiscovery();
       
-      // Wait for discovery to find devices
-      await Future.delayed(const Duration(seconds: 3));
-      
-      // Get current devices directly from the discovery manager
+      // Don't start discovery if it's already running - just get current devices
+      print('CastService: Getting current devices from discovery manager...');
       final devices = discoveryManager.devices;
+      print('CastService: Raw devices from discovery manager: ${devices.length}');
       
-      // Filter out audio-only devices for video casting
-      final videoCapableDevices = devices.where((device) {
-        final modelName = device.modelName?.toLowerCase() ?? '';
-        // Exclude audio-only devices
-        return !modelName.contains('audio') && 
-               !modelName.contains('speaker') &&
-               !modelName.contains('home mini');
-      }).toList();
-      
-      print('CastService: Found ${devices.length} total devices, ${videoCapableDevices.length} video-capable');
-      for (final device in videoCapableDevices) {
-        print('CastService: Device - ${device.friendlyName} (${device.modelName})');
+      // If no devices found, wait a bit for discovery to catch up
+      if (devices.isEmpty) {
+        print('CastService: No devices found, waiting 2 seconds for discovery...');
+        await Future.delayed(const Duration(seconds: 2));
+        final devicesAfterWait = discoveryManager.devices;
+        print('CastService: Devices after wait: ${devicesAfterWait.length}');
+        return _filterVideoCapableDevices(devicesAfterWait);
       }
-      return videoCapableDevices;
+      
+      return _filterVideoCapableDevices(devices);
     } catch (e) {
-      print('Error discovering devices: $e');
+      print('CastService: Error discovering devices: $e');
       return [];
     }
+  }
+
+  List<GoogleCastDevice> _filterVideoCapableDevices(List<GoogleCastDevice> devices) {
+    // Filter out audio-only devices for video casting
+    final videoCapableDevices = devices.where((device) {
+      final modelName = device.modelName?.toLowerCase() ?? '';
+      print('CastService: Checking device: ${device.friendlyName} (${device.modelName})');
+      // Exclude audio-only devices
+      return !modelName.contains('audio') && 
+             !modelName.contains('speaker') &&
+             !modelName.contains('home mini');
+    }).toList();
+    
+    print('CastService: Found ${devices.length} total devices, ${videoCapableDevices.length} video-capable');
+    for (final device in videoCapableDevices) {
+      print('CastService: Device - ${device.friendlyName} (${device.modelName})');
+    }
+    return videoCapableDevices;
   }
 
   Future<bool> connectToDevice(GoogleCastDevice device) async {
