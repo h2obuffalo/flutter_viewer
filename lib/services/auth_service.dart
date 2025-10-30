@@ -1,123 +1,97 @@
-import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-import '../models/ticket.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import '../config/constants.dart';
 
-class AuthService extends ChangeNotifier {
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  static const String _ticketKey = 'ticket_data';
-  static const String _tokenKey = 'auth_token';
+class AuthService {
+  static final AuthService _instance = AuthService._internal();
+  factory AuthService() => _instance;
+  AuthService._internal();
 
-  Future<Map<String, dynamic>> validateTicket(String ticketNumber) async {
+  static const String _tokenKey = 'playback_token';
+  static const String _expiryKey = 'playback_token_expiry';
+  static const String _ticketKey = 'ticket_number';
+  
+  String? _deviceId;
+  
+  Future<String> _getDeviceId() async {
+    if (_deviceId != null) return _deviceId!;
+    
     try {
-      final response = await http.post(
-        Uri.parse('${AppConstants.authApiUrl}/auth/validate-ticket'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'ticket_number': ticketNumber}),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        
-        // Store ticket data securely
-        final ticket = Ticket.fromJson(data['ticket'] as Map<String, dynamic>);
-        await _storage.write(key: _ticketKey, value: jsonEncode(ticket.toJson()));
-        
-        // Store auth token
-        if (data['token'] != null) {
-          await _storage.write(key: _tokenKey, value: data['token'] as String);
-        }
-        
-        return {'success': true, 'ticket': ticket};
+      final deviceInfo = DeviceInfoPlugin();
+      if (await deviceInfo.isIos()) {
+        final iosInfo = await deviceInfo.iosInfo;
+        _deviceId = iosInfo.identifierForVendor ?? 'ios-unknown-${DateTime.now().millisecondsSinceEpoch}';
+      } else if (await deviceInfo.isAndroid()) {
+        final androidInfo = await deviceInfo.androidInfo;
+        _deviceId = androidInfo.id;
       } else {
-        final error = jsonDecode(response.body);
-        return {'success': false, 'error': error['message'] ?? 'Invalid ticket'};
+        _deviceId = 'unknown-${DateTime.now().millisecondsSinceEpoch}';
       }
     } catch (e) {
-      return {'success': false, 'error': 'Network error: ${e.toString()}'};
-    }
-  }
-
-  Future<Ticket?> getStoredTicket() async {
-    try {
-      final ticketData = await _storage.read(key: _ticketKey);
-      if (ticketData != null) {
-        final data = jsonDecode(ticketData) as Map<String, dynamic>;
-        return Ticket.fromJson(data);
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  Future<String?> getAuthToken() async {
-    return await _storage.read(key: _tokenKey);
-  }
-
-  Future<bool> isAuthenticated() async {
-    final ticket = await getStoredTicket();
-    if (ticket == null) return false;
-    
-    // Check if ticket is expired
-    if (ticket.isExpired) {
-      await logout();
-      return false;
+      _deviceId = 'error-${DateTime.now().millisecondsSinceEpoch}';
     }
     
-    return true;
+    return _deviceId!;
   }
-
-  Future<void> logout() async {
-    await _storage.delete(key: _ticketKey);
-    await _storage.delete(key: _tokenKey);
-    
-    // Call logout API
+  
+  Future<bool> validateTicket(String ticketNumber) async {
     try {
-      final token = await getAuthToken();
-      if (token != null) {
-        await http.post(
-          Uri.parse('${AppConstants.authApiUrl}/auth/logout'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-        );
-      }
-    } catch (e) {
-      // Ignore logout errors
-    }
-  }
-
-  // Refresh session if needed
-  Future<bool> refreshSession() async {
-    try {
-      final ticket = await getStoredTicket();
-      if (ticket == null) return false;
-      
-      final token = await getAuthToken();
-      if (token == null) return false;
-      
-      final response = await http.post(
-        Uri.parse('${AppConstants.authApiUrl}/auth/refresh'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
+      final deviceId = await _getDeviceId();
+      final url = Uri.parse('${AppConstants.authApiUrl}/auth/validate-ticket');
+      final resp = await http.post(url, 
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'ticketNumber': ticketNumber, 'deviceId': deviceId}),
       );
       
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final newTicket = Ticket.fromJson(data['ticket'] as Map<String, dynamic>);
-        await _storage.write(key: _ticketKey, value: jsonEncode(newTicket.toJson()));
+      if (resp.statusCode == 200) {
+        final data = jsonDecode(resp.body);
+        final token = data['token'];
+        final expiry = data['expiresAt'];
+        
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_tokenKey, token);
+        await prefs.setString(_expiryKey, expiry);
+        await prefs.setString(_ticketKey, ticketNumber);
         return true;
       }
-      
       return false;
     } catch (e) {
+      print('Error validating ticket: $e');
       return false;
     }
+  }
+  
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_tokenKey);
+  }
+  
+  Future<bool> isTokenValid() async {
+    final prefs = await SharedPreferences.getInstance();
+    final expiry = prefs.getString(_expiryKey);
+    if (expiry == null) return false;
+    final expiryDate = DateTime.parse(expiry);
+    return DateTime.now().isBefore(expiryDate);
+  }
+  
+  Future<String> getAuthedHlsUrl() async {
+    final token = await getToken();
+    final expiry = await SharedPreferences.getInstance().then((p) => p.getString(_expiryKey));
+    
+    if (token == null || expiry == null) {
+      return AppConstants.hlsManifestUrl;
+    }
+    
+    final expiryTimestamp = DateTime.parse(expiry).millisecondsSinceEpoch;
+    return '${AppConstants.hlsManifestUrl}?token=$token&expires=$expiryTimestamp';
+  }
+  
+  Future<void> clearAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
+    await prefs.remove(_expiryKey);
+    await prefs.remove(_ticketKey);
   }
 }

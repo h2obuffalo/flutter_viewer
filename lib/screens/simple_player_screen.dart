@@ -8,6 +8,7 @@ import '../config/constants.dart';
 import '../widgets/cast_button.dart';
 import '../services/cast_service.dart';
 import '../services/stream_health_monitor.dart';
+import '../services/auth_service.dart';
 
 /// Simple player screen for mobile platforms using video_player
 /// with automatic reconnection and lifecycle handling
@@ -220,10 +221,12 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
 
   Future<void> _initPlayer() async {
     try {
-      print('Initializing video player with URL: ${AppConstants.hlsManifestUrl}');
+      final authService = AuthService();
+      final hlsUrl = await authService.getAuthedHlsUrl();
+      print('Initializing video player with URL: $hlsUrl');
       
       _videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(AppConstants.hlsManifestUrl),
+        Uri.parse(hlsUrl),
         videoPlayerOptions: VideoPlayerOptions(
           mixWithOthers: false,
           allowBackgroundPlayback: false,
@@ -356,15 +359,17 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
         _errorMessage = null;
       });
       
-      // Add cache-busting parameter to force fresh stream
+      // Get fresh authed URL
+      final authService = AuthService();
+      final freshUrl = await authService.getAuthedHlsUrl();
       final cacheBuster = DateTime.now().millisecondsSinceEpoch;
-      final freshUrl = '${AppConstants.hlsManifestUrl}?t=$cacheBuster';
+      final freshUrlWithCache = '$freshUrl${freshUrl.contains('?') ? '&' : '?'}t=$cacheBuster';
       
-      print('Using fresh stream URL: $freshUrl');
+      print('Using fresh stream URL: $freshUrlWithCache');
       
       // Create new controller with fresh URL
       _videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(freshUrl),
+        Uri.parse(freshUrlWithCache),
         videoPlayerOptions: VideoPlayerOptions(
           mixWithOthers: false,
           allowBackgroundPlayback: false,

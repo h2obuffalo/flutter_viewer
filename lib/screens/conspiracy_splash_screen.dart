@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../utils/conspiracy_texts.dart';
 import '../widgets/crt_terminal.dart';
+import '../services/auth_service.dart';
 
 class ConspiracySplashScreen extends StatefulWidget {
   const ConspiracySplashScreen({super.key});
@@ -124,8 +125,18 @@ class _ConspiracySplashScreenState extends State<ConspiracySplashScreen>
     _glitchController.repeat();
   }
 
-  void _navigateToMainApp() {
-    Navigator.of(context).pushReplacementNamed('/menu');
+  void _navigateToMainApp() async {
+    // Check if user has a valid token, navigate to ticket input if not
+    final authService = AuthService();
+    final hasValidToken = await authService.isTokenValid();
+    
+    if (!mounted) return;
+    
+    if (hasValidToken) {
+      Navigator.of(context).pushReplacementNamed('/menu');
+    } else {
+      Navigator.of(context).pushReplacementNamed('/ticket');
+    }
   }
 
   void _onTap() {

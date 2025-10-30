@@ -38,6 +38,9 @@ dependencies:
   # Local storage
   shared_preferences: ^2.2.0
   
+  # Device info
+  device_info_plus: ^10.0.0
+  
   # Retro fonts (available via Google Fonts)
   google_fonts: ^6.1.0
   flutter_chrome_cast: ^1.2.5

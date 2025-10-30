@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_chrome_cast/flutter_chrome_cast.dart';
+import '../config/constants.dart';
+import 'auth_service.dart';
 
 class CastService {
   static final CastService _instance = CastService._internal();
@@ -13,6 +15,7 @@ class CastService {
   bool _isInitialized = false;
   bool _isConnected = false;
   String? _deviceName;
+  bool _mediaLoaded = false;
 
   // Streams for UI to listen to
   Stream<bool> get isConnectedStream => _isConnectedController!.stream;
@@ -145,6 +148,23 @@ class CastService {
           _isConnectedController?.add(true);
           _deviceNameController?.add(_deviceName);
           print('Connected to ${device.friendlyName}');
+
+          // Auto-load our HLS stream on connect/resume (after a short delay so media channel is ready)
+          if (!_mediaLoaded) {
+            Future<void>.delayed(const Duration(milliseconds: 700), () async {
+              final authService = AuthService();
+              final url = await authService.getAuthedHlsUrl();
+              if (_mediaLoaded) return;
+              print('🎬 Auto-loading HLS on Chromecast: $url');
+              final ok = await startCasting(url, 'BangFace Live');
+              if (ok) {
+                _mediaLoaded = true;
+                print('✅ HLS load request sent successfully');
+              } else {
+                print('❌ HLS load request failed to send');
+              }
+            });
+          }
           
           // Listen to media status changes for debugging and state management
           GoogleCastRemoteMediaClient.instance.mediaStatusStream.listen((status) {
@@ -167,6 +187,7 @@ class CastService {
         } else {
           // Session ended - reset state
           _resetConnectionState();
+          _mediaLoaded = false;
           print('Disconnected from Chromecast');
         }
       });
@@ -190,46 +211,43 @@ class CastService {
 
     try {
       final mediaClient = GoogleCastRemoteMediaClient.instance;
-      
+
       print('Attempting to cast HLS stream to $_deviceName');
       print('HLS URL: $hlsUrl');
-      
-      // Try the alternative method first (simpler configuration)
-      final mediaInformation = GoogleCastMediaInformation(
+
+      // Prefer the standard HLS MIME first
+      final primaryInfo = GoogleCastMediaInformation(
         contentId: hlsUrl,
         contentUrl: Uri.parse(hlsUrl),
-        contentType: 'video/mp2t', // Alternative MIME type for HLS
+        contentType: 'application/vnd.apple.mpegurl',
         streamType: CastMediaStreamType.live,
         metadata: GoogleCastMediaMetadata(
           metadataType: GoogleCastMediaMetadataType.genericMediaMetadata,
         ),
       );
 
-      await mediaClient.loadMedia(mediaInformation);
-      
-      print('✅ Successfully started casting HLS stream to $_deviceName');
-      print('Using video/mp2t content type (alternative method)');
-      
+      await mediaClient.loadMedia(primaryInfo);
+      print('✅ Successfully started casting HLS (m3u8, live)');
       return true;
     } catch (e) {
-      print('❌ Error starting HLS cast: $e');
+      print('❌ Primary HLS load failed: $e');
       print('Trying fallback method...');
-      
-      // Try fallback with different configuration
+
+      // Fallback with alternative MIME and buffered stream type
       try {
         final mediaClient = GoogleCastRemoteMediaClient.instance;
         final fallbackMediaInfo = GoogleCastMediaInformation(
           contentId: hlsUrl,
           contentUrl: Uri.parse(hlsUrl),
-          contentType: 'application/vnd.apple.mpegurl',
-          streamType: CastMediaStreamType.buffered, // Try buffered instead of live
+          contentType: 'video/mp2t',
+          streamType: CastMediaStreamType.buffered,
           metadata: GoogleCastMediaMetadata(
             metadataType: GoogleCastMediaMetadataType.genericMediaMetadata,
           ),
         );
-        
+
         await mediaClient.loadMedia(fallbackMediaInfo);
-        print('✅ Fallback method successful - using buffered stream type');
+        print('✅ Fallback method successful - video/mp2t buffered');
         return true;
       } catch (fallbackError) {
         print('❌ Fallback method also failed: $fallbackError');

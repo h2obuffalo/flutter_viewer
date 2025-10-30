@@ -8,6 +8,7 @@ import 'screens/login_screen.dart';
 import 'screens/main_menu_screen.dart';
 import 'screens/simple_player_screen.dart';
 import 'screens/lineup_list_screen.dart';
+import 'screens/ticket_input_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,6 +49,7 @@ class FlutterViewerApp extends StatelessWidget {
         home: const ConspiracySplashScreen(),
         routes: {
           '/login': (context) => const LoginScreen(),
+          '/ticket': (context) => const TicketInputScreen(),
           '/menu': (context) => const MainMenuScreen(),
           '/player': (context) => const SimplePlayerScreen(),
           '/lineup': (context) => const LineupListScreen(),
