@@ -98,7 +98,7 @@ class CastService {
       
       print('CastService: Found ${devices.length} total devices, ${videoCapableDevices.length} video-capable');
       for (final device in videoCapableDevices) {
-        print('CastService: Device - ${device.deviceName} (${device.modelName})');
+        print('CastService: Device - ${device.friendlyName} (${device.modelName})');
       }
       return videoCapableDevices;
     } catch (e) {
