@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
+import 'remote_lineup_sync_service.dart';
 import '../models/artist.dart';
 
 class LineupService {
@@ -10,7 +11,7 @@ class LineupService {
   List<Artist>? _artists;
   bool _isLoading = false;
 
-  // Get all artists
+  // Get all artists (prefers remote cache, falls back to asset)
   Future<List<Artist>> getAllArtists() async {
     if (_artists != null) return _artists!;
     if (_isLoading) {
@@ -21,6 +22,20 @@ class LineupService {
       return _artists ?? [];
     }
     
+    // Try remote cached first
+    final remote = await RemoteLineupSyncService().getCurrentArtists();
+    if (remote.isNotEmpty) {
+      _artists = remote;
+      // Kick off an async refresh check (non-blocking)
+      // ignore: unawaited_futures
+      RemoteLineupSyncService().refreshIfChanged().then((changed) async {
+        if (changed) {
+          _artists = await RemoteLineupSyncService().getCurrentArtists();
+        }
+      });
+      return _artists!;
+    }
+
     return await _loadArtists();
   }
 

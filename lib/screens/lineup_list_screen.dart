@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../config/theme.dart';
 import '../models/artist.dart';
 import '../services/lineup_service.dart';
+import '../services/remote_lineup_sync_service.dart';
 import '../services/favorites_service.dart';
 import '../services/now_playing_service.dart';
 import 'artist_detail_screen.dart';
@@ -61,6 +62,19 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
     _selectedDay = null; // 'All Days'
     _initializeAnimations();
     _loadData();
+    // Background refresh check after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final changed = await RemoteLineupSyncService().refreshIfChanged();
+      if (!mounted) return;
+      if (changed) {
+        await _loadData();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Lineup updated')),
+          );
+        }
+      }
+    });
     
     // Listen for focus changes to collapse search when keyboard closes
     _searchFocusNode.addListener(() {
@@ -280,6 +294,27 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
             );
           },
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Refresh lineup',
+            icon: const Icon(Icons.refresh, color: RetroTheme.neonCyan),
+            onPressed: () async {
+              final changed = await RemoteLineupSyncService().refreshIfChanged();
+              if (!mounted) return;
+              if (changed) {
+                await _loadData();
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Lineup updated')),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('No changes detected')),
+                );
+              }
+            },
+          ),
+        ],
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: RetroTheme.neonCyan),
           onPressed: () => Navigator.pop(context),
