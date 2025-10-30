@@ -84,12 +84,8 @@ class CastService {
       // Wait for discovery to find devices
       await Future.delayed(const Duration(seconds: 3));
       
-      // Get discovered devices
-      final devices = <GoogleCastDevice>[];
-      await for (final deviceList in discoveryManager.devicesStream) {
-        devices.addAll(deviceList);
-        if (deviceList.isNotEmpty) break; // Stop after first batch
-      }
+      // Get current devices directly from the discovery manager
+      final devices = discoveryManager.devices;
       
       // Filter out audio-only devices for video casting
       final videoCapableDevices = devices.where((device) {
@@ -100,7 +96,10 @@ class CastService {
                !modelName.contains('home mini');
       }).toList();
       
-      print('Found ${devices.length} total devices, ${videoCapableDevices.length} video-capable');
+      print('CastService: Found ${devices.length} total devices, ${videoCapableDevices.length} video-capable');
+      for (final device in videoCapableDevices) {
+        print('CastService: Device - ${device.deviceName} (${device.modelName})');
+      }
       return videoCapableDevices;
     } catch (e) {
       print('Error discovering devices: $e');
