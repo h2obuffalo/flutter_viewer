@@ -222,6 +222,17 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   Future<void> _initPlayer() async {
     try {
       final authService = AuthService();
+      
+      // Check if user has valid ticket authentication
+      final hasValidToken = await authService.isTokenValid();
+      if (!hasValidToken) {
+        // Redirect to ticket input screen
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/ticket');
+        }
+        return;
+      }
+      
       final hlsUrl = await authService.getAuthedHlsUrl();
       print('Initializing video player with URL: $hlsUrl');
       
@@ -359,8 +370,18 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
         _errorMessage = null;
       });
       
-      // Get fresh authed URL
+      // Check if user still has valid ticket authentication
       final authService = AuthService();
+      final hasValidToken = await authService.isTokenValid();
+      if (!hasValidToken) {
+        // Redirect to ticket input screen
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/ticket');
+        }
+        return;
+      }
+      
+      // Get fresh authed URL
       final freshUrl = await authService.getAuthedHlsUrl();
       final cacheBuster = DateTime.now().millisecondsSinceEpoch;
       final freshUrlWithCache = '$freshUrl${freshUrl.contains('?') ? '&' : '?'}t=$cacheBuster';

@@ -766,8 +766,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-10-29T20:00:00Z",
-        "end": "2025-10-29T21:00:00Z",
+        "start": "2025-10-29T20:30:00Z",
+        "end": "2025-10-29T21:30:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -2039,27 +2039,14 @@
     ],
     "setTimes": [
       {
-        "start": "2025-10-29T20:45:00.000Z",
-        "end": "2025-10-29T21:15:00.000Z",
-        "stage": "MAD",
-        "status": "scheduled"
-      }
-    ]
-  },
-  {
-    "id": 108,
-    "name": "Booty Shakin Bestiez Princess Elf Bar",
-    "photo": "assets/lineup-photos/booty-shakin-bestiez-princess-elf-bar.jpg",
-    "website": null,
-    "bandcamp": null,
-    "blurb": null,
-    "stages": [
-      "MAD"
-    ],
-    "setTimes": [
-      {
         "start": "2025-10-29T20:00:00.000Z",
         "end": "2025-10-29T20:30:00.000Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      },
+      {
+        "start": "2025-10-29T20:45:00.000Z",
+        "end": "2025-10-29T21:15:00.000Z",
         "stage": "MAD",
         "status": "scheduled"
       }

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Animation - SVG Text Parser</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            max-width: 90%;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+        }
+
+        input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .file-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 90vw;
+            max-width: 1200px;
+            height: 70vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        #svgContainer {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .word-element {
+            transition: filter 0.3s ease;
+            cursor: pointer;
+            pointer-events: all;
+        }
+
+        .word-element:hover {
+            filter: brightness(1.2) drop-shadow(0 0 8px rgba(102, 126, 234, 0.6));
+        }
+
+        .instructions {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 14px;
+            color: #333;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .status {
+            color: #667eea;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <div class="file-input-wrapper">
+            <input type="file" id="svgInput" accept=".svg,image/svg+xml,text/xml">
+            <label for="svgInput" class="file-label">Upload SVG</label>
+        </div>
+        <button id="explodeBtn">Explode</button>
+        <button id="resetBtn">Reset</button>
+        <button id="mouseModeBtn">Mouse Mode: OFF</button>
+        <button id="rearrangeBtn">Rearrange & Reassemble</button>
+    </div>
+
+    <div class="canvas-container" id="canvasContainer">
+        <div id="svgContainer"></div>
+    </div>
+
+    <div class="instructions">
+        <span class="status">Upload your SVG file to begin.</span> Words will be extracted and can be animated with mouse interaction or explode effects.
+    </div>
+
+    <script>
+        const svgInput = document.getElementById('svgInput');
+        const svgContainer = document.getElementById('svgContainer');
+        const explodeBtn = document.getElementById('explodeBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const mouseModeBtn = document.getElementById('mouseModeBtn');
+        const rearrangeBtn = document.getElementById('rearrangeBtn');
+        const instructions = document.querySelector('.instructions');
+
+        let words = [];
+        let originalWords = [];
+        let mouseMode = false;
+        let animationId = null;
+        let isExploded = false;
+        let originalSVG = null;
+
+        // Load and parse SVG
+        svgInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const svgText = event.target.result;
+                await parseSVG(svgText);
+            };
+            reader.readAsText(file);
+        });
+
+        async function parseSVG(svgText) {
+            svgContainer.innerHTML = svgText;
+            const svg = svgContainer.querySelector('svg');
+            
+            if (!svg) {
+                instructions.innerHTML = '<span style="color: #f5576c;">Error: Invalid SVG file</span>';
+                return;
+            }
+
+            originalSVG = svg.cloneNode(true);
+            
+            // Get viewBox or dimensions
+            const viewBox = svg.getAttribute('viewBox');
+            let svgWidth, svgHeight;
+            
+            if (viewBox) {
+                const parts = viewBox.split(/\s+/);
+                svgWidth = parseFloat(parts[2]) || 800;
+                svgHeight = parseFloat(parts[3]) || 600;
+            } else {
+                svgWidth = parseFloat(svg.getAttribute('width')) || parseFloat(svg.getAttribute('viewBox')?.split(' ')[2]) || 800;
+                svgHeight = parseFloat(svg.getAttribute('height')) || parseFloat(svg.getAttribute('viewBox')?.split(' ')[3]) || 600;
+            }
+
+            // Scale SVG to fit container
+            const container = svgContainer.parentElement;
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            const scale = Math.min(containerWidth / svgWidth, containerHeight / svgHeight) * 0.9;
+            
+            svg.setAttribute('width', containerWidth);
+            svg.setAttribute('height', containerHeight);
+            svg.style.width = '100%';
+            svg.style.height = '100%';
+            svg.style.overflow = 'visible';
+
+            // Extract all text elements
+            words = [];
+            originalWords = [];
+            
+            const allTextElements = [];
+            
+            // Get all text and tspan elements
+            const textElements = svg.querySelectorAll('text');
+            
+            textElements.forEach(textEl => {
+                // Check if text element has tspan children
+                const tspans = textEl.querySelectorAll('tspan');
+                
+                if (tspans.length > 0) {
+                    tspans.forEach((tspan, tspanIndex) => {
+                        const text = tspan.textContent.trim();
+                        if (text) {
+                            // Split by spaces to get individual words
+                            const wordsInText = text.split(/\s+/).filter(w => w.length > 0);
+                            
+                            wordsInText.forEach((wordText, wordIndex) => {
+                                const x = parseFloat(tspan.getAttribute('x')) || 
+                                         parseFloat(textEl.getAttribute('x')) || 0;
+                                const y = parseFloat(tspan.getAttribute('y')) || 
+                                         parseFloat(textEl.getAttribute('y')) || 0;
+                                
+                                // Calculate word position (accounting for previous words)
+                                const fontSize = parseFloat(
+                                    tspan.getAttribute('font-size') || 
+                                    textEl.getAttribute('font-size') || 
+                                    window.getComputedStyle(tspan).fontSize || 
+                                    '16'
+                                );
+                                
+                                const estimatedCharWidth = fontSize * 0.6;
+                                let wordOffsetX = 0;
+                                
+                                // Calculate offset for this word
+                                const textBefore = tspan.textContent.substring(0, tspan.textContent.indexOf(wordText));
+                                wordOffsetX = textBefore.length * estimatedCharWidth;
+                                
+                                // Also account for previous tspans
+                                for (let i = 0; i < tspanIndex; i++) {
+                                    wordOffsetX += tspans[i].textContent.length * estimatedCharWidth;
+                                }
+                                
+                                const wordObj = createWordObject(
+                                    wordText, 
+                                    x + wordOffsetX, 
+                                    y, 
+                                    fontSize, 
+                                    textEl, 
+                                    tspan, 
+                                    scale, 
+                                    containerWidth, 
+                                    containerHeight,
+                                    svgWidth,
+                                    svgHeight
+                                );
+                                
+                                words.push(wordObj);
+                                originalWords.push({...wordObj});
+                            });
+                        }
+                    });
+                } else {
+                    // No tspans, treat entire text content
+                    const textContent = textEl.textContent.trim();
+                    if (textContent) {
+                        const wordsInText = textContent.split(/\s+/).filter(w => w.length > 0);
+                        
+                        wordsInText.forEach((wordText, index) => {
+                            const x = parseFloat(textEl.getAttribute('x')) || 0;
+                            const y = parseFloat(textEl.getAttribute('y')) || 0;
+                            
+                            const fontSize = parseFloat(
+                                textEl.getAttribute('font-size') || 
+                                window.getComputedStyle(textEl).fontSize || 
+                                '16'
+                            );
+                            
+                            const estimatedCharWidth = fontSize * 0.6;
+                            const wordOffsetX = index * (wordText.length * estimatedCharWidth + fontSize * 0.3);
+                            
+                            const wordObj = createWordObject(
+                                wordText, 
+                                x + wordOffsetX, 
+                                y, 
+                                fontSize, 
+                                textEl, 
+                                null, 
+                                scale, 
+                                containerWidth, 
+                                containerHeight,
+                                svgWidth,
+                                svgHeight
+                            );
+                            
+                            words.push(wordObj);
+                            originalWords.push({...wordObj});
+                        });
+                    }
+                }
+            });
+
+            // If no text elements found, provide feedback
+            if (words.length === 0) {
+                instructions.innerHTML = '<span style="color: #f5576c;">No text elements found in SVG. Make sure your SVG contains &lt;text&gt; elements.</span>';
+                explodeBtn.disabled = true;
+                resetBtn.disabled = true;
+                rearrangeBtn.disabled = true;
+                return;
+            }
+
+            // Clear original and add word elements
+            svg.innerHTML = '';
+            
+            // Create a group for all words
+            const wordsGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            wordsGroup.id = 'wordsGroup';
+            
+            words.forEach(word => {
+                word.element.setAttribute('x', word.currentX);
+                word.element.setAttribute('y', word.currentY);
+                wordsGroup.appendChild(word.element);
+            });
+            
+            svg.appendChild(wordsGroup);
+            
+            instructions.innerHTML = `<span class="status">Loaded ${words.length} word(s). Ready to animate!</span>`;
+            
+            // Enable buttons
+            explodeBtn.disabled = false;
+            resetBtn.disabled = false;
+            rearrangeBtn.disabled = false;
+        }
+
+        function createWordObject(wordText, x, y, fontSize, originalTextEl, originalTspan, scale, containerWidth, containerHeight, svgWidth, svgHeight) {
+            // Create a new text element for this word
+            const newText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            
+            // Copy relevant attributes from original element
+            const sourceEl = originalTspan || originalTextEl;
+            Array.from(sourceEl.attributes).forEach(attr => {
+                const name = attr.name;
+                if (!['x', 'y', 'dx', 'dy'].includes(name)) {
+                    newText.setAttribute(name, attr.value);
+                }
+            });
+            
+            newText.textContent = wordText;
+            newText.classList.add('word-element');
+            
+            // Calculate dimensions
+            const estimatedWidth = wordText.length * fontSize * 0.6;
+            const estimatedHeight = fontSize;
+            
+            // Get transform
+            const transform = sourceEl.getAttribute('transform') || '';
+            let offsetX = 0, offsetY = 0;
+            
+            // Parse translate transform
+            const translateMatch = transform.match(/translate\(([^,]+),\s*([^)]+)\)/);
+            if (translateMatch) {
+                offsetX = parseFloat(translateMatch[1]) || 0;
+                offsetY = parseFloat(translateMatch[2]) || 0;
+            }
+            
+            // Calculate final position (centered in container)
+            const centerX = containerWidth / 2;
+            const centerY = containerHeight / 2;
+            const svgCenterX = (svgWidth || 800) / 2;
+            const svgCenterY = (svgHeight || 600) / 2;
+            
+            const finalX = centerX + ((x + offsetX - svgCenterX) * scale);
+            const finalY = centerY + ((y + offsetY - svgCenterY) * scale);
+            
+            return {
+                element: newText,
+                text: wordText,
+                originalX: finalX,
+                originalY: finalY,
+                currentX: finalX,
+                currentY: finalY,
+                targetX: finalX,
+                targetY: finalY,
+                width: estimatedWidth * scale,
+                height: estimatedHeight * scale,
+                fontSize: fontSize * scale
+            };
+        }
+
+        function explode() {
+            if (words.length === 0) return;
+            
+            isExploded = true;
+            const container = svgContainer.parentElement;
+            
+            words.forEach((word, index) => {
+                const angle = (Math.PI * 2 * index) / words.length;
+                const distance = Math.min(container.clientWidth, container.clientHeight) * 0.3;
+                
+                word.targetX = word.originalX + Math.cos(angle) * distance;
+                word.targetY = word.originalY + Math.sin(angle) * distance;
+            });
+            
+            animate();
+        }
+
+        function reset() {
+            if (words.length === 0) return;
+            
+            isExploded = false;
+            words.forEach(word => {
+                word.targetX = word.originalX;
+                word.targetY = word.originalY;
+            });
+            
+            animate();
+        }
+
+        function rearrangeAndReassemble() {
+            if (words.length === 0) return;
+            
+            isExploded = true;
+            const container = svgContainer.parentElement;
+            
+            // First explode
+            words.forEach((word, index) => {
+                const angle = (Math.PI * 2 * index) / words.length;
+                const distance = Math.min(container.clientWidth, container.clientHeight) * 0.4;
+                
+                word.targetX = word.originalX + Math.cos(angle) * distance;
+                word.targetY = word.originalY + Math.sin(angle) * distance;
+            });
+            
+            animate();
+            
+            // Then rearrange and come back
+            setTimeout(() => {
+                // Shuffle word positions but keep original shape
+                const shuffled = [...originalWords].sort(() => Math.random() - 0.5);
+                
+                words.forEach((word, index) => {
+                    const target = shuffled[index];
+                    word.targetX = target.originalX;
+                    word.targetY = target.originalY;
+                });
+                
+                animate();
+                
+                // Finally return to original positions
+                setTimeout(() => {
+                    reset();
+                }, 1500);
+            }, 2000);
+        }
+
+        function animate() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+
+            let isMoving = true;
+
+            function frame() {
+                isMoving = false;
+
+                words.forEach(word => {
+                    const dx = word.targetX - word.currentX;
+                    const dy = word.targetY - word.currentY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance > 1) {
+                        isMoving = true;
+                        word.currentX += dx * 0.1;
+                        word.currentY += dy * 0.1;
+                        
+                        // Update element position with transform for smooth movement
+                        word.element.setAttribute('transform', 
+                            `translate(${word.currentX - word.originalX}, ${word.currentY - word.originalY})`);
+                    } else {
+                        word.currentX = word.targetX;
+                        word.currentY = word.targetY;
+                    }
+                });
+
+                if (isMoving) {
+                    animationId = requestAnimationFrame(frame);
+                }
+            }
+
+            frame();
+        }
+
+        function handleMouseMove(e) {
+            if (!mouseMode || words.length === 0) return;
+
+            const container = svgContainer.parentElement;
+            const rect = container.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            words.forEach(word => {
+                const centerX = word.currentX;
+                const centerY = word.currentY;
+                
+                const dx = mouseX - centerX;
+                const dy = mouseY - centerY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const maxDistance = 150;
+
+                if (distance < maxDistance) {
+                    const force = (1 - distance / maxDistance) * 60;
+                    const angle = Math.atan2(dy, dx);
+                    
+                    word.targetX = word.originalX - Math.cos(angle) * force;
+                    word.targetY = word.originalY - Math.sin(angle) * force;
+                } else {
+                    word.targetX = word.originalX;
+                    word.targetY = word.originalY;
+                }
+            });
+
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+
+            function frame() {
+                let isMoving = false;
+
+                words.forEach(word => {
+                    const dx = word.targetX - word.currentX;
+                    const dy = word.targetY - word.currentY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance > 1) {
+                        isMoving = true;
+                        word.currentX += dx * 0.15;
+                        word.currentY += dy * 0.15;
+                        
+                        word.element.setAttribute('transform', 
+                            `translate(${word.currentX - word.originalX}, ${word.currentY - word.originalY})`);
+                    } else {
+                        word.currentX = word.targetX;
+                        word.currentY = word.targetY;
+                    }
+                });
+
+                if (isMoving) {
+                    animationId = requestAnimationFrame(frame);
+                }
+            }
+
+            frame();
+        }
+
+        svgContainer.parentElement.addEventListener('mousemove', handleMouseMove);
+
+        explodeBtn.addEventListener('click', explode);
+        resetBtn.addEventListener('click', reset);
+        rearrangeBtn.addEventListener('click', rearrangeAndReassemble);
+        
+        mouseModeBtn.addEventListener('click', () => {
+            mouseMode = !mouseMode;
+            mouseModeBtn.textContent = mouseMode ? 'Mouse Mode: ON' : 'Mouse Mode: OFF';
+            mouseModeBtn.style.background = mouseMode 
+                ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            
+            if (!mouseMode) {
+                reset();
+            }
+        });
+
+        // Disable buttons initially
+        explodeBtn.disabled = true;
+        resetBtn.disabled = true;
+        rearrangeBtn.disabled = true;
+    </script>
+</body>
+</html>
+

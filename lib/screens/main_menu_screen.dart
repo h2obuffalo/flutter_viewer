@@ -5,9 +5,11 @@ import 'package:flutter/services.dart';
 import '../config/theme.dart';
 import '../widgets/glitch_text.dart';
 import '../services/now_playing_service.dart';
+import '../services/remote_lineup_sync_service.dart';
 import '../widgets/bangface_popup.dart';
 import 'lineup_list_screen.dart';
 import 'simple_player_screen.dart';
+import 'updates_screen.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -56,6 +58,35 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
 
     // Trigger random glitches
     _triggerRandomGlitch();
+    
+    // Start periodic lineup change checks
+    _startLineupChangeChecker();
+  }
+
+  void _startLineupChangeChecker() {
+    // Check for lineup changes every 5 minutes
+    Timer.periodic(const Duration(minutes: 5), (timer) async {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      
+      try {
+        final changed = await RemoteLineupSyncService().refreshIfChanged();
+        if (changed && mounted) {
+          // Notification will be shown automatically by RemoteLineupSyncService
+          // Optionally show snackbar
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Lineup updated'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } catch (e) {
+        print('Error checking lineup changes: $e');
+      }
+    });
   }
 
   void _triggerRandomGlitch() {
@@ -104,6 +135,23 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
     // Navigate to lineup
     if (mounted) {
       Navigator.pushNamed(context, '/lineup');
+    }
+  }
+
+  void _onUpdatesPressed() async {
+    // Haptic feedback
+    HapticFeedback.mediumImpact();
+    
+    // Button animation
+    await _buttonController.forward();
+    await _buttonController.reverse();
+    
+    // Navigate to updates
+    if (mounted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const UpdatesScreen()),
+      );
     }
   }
 
@@ -214,6 +262,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                 _buildMenuButton('BANGFACETV STREAM', _onLiveStreamPressed, RetroTheme.neonCyan),
                 const SizedBox(height: 20),
                 _buildMenuButton('LINEUP', _onLineupPressed, RetroTheme.hotPink),
+                const SizedBox(height: 20),
+                _buildMenuButton('UPDATES', _onUpdatesPressed, RetroTheme.warningYellow),
                 const SizedBox(height: 20),
                 _buildMenuButton('WHAT\'S THE CRAIC', _onWhatsTheCrackPressed, RetroTheme.electricGreen),
                 
@@ -353,7 +403,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                                 blurRadius: 10,
                               ),
                             ] : null,
-                          ),
+                    ),
                         ),
                       );
                     },

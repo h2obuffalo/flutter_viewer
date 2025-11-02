@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'dart:io' show Platform;
 import '../config/constants.dart';
 
 class AuthService {
@@ -20,10 +21,10 @@ class AuthService {
     
     try {
       final deviceInfo = DeviceInfoPlugin();
-      if (await deviceInfo.isIos()) {
+      if (Platform.isIOS) {
         final iosInfo = await deviceInfo.iosInfo;
         _deviceId = iosInfo.identifierForVendor ?? 'ios-unknown-${DateTime.now().millisecondsSinceEpoch}';
-      } else if (await deviceInfo.isAndroid()) {
+      } else if (Platform.isAndroid) {
         final androidInfo = await deviceInfo.androidInfo;
         _deviceId = androidInfo.id;
       } else {

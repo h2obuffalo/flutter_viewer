@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../config/theme.dart';
 import '../models/artist.dart';
+import '../services/remote_lineup_sync_service.dart';
 
 class ArtistDetailScreen extends StatefulWidget {
   final Artist artist;
@@ -17,6 +20,8 @@ class ArtistDetailScreen extends StatefulWidget {
 }
 
 class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProviderStateMixin {
+  Set<String> _updatedSetTimeSignatures = {};
+  bool _isLoadingUpdatedSetTimes = true;
   late AnimationController _glitchController;
   late AnimationController _pulseController;
   late AnimationController _fadeController;
@@ -25,6 +30,40 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
   void initState() {
     super.initState();
     _initializeAnimations();
+    _loadUpdatedSetTimes();
+  }
+  
+  Future<void> _loadUpdatedSetTimes() async {
+    final updatedSetTimes = await RemoteLineupSyncService().getUpdatedSetTimes(widget.artist.id);
+    print('🎨 Loading updated set times for artist ${widget.artist.id}: ${updatedSetTimes.length} found');
+    
+    // Create signatures for updated set times (start_end_stage_status) - must match service format
+    final signatures = updatedSetTimes.map((st) {
+      final start = st['start'] as String? ?? '';
+      final end = st['end'] as String? ?? '';
+      final stage = st['stage'] as String? ?? '';
+      final status = st['status'] as String? ?? '';
+      final sig = '${start}_${end}_${stage}_${status}';
+      print('   Signature: $sig');
+      return sig;
+    }).toSet();
+    
+    print('🎨 Artist ${widget.artist.id} has ${widget.artist.setTimes.length} set times, ${signatures.length} marked as updated');
+    
+    setState(() {
+      _updatedSetTimeSignatures = signatures;
+      _isLoadingUpdatedSetTimes = false;
+    });
+  }
+  
+  bool _isSetTimeUpdated(SetTime setTime) {
+    // Signature format must match _findUpdatedSetTimes: start_end_stage_status
+    final signature = '${setTime.start}_${setTime.end}_${setTime.stage}_${setTime.status}';
+    final isUpdated = _updatedSetTimeSignatures.contains(signature);
+    if (isUpdated) {
+      print('✅ Set time ${setTime.start} is marked as UPDATED');
+    }
+    return isUpdated;
   }
 
   void _initializeAnimations() {
@@ -317,13 +356,19 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
             } else if (setTime.isCompleted) {
               statusColor = RetroTheme.neonCyan.withValues(alpha: 0.6);
             }
+            
+            final isUpdated = _isSetTimeUpdated(setTime);
+            final highlightColor = isUpdated ? RetroTheme.electricGreen : statusColor;
 
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.1),
-                border: Border.all(color: statusColor, width: 1),
+                color: highlightColor.withValues(alpha: isUpdated ? 0.2 : 0.1),
+                border: Border.all(
+                  color: highlightColor,
+                  width: isUpdated ? 2 : 1,
+                ),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
@@ -349,7 +394,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${_formatTime(setTime.startDateTime)} - ${_formatTime(setTime.endDateTime)}',
+                          '${_formatDayAndTime(setTime.startDateTime)} - ${_formatTime(setTime.endDateTime)}',
                           style: TextStyle(
                             color: statusColor.withValues(alpha: 0.8),
                             fontSize: 14,
@@ -358,6 +403,24 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
                       ],
                     ),
                   ),
+                  if (isUpdated) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: RetroTheme.electricGreen,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'UPDATED',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                   if (setTime.isLive) ...[
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -494,5 +557,11 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
 
   String _formatTime(DateTime dateTime) {
     return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+  
+  String _formatDayAndTime(DateTime dateTime) {
+    final dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final dayName = dayNames[dateTime.weekday - 1];
+    return '$dayName ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 }

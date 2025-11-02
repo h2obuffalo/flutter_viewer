@@ -1,17 +1,15 @@
-import 'dart:convert';
-import 'package:flutter/services.dart';
 import '../models/artist.dart';
+import 'lineup_service.dart';
 
 class NowPlayingService {
   static List<Artist> _artists = [];
   
   static Future<void> loadArtists() async {
     try {
-      final String jsonString = await rootBundle.loadString('assets/lineup-2025.json');
-      final Map<String, dynamic> jsonData = json.decode(jsonString);
-      final List<dynamic> artistsJson = jsonData['artists'] ?? [];
-      
-      _artists = artistsJson.map((json) => Artist.fromJson(json)).toList();
+      // Use LineupService which will fetch from API (via RemoteLineupSyncService)
+      // or fallback to bundled asset
+      final lineupService = LineupService();
+      _artists = await lineupService.getAllArtists();
     } catch (e) {
       print('Error loading artists: $e');
       _artists = [];

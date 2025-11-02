@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../config/theme.dart';
 import '../models/artist.dart';
 import '../services/lineup_service.dart';
@@ -28,8 +29,13 @@ Color getStageColor(String stage) {
 
 class LineupListScreen extends StatefulWidget {
   final bool showNowPlaying;
+  final List<int>? updatedArtistIds; // IDs of artists that were recently updated
   
-  const LineupListScreen({super.key, this.showNowPlaying = false});
+  const LineupListScreen({
+    super.key, 
+    this.showNowPlaying = false,
+    this.updatedArtistIds,
+  });
 
   @override
   State<LineupListScreen> createState() => _LineupListScreenState();
@@ -51,6 +57,8 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
   bool _isSearchExpanded = false;
   bool _showFavoritesOnly = false;
   int _sortMode = 0; // 0 = alphabetical, 1 = stage order, 2 = time order
+  Set<int> _updatedArtistIds = {}; // Track which artists were updated (set time/stage changes)
+  Set<int> _newArtistIds = {}; // Track which artists are newly added
 
   late AnimationController _glitchController;
   late AnimationController _pulseController;
@@ -60,21 +68,19 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
     super.initState();
     _selectedStage = null; // 'All Stages'
     _selectedDay = null; // 'All Days'
+    
+    // Track updated artists from notification
+    if (widget.updatedArtistIds != null) {
+      _updatedArtistIds = widget.updatedArtistIds!.toSet();
+    }
+    
     _initializeAnimations();
     _loadData();
-    // Background refresh check after first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final changed = await RemoteLineupSyncService().refreshIfChanged();
-      if (!mounted) return;
-      if (changed) {
-        await _loadData();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Lineup updated')),
-          );
-        }
-      }
-    });
+    _loadUpdatedArtists();
+    // Don't check for changes on screen open - only notify from background checks or manual refresh
+    
+    // Listen for lineup changes from RemoteLineupSyncService
+    RemoteLineupSyncService().addListener(_onLineupChanged);
     
     // Listen for focus changes to collapse search when keyboard closes
     _searchFocusNode.addListener(() {
@@ -96,6 +102,37 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
+  }
+
+  Future<void> _loadUpdatedArtists() async {
+    // Load updated artist IDs from RemoteLineupSyncService
+    final prefs = await SharedPreferences.getInstance();
+    const String updatedArtistsKey = 'lineup.updated.artists';
+    final updatedIdsStr = prefs.getStringList(updatedArtistsKey) ?? [];
+    final updatedIds = updatedIdsStr.map((s) => int.parse(s)).toSet();
+    
+    // Separate new artists from updated artists
+    const String knownIdsKey = 'lineup.known.artist.ids';
+    final knownIdsStr = prefs.getStringList(knownIdsKey) ?? [];
+    final knownIds = knownIdsStr.map((s) => int.parse(s)).toSet();
+    
+    final hasUpdatedArtists = updatedIds.isNotEmpty;
+    
+    if (mounted) {
+      setState(() {
+        _updatedArtistIds = updatedIds.where((id) => knownIds.contains(id)).toSet();
+        _newArtistIds = updatedIds.where((id) => !knownIds.contains(id)).toSet();
+      });
+    }
+    
+    print('🎨 Loaded updated artists: ${_updatedArtistIds.length} updated, ${_newArtistIds.length} new');
+    
+    // If there are updated artists, force refresh the lineup data to show latest info
+    if (hasUpdatedArtists) {
+      print('🔄 Detected updated artists, refreshing lineup data...');
+      await _lineupService.refreshData();
+      await _loadData();
+    }
   }
 
   Future<void> _loadData() async {
@@ -266,11 +303,19 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
 
   @override
   void dispose() {
+    RemoteLineupSyncService().removeListener(_onLineupChanged);
     _searchController.dispose();
     _searchFocusNode.dispose();
     _glitchController.dispose();
     _pulseController.dispose();
     super.dispose();
+  }
+  
+  void _onLineupChanged() {
+    // When RemoteLineupSyncService notifies of changes, reload updated artists
+    if (mounted) {
+      _loadUpdatedArtists();
+    }
   }
 
   @override
@@ -299,19 +344,29 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
             tooltip: 'Refresh lineup',
             icon: const Icon(Icons.refresh, color: RetroTheme.neonCyan),
             onPressed: () async {
-              final changed = await RemoteLineupSyncService().refreshIfChanged();
-              if (!mounted) return;
-              if (changed) {
-                await _loadData();
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Lineup updated')),
-                );
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('No changes detected')),
-                );
-              }
+              print('🔘 Refresh button pressed');
+              // Manual refresh should send notifications
+              // Clear LineupService cache to ensure fresh data
+              _lineupService.clearCache();
+              print('🔘 Cache cleared, calling refreshIfChanged...');
+              final changed = await RemoteLineupSyncService().refreshIfChanged(sendNotifications: true);
+              print('🔘 refreshIfChanged returned: $changed');
+          if (!mounted) return;
+          // Always reload data after refresh, even if no changes detected
+          // (in case cache was stale)
+          await _loadData();
+          // Reload updated artists to show dots/badges
+          await _loadUpdatedArtists();
+          if (!mounted) return;
+          if (changed) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Lineup updated')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('No updates available')),
+            );
+          }
             },
           ),
         ],
@@ -606,6 +661,8 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
     // Get primary stage color for background
     final primaryStage = artist.primaryStage;
     final stageColor = getStageColor(primaryStage);
+    final isUpdated = _updatedArtistIds.contains(artist.id);
+    final isNew = _newArtistIds.contains(artist.id);
     
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
@@ -616,6 +673,13 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
             color: RetroTheme.neonCyan.withValues(alpha: 0.3),
             width: 1,
           ),
+          // Highlight border: green for new artists, none for updated (updated gets dot instead)
+          left: isNew
+            ? BorderSide(
+                color: RetroTheme.electricGreen,
+                width: 4,
+              )
+            : BorderSide.none,
         ),
       ),
       child: InkWell(
@@ -638,14 +702,51 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  artist.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Verdana',
-                  ),
+                child: Row(
+                  children: [
+                    // New artist badge (green border + NEW badge)
+                    if (isNew) ...[
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: RetroTheme.electricGreen,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Text(
+                          'NEW',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    // Updated artist indicator (small green dot)
+                    if (isUpdated && !isNew) ...[
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: RetroTheme.electricGreen,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    Expanded(
+                      child: Text(
+                        artist.name,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Verdana',
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Icon(

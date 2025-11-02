@@ -1,17 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/widgets.dart';
 import 'config/theme.dart';
 import 'services/auth_service.dart';
+import 'services/notification_service.dart';
+import 'services/remote_lineup_sync_service.dart';
 import 'screens/conspiracy_splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/main_menu_screen.dart';
 import 'screens/simple_player_screen.dart';
 import 'screens/lineup_list_screen.dart';
 import 'screens/ticket_input_screen.dart';
+import 'screens/artist_detail_screen.dart';
+import 'screens/updates_screen.dart';
+import 'services/lineup_service.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize notification service
+  await NotificationService().initialize();
+  
+  // Preload lineup data in background if cached data exists
+  // This makes the lineup screen load instantly when opened
+  // ignore: unawaited_futures
+  RemoteLineupSyncService().hasCachedData().then((hasCached) async {
+    if (hasCached) {
+      await RemoteLineupSyncService().preloadIfCached();
+    }
+  });
   
   // Configure system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
@@ -33,16 +51,108 @@ void main() {
   runApp(const FlutterViewerApp());
 }
 
-class FlutterViewerApp extends StatelessWidget {
+class FlutterViewerApp extends StatefulWidget {
   const FlutterViewerApp({super.key});
+
+  @override
+  State<FlutterViewerApp> createState() => _FlutterViewerAppState();
+}
+
+class _FlutterViewerAppState extends State<FlutterViewerApp> with WidgetsBindingObserver {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // Check for pending notifications after app is fully initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkPendingNotifications();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Check for pending notifications when app resumes
+    if (state == AppLifecycleState.resumed) {
+      _checkPendingNotifications();
+    }
+  }
+
+  Future<void> _checkPendingNotifications() async {
+    // Wait a bit for navigation to be ready
+    await Future.delayed(const Duration(milliseconds: 800));
+    
+    if (!mounted) return;
+    
+    final pending = await NotificationService().getPendingNotification();
+    if (pending != null && navigatorKey.currentContext != null) {
+      _handleNotificationNavigation(pending);
+    }
+  }
+
+  void _handleNotificationNavigation(Map<String, dynamic> payload) {
+    final type = payload['type'] as String;
+    final redirect = payload['redirect'] as String?;
+    
+    // Check if notification wants to redirect to updates page
+    if (redirect == 'updates') {
+      _navigateToUpdates();
+      return;
+    }
+    
+    if (type == 'single_artist') {
+      final artistId = payload['artistId'] as int;
+      _navigateToArtist(artistId);
+    } else if (type == 'multiple_artists') {
+      final artistIds = (payload['artistIds'] as List).cast<int>();
+      _navigateToLineupWithMarkers(artistIds);
+    }
+  }
+
+  void _navigateToUpdates() {
+    if (navigatorKey.currentContext != null) {
+      Navigator.of(navigatorKey.currentContext!).pushNamed('/updates');
+    }
+  }
+
+  Future<void> _navigateToArtist(int artistId) async {
+    final lineupService = LineupService();
+    final artist = await lineupService.getArtistById(artistId);
+    
+    if (artist != null && navigatorKey.currentContext != null) {
+      Navigator.of(navigatorKey.currentContext!).push(
+        MaterialPageRoute(
+          builder: (context) => ArtistDetailScreen(artist: artist),
+        ),
+      );
+    }
+  }
+
+  void _navigateToLineupWithMarkers(List<int> artistIds) {
+    if (navigatorKey.currentContext != null) {
+      Navigator.of(navigatorKey.currentContext!).push(
+        MaterialPageRoute(
+          builder: (context) => LineupListScreen(updatedArtistIds: artistIds),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthService()),
+        Provider(create: (_) => AuthService()),
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         title: 'Live Stream Viewer',
         debugShowCheckedModeBanner: false,
         theme: RetroTheme.darkTheme,
@@ -53,6 +163,7 @@ class FlutterViewerApp extends StatelessWidget {
           '/menu': (context) => const MainMenuScreen(),
           '/player': (context) => const SimplePlayerScreen(),
           '/lineup': (context) => const LineupListScreen(),
+          '/updates': (context) => const UpdatesScreen(),
         },
       ),
     );

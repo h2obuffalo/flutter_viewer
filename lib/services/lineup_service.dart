@@ -26,9 +26,9 @@ class LineupService {
     final remote = await RemoteLineupSyncService().getCurrentArtists();
     if (remote.isNotEmpty) {
       _artists = remote;
-      // Kick off an async refresh check (non-blocking)
+      // Kick off an async refresh check (non-blocking, no notifications during data loading)
       // ignore: unawaited_futures
-      RemoteLineupSyncService().refreshIfChanged().then((changed) async {
+      RemoteLineupSyncService().refreshIfChanged(sendNotifications: false).then((changed) async {
         if (changed) {
           _artists = await RemoteLineupSyncService().getCurrentArtists();
         }
@@ -157,6 +157,19 @@ class LineupService {
   void clearCache() {
     _artists = null;
     _isLoading = false;
+  }
+
+  // Force refresh data from RemoteLineupSyncService
+  Future<void> refreshData() async {
+    clearCache();
+    // Also clear RemoteLineupSyncService cache to force fresh fetch
+    RemoteLineupSyncService().clearCache();
+    await getAllArtists();
+  }
+  
+  // Clear RemoteLineupSyncService cache
+  void clearRemoteCache() {
+    RemoteLineupSyncService().clearCache();
   }
 
   // Get statistics

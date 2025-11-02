@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../utils/conspiracy_texts.dart';
 import '../widgets/crt_terminal.dart';
-import '../services/auth_service.dart';
 
 class ConspiracySplashScreen extends StatefulWidget {
   const ConspiracySplashScreen({super.key});
@@ -126,17 +125,11 @@ class _ConspiracySplashScreenState extends State<ConspiracySplashScreen>
   }
 
   void _navigateToMainApp() async {
-    // Check if user has a valid token, navigate to ticket input if not
-    final authService = AuthService();
-    final hasValidToken = await authService.isTokenValid();
-    
+    // Always navigate to main menu first
+    // Ticket authentication will be required when watching the stream
     if (!mounted) return;
     
-    if (hasValidToken) {
-      Navigator.of(context).pushReplacementNamed('/menu');
-    } else {
-      Navigator.of(context).pushReplacementNamed('/ticket');
-    }
+    Navigator.of(context).pushReplacementNamed('/menu');
   }
 
   void _onTap() {

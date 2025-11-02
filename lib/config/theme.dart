@@ -10,6 +10,7 @@ class RetroTheme {
   static const Color glowColor = Color(0xFF00FFFF);
   static const Color errorRed = Color(0xFFFF1744);
   static const Color warningYellow = Color(0xFFFFC107);
+  static const Color mutedGray = Color(0xFF666666);
 
   static ThemeData get darkTheme {
     return ThemeData(
