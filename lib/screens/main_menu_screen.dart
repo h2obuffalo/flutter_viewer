@@ -6,6 +6,7 @@ import '../config/theme.dart';
 import '../widgets/glitch_text.dart';
 import '../services/now_playing_service.dart';
 import '../services/remote_lineup_sync_service.dart';
+import '../services/notification_service.dart';
 import '../widgets/bangface_popup.dart';
 import 'lineup_list_screen.dart';
 import 'simple_player_screen.dart';
@@ -26,6 +27,8 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
   late AnimationController _screenGlitchController;
   bool _showGlitch = false;
   bool _isRaveMode = false;
+  int _unseenUpdatesCount = 0;
+  Timer? _updatesCheckTimer;
 
   @override
   void initState() {
@@ -61,6 +64,34 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
     
     // Start periodic lineup change checks
     _startLineupChangeChecker();
+    
+    // Check for unseen updates
+    _checkUnseenUpdates();
+    _startUpdatesChecker();
+  }
+  
+  void _startUpdatesChecker() {
+    // Check for unseen updates every 30 seconds
+    _updatesCheckTimer = Timer.periodic(const Duration(seconds: 30), (timer) async {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      await _checkUnseenUpdates();
+    });
+  }
+  
+  Future<void> _checkUnseenUpdates() async {
+    try {
+      final count = await NotificationService().getUnseenUpdatesCount();
+      if (mounted) {
+        setState(() {
+          _unseenUpdatesCount = count;
+        });
+      }
+    } catch (e) {
+      print('Error checking unseen updates: $e');
+    }
   }
 
   void _startLineupChangeChecker() {
@@ -225,6 +256,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
 
   @override
   void dispose() {
+    _updatesCheckTimer?.cancel();
     _glitchController.dispose();
     _pulseController.dispose();
     _buttonController.dispose();
@@ -245,6 +277,13 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
           // Rave mode screen glitch overlay
           if (_isRaveMode) _buildScreenGlitchOverlay(),
           
+          // Bell icon in top-right corner
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            right: 16,
+            child: _buildUpdatesBellIcon(),
+          ),
+          
           // Main content
           Center(
             child: Column(
@@ -263,8 +302,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                 const SizedBox(height: 20),
                 _buildMenuButton('LINEUP', _onLineupPressed, RetroTheme.hotPink),
                 const SizedBox(height: 20),
-                _buildMenuButton('UPDATES', _onUpdatesPressed, RetroTheme.warningYellow),
-                const SizedBox(height: 20),
                 _buildMenuButton('WHAT\'S THE CRAIC', _onWhatsTheCrackPressed, RetroTheme.electricGreen),
                 
                 const SizedBox(height: 40),
@@ -275,6 +312,79 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
             ),
           ),
         ],
+      ),
+    );
+  }
+  
+  Widget _buildUpdatesBellIcon() {
+    final hasUnseen = _unseenUpdatesCount > 0;
+    final iconColor = hasUnseen ? RetroTheme.warningYellow : RetroTheme.neonCyan;
+    
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        _onUpdatesPressed();
+        // Refresh unseen count after navigation
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _checkUnseenUpdates();
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: RetroTheme.darkBlue.withValues(alpha: 0.8),
+          border: Border.all(
+            color: iconColor,
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: hasUnseen ? [
+            BoxShadow(
+              color: iconColor.withValues(alpha: 0.3),
+              blurRadius: 15,
+              spreadRadius: 2,
+            ),
+          ] : null,
+        ),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Icon(
+              Icons.notifications,
+              color: iconColor,
+              size: 24,
+            ),
+            if (hasUnseen)
+              Positioned(
+                top: -4,
+                right: -4,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: RetroTheme.warningYellow,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: RetroTheme.darkBlue,
+                      width: 1,
+                    ),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  child: Text(
+                    _unseenUpdatesCount > 99 ? '99+' : _unseenUpdatesCount.toString(),
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

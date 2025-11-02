@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'remote_lineup_sync_service.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -49,6 +50,31 @@ class NotificationService {
             ?.requestNotificationsPermission() ??
         false) {
       print('Notification permissions granted');
+    }
+  }
+
+  /// Check if there are unseen updates
+  Future<int> getUnseenUpdatesCount() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final seenChanges = prefs.getStringList(_seenChangesKey) ?? [];
+      
+      // Get all updates from news log
+      final newsLog = await RemoteLineupSyncService().getNewsLog(limit: 200);
+      
+      // Count updates that haven't been seen
+      int unseenCount = 0;
+      for (final update in newsLog) {
+        final changeKey = '${update['type']}_${update['artistId']}_${update['ts']}';
+        if (!seenChanges.contains(changeKey)) {
+          unseenCount++;
+        }
+      }
+      
+      return unseenCount;
+    } catch (e) {
+      print('Error checking unseen updates: $e');
+      return 0;
     }
   }
 

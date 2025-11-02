@@ -71,6 +71,7 @@ flutter:
   assets:
     - assets/images/porkpie.jpg
     - assets/images/The X-Static Files A2.png
+    - assets/images/bangface.gif
     - assets/fonts/
     - assets/sounds/
     - assets/lineup-photos/

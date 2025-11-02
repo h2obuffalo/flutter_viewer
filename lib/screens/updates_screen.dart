@@ -223,28 +223,36 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
       return [
         Text(
           'Schedule updated',
-          style: TextStyle(color: RetroTheme.neonCyan, fontSize: 14),
+          style: TextStyle(
+            color: RetroTheme.neonCyan,
+            fontSize: 14,
+            fontFamily: 'Verdana',
+          ),
         ),
       ];
     }
 
     return [
-      Text(
-        'Updated set times:',
-        style: TextStyle(
-          color: RetroTheme.neonCyan,
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      const SizedBox(height: 8),
-      ...newSetTimes.map((time) => Padding(
-            padding: const EdgeInsets.only(left: 16, bottom: 4),
-            child: Text(
-              '• $time',
-              style: TextStyle(color: RetroTheme.neonCyan, fontSize: 14),
-            ),
-          )),
+                      Text(
+                        'Updated set times:',
+                        style: TextStyle(
+                          color: RetroTheme.neonCyan,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ...newSetTimes.map((time) => Padding(
+                            padding: const EdgeInsets.only(left: 16, bottom: 4),
+                            child: Text(
+                              '• $time',
+                              style: TextStyle(
+                                color: RetroTheme.neonCyan,
+                                fontSize: 14,
+                                fontFamily: 'Verdana',
+                              ),
+                            ),
+                          )),
     ];
   }
 
@@ -255,7 +263,11 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
       return [
         Text(
           'Stage information removed',
-          style: TextStyle(color: RetroTheme.hotPink, fontSize: 14),
+          style: TextStyle(
+            color: RetroTheme.hotPink,
+            fontSize: 14,
+            fontFamily: 'Verdana',
+          ),
         ),
       ];
     }
@@ -274,7 +286,11 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
             padding: const EdgeInsets.only(left: 16, bottom: 4),
             child: Text(
               '• $stage',
-              style: TextStyle(color: RetroTheme.hotPink, fontSize: 14),
+              style: TextStyle(
+                color: RetroTheme.hotPink,
+                fontSize: 14,
+                fontFamily: 'Verdana',
+              ),
             ),
           )),
     ];
@@ -288,6 +304,7 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
           color: RetroTheme.electricGreen,
           fontSize: 14,
           fontWeight: FontWeight.bold,
+          fontFamily: 'Verdana',
         ),
       ),
     ];
@@ -300,13 +317,13 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
       MarkdownBody(
         data: message,
         styleSheet: MarkdownStyleSheet(
-          p: TextStyle(color: RetroTheme.warningYellow, fontSize: 14, height: 1.5),
-          strong: TextStyle(color: RetroTheme.warningYellow, fontWeight: FontWeight.bold),
-          em: TextStyle(color: RetroTheme.warningYellow, fontStyle: FontStyle.italic),
-          a: TextStyle(color: RetroTheme.warningYellow, decoration: TextDecoration.underline),
-          h1: TextStyle(color: RetroTheme.warningYellow, fontSize: 20, fontWeight: FontWeight.bold),
-          h2: TextStyle(color: RetroTheme.warningYellow, fontSize: 18, fontWeight: FontWeight.bold),
-          h3: TextStyle(color: RetroTheme.warningYellow, fontSize: 16, fontWeight: FontWeight.bold),
+          p: TextStyle(color: RetroTheme.warningYellow, fontSize: 14, height: 1.5, fontFamily: 'Verdana'),
+          strong: TextStyle(color: RetroTheme.warningYellow, fontWeight: FontWeight.bold, fontFamily: 'Verdana'),
+          em: TextStyle(color: RetroTheme.warningYellow, fontStyle: FontStyle.italic, fontFamily: 'Verdana'),
+          a: TextStyle(color: RetroTheme.warningYellow, decoration: TextDecoration.underline, fontFamily: 'Verdana'),
+          h1: TextStyle(color: RetroTheme.warningYellow, fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Verdana'),
+          h2: TextStyle(color: RetroTheme.warningYellow, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Verdana'),
+          h3: TextStyle(color: RetroTheme.warningYellow, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Verdana'),
           code: TextStyle(color: RetroTheme.warningYellow, fontFamily: 'monospace'),
           codeblockDecoration: BoxDecoration(
             color: RetroTheme.darkBlue,

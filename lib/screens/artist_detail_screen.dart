@@ -145,15 +145,11 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
               
               const SizedBox(height: 24),
               
-              // Status indicators
-              _buildStatusSection(),
-              
-              const SizedBox(height: 24),
-              
-              // Stage information
-              _buildStageSection(),
-              
-              const SizedBox(height: 24),
+              // Status indicators (only show if cancelled)
+              if (widget.artist.setTimes.any((st) => st.status == 'cancelled')) ...[
+                _buildStatusSection(),
+                const SizedBox(height: 24),
+              ],
               
               // Set times
               _buildSetTimesSection(),
@@ -242,23 +238,25 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
   }
 
   Widget _buildStatusSection() {
+    // Only show cancelled status prominently
+    final hasCancelled = widget.artist.setTimes.any((st) => st.status == 'cancelled');
+    if (!hasCancelled) {
+      return const SizedBox.shrink();
+    }
+    
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: RetroTheme.retroBorder,
+      decoration: BoxDecoration(
+        border: Border.all(color: RetroTheme.errorRed, width: 3),
+        borderRadius: BorderRadius.circular(4),
+        color: RetroTheme.errorRed.withValues(alpha: 0.2),
+      ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (widget.artist.isCurrentlyPlaying) ...[
-            _buildStatusChip('LIVE NOW', RetroTheme.hotPink),
-          ] else if (widget.artist.hasUpcomingSets) ...[
-            _buildStatusChip('UPCOMING', RetroTheme.electricGreen),
-          ] else ...[
-            _buildStatusChip('SCHEDULED', RetroTheme.neonCyan),
-          ],
-          
-          if (widget.artist.hasLinks) ...[
-            _buildStatusChip('HAS LINKS', RetroTheme.hotPink),
-          ],
+          Icon(Icons.cancel, color: RetroTheme.errorRed, size: 24),
+          const SizedBox(width: 12),
+          _buildStatusChip('CANCELLED', RetroTheme.errorRed),
         ],
       ),
     );
@@ -284,49 +282,6 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
     );
   }
 
-  Widget _buildStageSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: RetroTheme.retroBorder,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'STAGES',
-            style: TextStyle(
-              color: RetroTheme.neonCyan,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: widget.artist.stages.map((stage) {
-              return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: RetroTheme.electricGreen.withValues(alpha: 0.2),
-                  border: Border.all(color: RetroTheme.electricGreen, width: 1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  stage,
-                  style: const TextStyle(
-                    color: RetroTheme.electricGreen,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildSetTimesSection() {
     if (widget.artist.setTimes.isEmpty) {
@@ -390,6 +345,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
                             color: statusColor,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
+                            fontFamily: 'Verdana',
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -398,6 +354,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
                           style: TextStyle(
                             color: statusColor.withValues(alpha: 0.8),
                             fontSize: 14,
+                            fontFamily: 'Verdana',
                           ),
                         ),
                       ],
@@ -510,6 +467,7 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
                 color: color,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
+                fontFamily: 'Verdana',
               ),
             ),
             const Spacer(),

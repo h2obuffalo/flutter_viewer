@@ -538,7 +538,12 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(color: Colors.cyan),
+          Image.asset(
+            'assets/images/bangface.gif',
+            width: 100,
+            height: 100,
+            fit: BoxFit.contain,
+          ),
           const SizedBox(height: 20),
           const Text(
             'Reconnecting...',
@@ -555,13 +560,18 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   }
 
   Widget _buildLoadingView() {
-    return const Center(
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(color: Colors.cyan),
-          SizedBox(height: 20),
-          Text(
+          Image.asset(
+            'assets/images/bangface.gif',
+            width: 100,
+            height: 100,
+            fit: BoxFit.contain,
+          ),
+          const SizedBox(height: 20),
+          const Text(
             'Loading stream...',
             style: TextStyle(color: Colors.white),
           ),

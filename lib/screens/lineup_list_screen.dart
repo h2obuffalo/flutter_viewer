@@ -62,6 +62,8 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
 
   late AnimationController _glitchController;
   late AnimationController _pulseController;
+  late AnimationController _refreshController;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
@@ -102,6 +104,11 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
+    
+    _refreshController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
   }
 
   Future<void> _loadUpdatedArtists() async {
@@ -308,6 +315,7 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
     _searchFocusNode.dispose();
     _glitchController.dispose();
     _pulseController.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
   
@@ -342,31 +350,49 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
         actions: [
           IconButton(
             tooltip: 'Refresh lineup',
-            icon: const Icon(Icons.refresh, color: RetroTheme.neonCyan),
-            onPressed: () async {
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0).animate(_refreshController),
+              child: const Icon(Icons.refresh, color: RetroTheme.neonCyan),
+            ),
+            onPressed: _isRefreshing ? null : () async {
               print('🔘 Refresh button pressed');
-              // Manual refresh should send notifications
-              // Clear LineupService cache to ensure fresh data
-              _lineupService.clearCache();
-              print('🔘 Cache cleared, calling refreshIfChanged...');
-              final changed = await RemoteLineupSyncService().refreshIfChanged(sendNotifications: true);
-              print('🔘 refreshIfChanged returned: $changed');
-          if (!mounted) return;
-          // Always reload data after refresh, even if no changes detected
-          // (in case cache was stale)
-          await _loadData();
-          // Reload updated artists to show dots/badges
-          await _loadUpdatedArtists();
-          if (!mounted) return;
-          if (changed) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Lineup updated')),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('No updates available')),
-            );
-          }
+              setState(() {
+                _isRefreshing = true;
+              });
+              _refreshController.repeat();
+              
+              try {
+                // Manual refresh should send notifications
+                // Clear LineupService cache to ensure fresh data
+                _lineupService.clearCache();
+                print('🔘 Cache cleared, calling refreshIfChanged...');
+                final changed = await RemoteLineupSyncService().refreshIfChanged(sendNotifications: true);
+                print('🔘 refreshIfChanged returned: $changed');
+                if (!mounted) return;
+                // Always reload data after refresh, even if no changes detected
+                // (in case cache was stale)
+                await _loadData();
+                // Reload updated artists to show dots/badges
+                await _loadUpdatedArtists();
+                if (!mounted) return;
+                if (changed) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Lineup updated')),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No updates available')),
+                  );
+                }
+              } finally {
+                if (mounted) {
+                  setState(() {
+                    _isRefreshing = false;
+                  });
+                  _refreshController.stop();
+                  _refreshController.reset();
+                }
+              }
             },
           ),
         ],
@@ -381,8 +407,8 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
             children: [
               // Stage filter dropdown
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                margin: const EdgeInsets.only(top: 16, bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                margin: const EdgeInsets.only(top: 16, bottom: 8, left: 8, right: 8),
                 decoration: RetroTheme.retroBorder,
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -416,8 +442,8 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
               
               // Day filter dropdown
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                margin: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
                 decoration: RetroTheme.retroBorder,
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
@@ -451,7 +477,8 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
               
               // Results count and sort button
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 8),
                 child: Row(
                   children: [
                     Expanded(
@@ -572,7 +599,7 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
                             ),
                           )
                         : ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 24),
                             itemCount: _filteredArtists.length,
                             itemBuilder: (context, index) {
                               final artist = _filteredArtists[index];
@@ -685,7 +712,7 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
       child: InkWell(
         onTap: () => _onArtistTap(artist),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           child: Row(
             children: [
               // 8-bit heart icon with larger tap area
