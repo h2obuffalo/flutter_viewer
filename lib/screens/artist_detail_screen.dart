@@ -6,6 +6,7 @@ import 'dart:convert';
 import '../config/theme.dart';
 import '../models/artist.dart';
 import '../services/remote_lineup_sync_service.dart';
+import '../services/favorites_service.dart';
 
 class ArtistDetailScreen extends StatefulWidget {
   final Artist artist;
@@ -25,12 +26,21 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
   late AnimationController _glitchController;
   late AnimationController _pulseController;
   late AnimationController _fadeController;
+  bool _isFavorited = false;
 
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
     _loadUpdatedSetTimes();
+    _loadFavoriteStatus();
+  }
+  
+  Future<void> _loadFavoriteStatus() async {
+    final favoriteIds = await FavoritesService.getFavoriteIds();
+    setState(() {
+      _isFavorited = favoriteIds.contains(widget.artist.id);
+    });
   }
   
   Future<void> _loadUpdatedSetTimes() async {
@@ -114,19 +124,40 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
       appBar: AppBar(
         backgroundColor: RetroTheme.darkBlue,
         elevation: 0,
-        title: AnimatedBuilder(
-          animation: _glitchController,
-          builder: (context, child) {
-            return Text(
-              'ARTIST',
-              style: TextStyle(
-                color: RetroTheme.neonCyan,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.5,
+        title: Row(
+          children: [
+            Expanded(
+              child: AnimatedBuilder(
+                animation: _glitchController,
+                builder: (context, child) {
+                  return Text(
+                    'ARTIST',
+                    style: TextStyle(
+                      color: RetroTheme.neonCyan,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                    ),
+                  );
+                },
               ),
-            );
-          },
+            ),
+            // Favorite heart icon in top right
+            IconButton(
+              icon: Icon(
+                _isFavorited ? Icons.favorite : Icons.favorite_border,
+                color: _isFavorited ? Colors.red : RetroTheme.neonCyan,
+                size: 24,
+              ),
+              onPressed: () async {
+                HapticFeedback.mediumImpact();
+                await FavoritesService.toggleFavorite(widget.artist.id);
+                setState(() {
+                  _isFavorited = !_isFavorited;
+                });
+              },
+            ),
+          ],
         ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: RetroTheme.neonCyan),
@@ -211,13 +242,10 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
                 ),
               ),
               
-              // Artist name
+              // Artist name (no background)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: RetroTheme.darkBlue.withValues(alpha: 0.9),
-                ),
                 child: Text(
                   widget.artist.name,
                   style: const TextStyle(
@@ -290,7 +318,6 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
 
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: RetroTheme.retroBorder,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -320,21 +347,11 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: highlightColor.withValues(alpha: isUpdated ? 0.2 : 0.1),
-                border: Border.all(
-                  color: highlightColor,
-                  width: isUpdated ? 2 : 1,
-                ),
                 borderRadius: BorderRadius.circular(4),
+                // Removed border
               ),
               child: Row(
                 children: [
-                  Icon(
-                    setTime.isLive ? Icons.play_circle : 
-                    setTime.isUpcoming ? Icons.schedule : Icons.check_circle,
-                    color: statusColor,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

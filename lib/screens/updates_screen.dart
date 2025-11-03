@@ -12,20 +12,27 @@ class UpdatesScreen extends StatefulWidget {
   State<UpdatesScreen> createState() => _UpdatesScreenState();
 }
 
-class _UpdatesScreenState extends State<UpdatesScreen> {
+class _UpdatesScreenState extends State<UpdatesScreen> with TickerProviderStateMixin {
   List<Map<String, dynamic>> _updates = [];
   bool _isLoading = true;
   final ScrollController _scrollController = ScrollController();
+  late AnimationController _refreshController;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
+    _refreshController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
     _loadUpdates();
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _refreshController.dispose();
     super.dispose();
   }
 
@@ -135,9 +142,9 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
         icon = Icons.person_add;
         break;
       case 'custom-message':
-        cardColor = RetroTheme.warningYellow.withValues(alpha: 0.1);
-        borderColor = RetroTheme.warningYellow;
-        icon = Icons.announcement;
+        cardColor = Colors.black.withValues(alpha: 0.95);
+        borderColor = Colors.white;
+        icon = Icons.announcement; // Will be replaced with GIF in UI
         break;
       default:
         cardColor = RetroTheme.darkGray.withValues(alpha: 0.1);
@@ -149,7 +156,9 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: cardColor,
-        border: Border.all(color: borderColor, width: 2),
+        border: type == 'custom-message' 
+          ? Border.all(color: borderColor, width: 0) // No border for custom messages
+          : Border.all(color: borderColor, width: 2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Padding(
@@ -160,7 +169,15 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
             // Header with icon, title, and timestamp
             Row(
               children: [
-                Icon(icon, color: borderColor, size: 24),
+                if (type == 'custom-message')
+                  Image.asset(
+                    'assets/images/bangface.gif',
+                    width: 96,
+                    height: 96,
+                    fit: BoxFit.contain,
+                  )
+                else
+                  Icon(icon, color: borderColor, size: 24),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -170,17 +187,17 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
                         Text(
                           artistName,
                           style: TextStyle(
-                            color: borderColor,
+                            color: type == 'custom-message' ? Colors.white : borderColor,
                             fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Impact',
+                            fontWeight: type == 'custom-message' ? FontWeight.normal : FontWeight.bold,
+                            fontFamily: type == 'custom-message' ? 'Impact' : 'Verdana',
                           ),
                         ),
                       if (type == 'custom-message')
                         Text(
-                          update['title'] ?? 'Festival Update',
+                          update['title'] ?? 'BANG FACE',
                           style: TextStyle(
-                            color: borderColor,
+                            color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Impact',
@@ -189,7 +206,7 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
                       Text(
                         _formatTimestamp(timestamp),
                         style: TextStyle(
-                          color: RetroTheme.mutedGray,
+                          color: type == 'custom-message' ? Colors.white70 : RetroTheme.mutedGray,
                           fontSize: 12,
                         ),
                       ),
@@ -317,14 +334,14 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
       MarkdownBody(
         data: message,
         styleSheet: MarkdownStyleSheet(
-          p: TextStyle(color: RetroTheme.warningYellow, fontSize: 14, height: 1.5, fontFamily: 'Verdana'),
-          strong: TextStyle(color: RetroTheme.warningYellow, fontWeight: FontWeight.bold, fontFamily: 'Verdana'),
-          em: TextStyle(color: RetroTheme.warningYellow, fontStyle: FontStyle.italic, fontFamily: 'Verdana'),
-          a: TextStyle(color: RetroTheme.warningYellow, decoration: TextDecoration.underline, fontFamily: 'Verdana'),
-          h1: TextStyle(color: RetroTheme.warningYellow, fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Verdana'),
-          h2: TextStyle(color: RetroTheme.warningYellow, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Verdana'),
-          h3: TextStyle(color: RetroTheme.warningYellow, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Verdana'),
-          code: TextStyle(color: RetroTheme.warningYellow, fontFamily: 'monospace'),
+          p: TextStyle(color: Colors.white, fontSize: 14, height: 1.5, fontFamily: 'Verdana'),
+          strong: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontFamily: 'Verdana'),
+          em: TextStyle(color: Colors.white, fontStyle: FontStyle.italic, fontFamily: 'Verdana'),
+          a: TextStyle(color: Colors.white, decoration: TextDecoration.underline, fontFamily: 'Verdana'),
+          h1: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold, fontFamily: 'Verdana'),
+          h2: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Verdana'),
+          h3: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold, fontFamily: 'Verdana'),
+          code: TextStyle(color: Colors.white, fontFamily: 'monospace'),
           codeblockDecoration: BoxDecoration(
             color: RetroTheme.darkBlue,
             borderRadius: BorderRadius.circular(4),
@@ -345,22 +362,59 @@ class _UpdatesScreenState extends State<UpdatesScreen> {
           icon: Icon(Icons.arrow_back, color: RetroTheme.neonCyan),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          'Updates',
-          style: TextStyle(
-            color: RetroTheme.neonCyan,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Impact',
-            letterSpacing: 2,
-          ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'BFTV',
+              style: TextStyle(
+                color: RetroTheme.neonCyan,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Impact',
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'notifications',
+              style: TextStyle(
+                color: RetroTheme.neonCyan,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Verdana',
+                letterSpacing: 2,
+              ),
+            ),
+          ],
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh, color: RetroTheme.neonCyan),
-            onPressed: () {
+            tooltip: 'Refresh updates',
+            icon: RotationTransition(
+              turns: Tween(begin: 0.0, end: 1.0).animate(_refreshController),
+              child: const Icon(Icons.refresh, color: RetroTheme.neonCyan),
+            ),
+            onPressed: _isRefreshing ? null : () async {
               HapticFeedback.mediumImpact();
-              _loadUpdates();
+              setState(() {
+                _isRefreshing = true;
+              });
+              _refreshController.repeat();
+              
+              try {
+                // Fetch updates from API
+                await RemoteLineupSyncService().refreshIfChanged(sendNotifications: false);
+                await _loadUpdates();
+              } finally {
+                if (mounted) {
+                  setState(() {
+                    _isRefreshing = false;
+                  });
+                  _refreshController.stop();
+                  _refreshController.reset();
+                }
+              }
             },
           ),
         ],

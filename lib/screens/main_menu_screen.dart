@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import '../config/theme.dart';
 import '../widgets/glitch_text.dart';
 import '../services/now_playing_service.dart';
@@ -25,10 +26,12 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
   late AnimationController _buttonController;
   late AnimationController _strobeController;
   late AnimationController _screenGlitchController;
+  late AnimationController _betaStampController;
   bool _showGlitch = false;
   bool _isRaveMode = false;
   int _unseenUpdatesCount = 0;
   Timer? _updatesCheckTimer;
+  bool? _isSmallScreen; // Cache device detection result
 
   @override
   void initState() {
@@ -59,8 +62,23 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
       duration: const Duration(milliseconds: 50),
     );
 
+    _betaStampController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    // Detect device type for text sizing
+    _detectDeviceType();
+    
     // Trigger random glitches
     _triggerRandomGlitch();
+    
+    // Animate beta stamp appearance after a delay
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        _betaStampController.forward();
+      }
+    });
     
     // Start periodic lineup change checks
     _startLineupChangeChecker();
@@ -68,6 +86,40 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
     // Check for unseen updates
     _checkUnseenUpdates();
     _startUpdatesChecker();
+  }
+  
+  Future<void> _detectDeviceType() async {
+    try {
+      final deviceInfo = DeviceInfoPlugin();
+      // Try iOS first - device_info_plus will throw if not iOS
+      try {
+        final iosInfo = await deviceInfo.iosInfo;
+        // iPhone 8 has model identifier iPhone10,1 or iPhone10,4
+        // iPhone SE (1st gen) and iPhone 7 also have small screens
+        final isIPhone8 = iosInfo.model == 'iPhone10,1' || iosInfo.model == 'iPhone10,4';
+        final isSmallIPhone = iosInfo.model.contains('iPhone') && 
+                             (isIPhone8 || 
+                              iosInfo.model.contains('iPhone8,') || // iPhone SE, 7, 6s
+                              iosInfo.model.contains('iPhone9,') || // iPhone 7, 8
+                              (double.tryParse(iosInfo.systemVersion.split('.').first) ?? 13) < 13); // Older iPhones
+        
+        if (mounted) {
+          setState(() {
+            _isSmallScreen = isSmallIPhone;
+          });
+        }
+        return;
+      } catch (e) {
+        // Not iOS, continue to check Android or use fallback
+      }
+      
+      // For Android or other platforms, screen size will be checked in build method
+    } catch (e) {
+      // Fallback will use screen size detection in build method
+      if (mounted) {
+        // Error getting device info, use screen size fallback
+      }
+    }
   }
   
   void _startUpdatesChecker() {
@@ -262,11 +314,26 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
     _buttonController.dispose();
     _strobeController.dispose();
     _screenGlitchController.dispose();
+    _betaStampController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    
+    // Determine if this is a small screen device
+    // Check cached value first, then fallback to screen size detection
+    final isSmallScreen = _isSmallScreen ?? (screenHeight < 700 || screenWidth < 400);
+    
+    // Adjust font sizes for smaller screens like iPhone 8
+    final titleFontSize = isSmallScreen ? 96.0 : 144.0; // Reduced from 144 for small screens
+    final subtitleFontSize = isSmallScreen ? 48.0 : 72.0; // Reduced from 72 for small screens
+    final betaFontSize = isSmallScreen ? 14.0 : 21.0; // Reduced from 21 for small screens
+    final verticalSpacing = isSmallScreen ? 30.0 : 60.0; // Reduced spacing for small screens
+    final buttonSpacing = isSmallScreen ? 20.0 : 40.0; // Reduced spacing for small screens
+    
     return Scaffold(
       backgroundColor: _isRaveMode ? _getStrobeColor() : RetroTheme.darkBlue,
       body: Stack(
@@ -289,13 +356,54 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Title
-                _buildGlitchText('BANGFACE', Colors.white),
-                const SizedBox(height: 10),
-                _buildGlitchText('WEEKENDER', Colors.white),
-                const SizedBox(height: 5),
-                _buildGlitchText('2025', Colors.white),
-                const SizedBox(height: 60),
+                // Title with beta stamp
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Column(
+                      children: [
+                        _buildGlitchText('BFTV', Colors.white, fontSize: titleFontSize),
+                        const SizedBox(height: 10),
+                        _buildGlitchText('2025', Colors.white, fontSize: subtitleFontSize),
+                      ],
+                    ),
+                    // Beta stamp - animated appearance at opposite angle, positioned below the V of BFTV
+                    AnimatedBuilder(
+                      animation: _betaStampController,
+                      builder: (context, child) {
+                        return Positioned(
+                          top: titleFontSize, // Use dynamic font size instead of hardcoded 144
+                          child: Transform.rotate(
+                            angle: -0.785, // Opposite slant (-45 degrees / -π/4 radians)
+                            child: Opacity(
+                              opacity: _betaStampController.value,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.red, width: 2),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  'BETA',
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: betaFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Impact',
+                                    decoration: TextDecoration.lineThrough,
+                                    decorationColor: Colors.red,
+                                    decorationThickness: 2,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                SizedBox(height: verticalSpacing),
                 
                 // Menu buttons
                 _buildMenuButton('BANGFACETV STREAM', _onLiveStreamPressed, RetroTheme.neonCyan),
@@ -304,7 +412,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                 const SizedBox(height: 20),
                 _buildMenuButton('WHAT\'S THE CRAIC', _onWhatsTheCrackPressed, RetroTheme.electricGreen),
                 
-                const SizedBox(height: 40),
+                SizedBox(height: buttonSpacing),
                 
                 // Interactive Rave button
                 _buildRaveButton(),
@@ -332,12 +440,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: RetroTheme.darkBlue.withValues(alpha: 0.8),
-          border: Border.all(
-            color: iconColor,
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(8),
+          // Removed background color and border
           boxShadow: hasUnseen ? [
             BoxShadow(
               color: iconColor.withValues(alpha: 0.3),
@@ -406,7 +509,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
     );
   }
 
-  Widget _buildGlitchText(String text, Color color) {
+  Widget _buildGlitchText(String text, Color color, {double fontSize = 48}) {
     return AnimatedBuilder(
       animation: _glitchController,
       builder: (context, child) {
@@ -414,7 +517,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
           text: text,
           style: TextStyle(
             color: color,
-            fontSize: 48,
+            fontSize: fontSize,
             letterSpacing: 2,
             fontFamily: 'Impact',
           ),

@@ -633,7 +633,7 @@ class RemoteLineupSyncService with ChangeNotifier {
       'message': message,
       'ts': (timestamp ?? DateTime.now()).toIso8601String(),
       'artistId': 0, // Custom messages don't have an artist
-      'artist': 'Festival Admin',
+      'artist': 'BANG FACE',
     };
     await _appendNews([customUpdate]);
     

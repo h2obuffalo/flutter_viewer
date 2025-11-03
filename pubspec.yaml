@@ -75,6 +75,7 @@ flutter:
     - assets/fonts/
     - assets/sounds/
     - assets/lineup-photos/
+    - assets/docs/
     - assets/lineup-2025.json
   
   fonts:

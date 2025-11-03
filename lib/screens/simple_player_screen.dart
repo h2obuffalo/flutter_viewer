@@ -652,34 +652,38 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
             ),
           ),
           
-          // Stream health indicator overlay
+          // Stream health indicator overlay - fades with controls
           Positioned(
             top: 10,
             left: 10,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: _isStreamHealthy ? Colors.green.withValues(alpha: 0.8) : Colors.orange.withValues(alpha: 0.8),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    _isStreamHealthy ? Icons.check_circle : Icons.warning,
-                    color: Colors.white,
-                    size: 12,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    _isStreamHealthy ? 'HEALTHY' : 'CHECKING',
-                    style: const TextStyle(
+            child: AnimatedOpacity(
+              opacity: _showControls ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _isStreamHealthy ? Colors.green.withValues(alpha: 0.8) : Colors.orange.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      _isStreamHealthy ? Icons.check_circle : Icons.warning,
                       color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
+                      size: 12,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 4),
+                    Text(
+                      _isStreamHealthy ? 'HEALTHY' : 'CHECKING',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -773,13 +777,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.48), // Reduced from 0.6 to 0.48 (20% less opaque)
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.cyan.withValues(alpha: glowIntensity.value),
-                    blurRadius: 8 + (glowIntensity.value * 8),
-                    spreadRadius: 1 + (glowIntensity.value * 2),
-                  ),
-                ],
+                boxShadow: [], // Remove blue glow
               ),
               child: Icon(
                 icon,
@@ -1082,13 +1080,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.48), // Reduced from 0.6 to 0.48 (20% less opaque)
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.cyan.withValues(alpha: glowIntensity.value),
-                    blurRadius: 20,
-                    spreadRadius: 2,
-                  ),
-                ],
+                boxShadow: [], // Remove blue glow
               ),
               child: Icon(
                 icon,

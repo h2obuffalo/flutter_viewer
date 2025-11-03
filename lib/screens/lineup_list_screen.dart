@@ -515,7 +515,7 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
                     GestureDetector(
                       onTap: _toggleFavoritesFilter,
                       child: Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6), // Match sort button height
                         decoration: RetroTheme.retroBorder,
                         child: Icon(
                           _showFavoritesOnly ? Icons.favorite : Icons.favorite_border,
@@ -718,12 +718,13 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
               // 8-bit heart icon with larger tap area
               GestureDetector(
                 onTap: () => _toggleFavorite(artist),
+                behavior: HitTestBehavior.opaque, // Makes entire area tappable
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Increased padding for larger tap area
                   child: Icon(
                     artist.isFavorited ? Icons.favorite : Icons.favorite_border,
                     color: artist.isFavorited ? Colors.red : Colors.white,
-                    size: 20,
+                    size: 24, // Slightly larger icon
                   ),
                 ),
               ),

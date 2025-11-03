@@ -4,8 +4,8 @@
     "name": "Max Cooper",
     "photo": "assets/lineup-photos/max-cooper.jpg",
     "website": null,
-    "bandcamp": null,
-    "blurb": null,
+    "bandcamp": "https://maxcooper.bandcamp.com/",
+    "blurb": "Max Cooper.\nLondon, UK.\nMax Cooper is an electronic composer, multi-disciplinary artist, music label founder and former scientist who has carved out a unique space in music and visual art.\nFor more information, follow here: \nhttps://maxcooper.net/\nand \nhttps://meshmeshmesh.net/",
     "stages": [
       "Main Stage",
       "BANG FACE TV Live"
@@ -49,8 +49,8 @@
     "name": "The Glitch Mob",
     "photo": "assets/lineup-photos/the-glitch-mob.jpg",
     "website": null,
-    "bandcamp": null,
-    "blurb": null,
+    "bandcamp": "https://theglitchmob.bandcamp.com/",
+    "blurb": "The Glitch Mob.\nLos Angeles, California.",
     "stages": [
       "Main Stage",
       "Hard Crew Heroes"
@@ -74,9 +74,9 @@
     "id": 4,
     "name": "Pastis & Buenri",
     "photo": "assets/lineup-photos/pastis-buenri.jpg",
-    "website": null,
+    "website": "https://soundcloud.com/discover",
     "bandcamp": null,
-    "blurb": null,
+    "blurb": "SoundCloud artist: Home",
     "stages": [
       "Main Stage"
     ],
@@ -131,9 +131,9 @@
     "id": 7,
     "name": "Ray Keith & Renegade Band",
     "photo": "assets/lineup-photos/ray-keith-renegade-band.jpg",
-    "website": null,
+    "website": "https://soundcloud.com/discover",
     "bandcamp": null,
-    "blurb": null,
+    "blurb": "SoundCloud artist: Home",
     "stages": [
       "Main Stage"
     ],
@@ -150,9 +150,9 @@
     "id": 8,
     "name": "4am Kru",
     "photo": "assets/lineup-photos/4am-kru.jpg",
-    "website": null,
+    "website": "https://soundcloud.com/discover",
     "bandcamp": null,
-    "blurb": null,
+    "blurb": "SoundCloud artist: Home",
     "stages": [
       "Main Stage"
     ],
@@ -170,8 +170,8 @@
     "name": "Mandidextrous",
     "photo": "assets/lineup-photos/mandidextrous.jpg",
     "website": null,
-    "bandcamp": null,
-    "blurb": null,
+    "bandcamp": "https://speedbassrecordings.bandcamp.com/",
+    "blurb": "Speedbass Recordings.\nBristol, UK.\nMOVE YOUR FEET LIKE THIS ! \nFor Merch go here \nhttps://amen4tekno.com/",
     "stages": [
       "Main Stage"
     ],
@@ -189,8 +189,8 @@
     "name": "Altern 8",
     "photo": "assets/lineup-photos/altern-8.jpg",
     "website": null,
-    "bandcamp": null,
-    "blurb": null,
+    "bandcamp": "https://altern8official.bandcamp.com/",
+    "blurb": "Altern 8.\nRedditch, UK.",
     "stages": [
       "Main Stage"
     ],
@@ -246,8 +246,8 @@
     "name": "CeephaxAcid Crew",
     "photo": "assets/lineup-photos/ceephaxacid-crew.jpg",
     "website": null,
-    "bandcamp": null,
-    "blurb": null,
+    "bandcamp": "https://ceephax.bandcamp.com/",
+    "blurb": "Ceephax Acid Crew.\nEngland, UK.",
     "stages": [
       "Main Stage"
     ],
@@ -322,8 +322,8 @@
     "name": "JensenInterceptor",
     "photo": "assets/lineup-photos/jenseninterceptor.jpg",
     "website": null,
-    "bandcamp": null,
-    "blurb": null,
+    "bandcamp": "https://jenseninterceptor.bandcamp.com/",
+    "blurb": "Jensen Interceptor.\nBerlin, Germany.",
     "stages": [
       "Main Stage"
     ],
@@ -341,8 +341,8 @@
     "name": "Thys",
     "photo": "assets/lineup-photos/thys.jpg",
     "website": null,
-    "bandcamp": null,
-    "blurb": null,
+    "bandcamp": "https://iamthys.bandcamp.com/",
+    "blurb": "Thys.\nGroningen, Netherlands.",
     "stages": [
       "Main Stage"
     ],
