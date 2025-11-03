@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
+import 'dart:io' if (dart.library.html) 'dart:html' show window;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_chrome_cast/flutter_chrome_cast.dart';
 import '../config/constants.dart';
+import '../utils/platform_utils.dart';
 import 'auth_service.dart';
 
 class CastService {
@@ -49,14 +50,14 @@ class CastService {
       // Initialize Google Cast context with platform-specific options
       const appId = 'CC1AD845'; // Default Chromecast app ID
       
-      if (Platform.isIOS) {
+      if (PlatformUtils.isIOS) {
         // iOS initialization with discovery criteria
         final discoveryCriteria = GoogleCastDiscoveryCriteriaInitialize.initWithApplicationID(appId);
         final castOptions = IOSGoogleCastOptions(discoveryCriteria);
         await GoogleCastContext.instance.setSharedInstanceWithOptions(castOptions);
         _isInitialized = true;
         print('CastService initialized with Chromecast support (iOS)');
-      } else {
+      } else if (PlatformUtils.isAndroid) {
         // Android initialization
         final castOptions = GoogleCastOptionsAndroid(
           appId: appId,
@@ -154,7 +155,7 @@ class CastService {
             Future<void>.delayed(const Duration(milliseconds: 700), () async {
               final authService = AuthService();
               final url = await authService.getAuthedHlsUrl();
-              if (_mediaLoaded) return;
+              if (_mediaLoaded || url == null) return;
               print('🎬 Auto-loading HLS on Chromecast: $url');
               final ok = await startCasting(url, 'BangFace Live');
               if (ok) {
@@ -354,8 +355,11 @@ class CastService {
   }
 
   void dispose() {
-    final discoveryManager = GoogleCastDiscoveryManager.instance;
-    discoveryManager.stopDiscovery();
+    // Skip ChromeCast dispose on web (not supported anyway)
+    if (!kIsWeb) {
+      final discoveryManager = GoogleCastDiscoveryManager.instance;
+      discoveryManager.stopDiscovery();
+    }
     _isConnectedController?.close();
     _deviceNameController?.close();
     _isConnectedController = null;

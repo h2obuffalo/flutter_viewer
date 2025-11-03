@@ -13,9 +13,9 @@ import '../services/auth_service.dart';
 import '../utils/platform_utils.dart';
 
 // Web interop - conditional imports
-import 'dart:html' if (dart.library.io) '../utils/web_stub.dart' as web;
-import 'dart:js_util' if (dart.library.html) 'dart:js_util' 
-    if (dart.library.io) '../utils/js_util_stub.dart' as js_util;
+// Pattern: default is stub (for mobile), if html library exists (web) use real
+import '../utils/web_stub.dart' if (dart.library.html) 'dart:html' as web;
+import '../utils/js_util_stub.dart' if (dart.library.html) 'dart:js_util' as js_util;
 
 /// Simple player screen for mobile platforms using video_player
 /// with automatic reconnection and lifecycle handling
@@ -67,6 +67,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   // Cast state
   bool _isCasting = false;
   String? _castDeviceName;
+  String? _streamUrl; // Authenticated stream URL (with token)
   
   // Stream health monitoring
   final StreamHealthMonitor _healthMonitor = StreamHealthMonitor();
@@ -257,7 +258,21 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       }
       
       final hlsUrl = await authService.getAuthedHlsUrl();
-      print('Initializing video player with URL: $hlsUrl');
+      if (hlsUrl == null) {
+        print('❌ No stream URL configured or no valid token');
+        setState(() {
+          _errorMessage = 'Stream URL not configured. Please contact support.';
+          _isInitialized = false;
+        });
+        return;
+      }
+      
+      // Store authenticated URL for casting
+      setState(() {
+        _streamUrl = hlsUrl;
+      });
+      
+      print('Initializing video player with URL: ${hlsUrl.substring(0, hlsUrl.length > 50 ? 50 : hlsUrl.length)}...');
       
       _videoPlayerController = VideoPlayerController.networkUrl(
         Uri.parse(hlsUrl),
@@ -341,24 +356,34 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       
       // Get authenticated HLS URL with token
       final authedUrl = await authService.getAuthedHlsUrl();
-      print('✅ Got authenticated stream URL: ${authedUrl.substring(0, 50)}...');
+      if (authedUrl == null) {
+        print('❌ No stream URL configured or no valid token');
+        setState(() {
+          _errorMessage = 'Stream URL not configured. Please contact support.';
+          _isInitialized = false;
+        });
+        return;
+      }
+      print('✅ Got authenticated stream URL: ${authedUrl.substring(0, authedUrl.length > 50 ? 50 : authedUrl.length)}...');
+      
+      // Store authenticated URL for casting
+      setState(() {
+        _streamUrl = authedUrl;
+      });
       
       // Call JavaScript to initialize player with authenticated URL
       try {
         // ignore: avoid_web_libraries_in_flutter
+        // On web, web.window gives us the window object. On mobile, stub provides it.
         final window = web.window;
-        final initFunction = js_util.getProperty(window, 'initializeHLSPlayerWithToken');
-        if (initFunction != null) {
-          // Call the function with the authenticated URL
-          js_util.callMethod(initFunction, [authedUrl]);
-          print('✅ Called JavaScript to initialize HLS player with token');
+        // Call the function directly as a method on window
+        if (kIsWeb) {
+          js_util.callMethod(window, 'initializeHLSPlayerWithToken', [authedUrl]);
         } else {
-          print('❌ initializeHLSPlayerWithToken function not found');
-          setState(() {
-            _errorMessage = 'HLS player initialization function not available';
-          });
-          return;
+          // Should never reach here on mobile (kIsWeb check above)
+          throw UnsupportedError('Web player initialization not supported on mobile');
         }
+        print('✅ Called JavaScript to initialize HLS player with token');
       } catch (e) {
         print('❌ Error calling JavaScript init function: $e');
         setState(() {
@@ -419,6 +444,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
     try {
       // Access window.hlsVideoPlayer using js_util for proper JS interop
       // ignore: avoid_web_libraries_in_flutter
+      if (!kIsWeb) return null; // Double check
       final window = web.window;
       
       // Try to get the player directly (it might exist even if ready flag isn't set yet)
@@ -563,7 +589,17 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       // Get fresh authed URL
       final freshUrl = await authService.getAuthedHlsUrl();
       final cacheBuster = DateTime.now().millisecondsSinceEpoch;
-      final freshUrlWithCache = '$freshUrl${freshUrl.contains('?') ? '&' : '?'}t=$cacheBuster';
+      final freshUrlWithCache = freshUrl != null 
+          ? '$freshUrl${freshUrl.contains('?') ? '&' : '?'}t=$cacheBuster'
+          : null;
+      
+      if (freshUrlWithCache == null) {
+        print('❌ Cannot reconnect: No stream URL available');
+        setState(() {
+          _errorMessage = 'Stream URL not configured. Cannot reconnect.';
+        });
+        return;
+      }
       
       print('Using fresh stream URL: $freshUrlWithCache');
       
@@ -1114,7 +1150,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
             opacity: _showControls ? 1.0 : 0.0,
             duration: const Duration(milliseconds: 300),
             child: CastButton(
-              hlsUrl: AppConstants.hlsManifestUrl,
+              hlsUrl: _streamUrl ?? '',
               title: 'Live Stream',
             ),
           ),
@@ -1321,7 +1357,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
               
               // Cast button
               CastButton(
-                hlsUrl: AppConstants.hlsManifestUrl,
+                hlsUrl: _streamUrl ?? '',
                 title: 'Live Stream',
               ),
               

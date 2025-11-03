@@ -4,8 +4,12 @@ class AppConstants {
   static const String authApiUrl = 'https://tv.danpage.uk';
   static const String lineupApiUrl = 'https://tv.danpage.uk';
   
-  // HLS Stream URLs - Production URLs via Cloudflare Tunnel  
-  static const String hlsManifestUrl = 'https://tv.danpage.uk/hls/stream.m3u8';
+  // HLS Stream URLs - DEPRECATED: Stream URL is now stored dynamically in SharedPreferences
+  // The URL should be set via AuthService.setStreamUrl() after validation or from a config API
+  // This constant is kept for backward compatibility - used as fallback if not in storage
+  // Using broadcaster endpoint (doesn't require auth, has R2 URLs, larger buffer)
+  @Deprecated('Use AuthService.getStreamUrl() instead')
+  static const String hlsManifestUrl = 'https://tv.danpage.uk/live/playlist.m3u8';
   static const String cloudflareR2BaseUrl = 'https://pub-81f1de5a4fc945bdaac36449630b5685.r2.dev';
   
   // Lineup API Endpoint

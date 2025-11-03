@@ -13,6 +13,7 @@ class AuthService {
   static const String _tokenKey = 'playback_token';
   static const String _expiryKey = 'playback_token_expiry';
   static const String _ticketKey = 'ticket_number';
+  static const String _streamUrlKey = 'stream_url';
   
   String? _deviceId;
   
@@ -50,11 +51,16 @@ class AuthService {
         final data = jsonDecode(resp.body);
         final token = data['token'];
         final expiry = data['expiresAt'];
+        // Stream URL may be provided by the API, otherwise use null (will need to be set via config)
+        final streamUrl = data['streamUrl'] as String?;
         
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(_tokenKey, token);
         await prefs.setString(_expiryKey, expiry);
         await prefs.setString(_ticketKey, ticketNumber);
+        if (streamUrl != null) {
+          await prefs.setString(_streamUrlKey, streamUrl);
+        }
         return true;
       }
       return false;
@@ -77,16 +83,38 @@ class AuthService {
     return DateTime.now().isBefore(expiryDate);
   }
   
-  Future<String> getAuthedHlsUrl() async {
+  Future<String?> getStreamUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_streamUrlKey);
+  }
+  
+  Future<void> setStreamUrl(String url) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_streamUrlKey, url);
+  }
+  
+  Future<String?> getAuthedHlsUrl() async {
     final token = await getToken();
     final expiry = await SharedPreferences.getInstance().then((p) => p.getString(_expiryKey));
     
     if (token == null || expiry == null) {
-      return AppConstants.hlsManifestUrl;
+      // Return null if no token - caller should handle this
+      return null;
+    }
+    
+    // Get stream URL from storage (set via config API or auth response)
+    // Fallback to constant URL if not in storage (for backward compatibility)
+    var streamUrl = await getStreamUrl();
+    if (streamUrl == null) {
+      // Use fallback constant URL if not configured dynamically
+      streamUrl = AppConstants.hlsManifestUrl;
+      print('⚠️ Stream URL not in storage, using fallback: $streamUrl');
     }
     
     final expiryTimestamp = DateTime.parse(expiry).millisecondsSinceEpoch;
-    return '${AppConstants.hlsManifestUrl}?token=$token&expires=$expiryTimestamp';
+    // Add token as query parameter
+    final separator = streamUrl.contains('?') ? '&' : '?';
+    return '$streamUrl$separator token=$token&expires=$expiryTimestamp';
   }
   
   Future<void> clearAuth() async {
@@ -94,5 +122,6 @@ class AuthService {
     await prefs.remove(_tokenKey);
     await prefs.remove(_expiryKey);
     await prefs.remove(_ticketKey);
+    // Note: Don't remove stream URL - it can be reused if still valid
   }
 }
