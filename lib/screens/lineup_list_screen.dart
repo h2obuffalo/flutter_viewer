@@ -282,19 +282,49 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
   bool _artistMatchesDay(Artist artist, String day) {
     if (artist.setTimes.isEmpty) return false;
     
-    // Map day names to date strings
-    final dayMap = {
-      'Friday': '2025-10-27',
-      'Saturday': '2025-10-28', 
-      'Sunday': '2025-10-29'
+    // Get all unique dates from ALL artists to find the festival start date
+    // Use the earliest date as the festival start (Friday)
+    final Set<String> uniqueDates = {};
+    for (final a in _artists) {
+      for (final setTime in a.setTimes) {
+        final setDate = setTime.start.split('T')[0];
+        uniqueDates.add(setDate);
+      }
+    }
+    
+    if (uniqueDates.isEmpty) return false;
+    final sortedDates = uniqueDates.toList()..sort();
+    final mainFestivalStart = sortedDates.first; // Earliest date = Friday
+    
+    final firstDateTime = DateTime.parse(mainFestivalStart);
+    
+    // Map day names to their index (Friday=0, Saturday=1, Sunday=2)
+    final dayIndexMap = {
+      'Friday': 0,
+      'Saturday': 1,
+      'Sunday': 2
     };
     
-    final targetDate = dayMap[day];
-    if (targetDate == null) return false;
+    final targetDayIndex = dayIndexMap[day];
+    if (targetDayIndex == null) return false;
     
+    // Calculate the expected date based on main festival start date being Friday
+    final targetDate = firstDateTime.add(Duration(days: targetDayIndex));
+    final targetDateStr = '${targetDate.year}-${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}';
+    
+    // Handle overnight sets: times after 00:00 but before 06:00 count as previous day
     return artist.setTimes.any((setTime) {
-      final setDate = setTime.start.split('T')[0]; // Extract date part
-      return setDate == targetDate;
+      final setDateStr = setTime.start.split('T')[0];
+      final setDate = DateTime.parse(setTime.start);
+      
+      // If set starts before 6am, it counts as the previous day's late set
+      if (setDate.hour < 6) {
+        final previousDay = setDate.subtract(const Duration(days: 1));
+        final previousDayStr = '${previousDay.year}-${previousDay.month.toString().padLeft(2, '0')}-${previousDay.day.toString().padLeft(2, '0')}';
+        return previousDayStr == targetDateStr;
+      }
+      
+      return setDateStr == targetDateStr;
     });
   }
 

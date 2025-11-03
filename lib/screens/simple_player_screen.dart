@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:video_player/video_player.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -9,6 +10,12 @@ import '../widgets/cast_button.dart';
 import '../services/cast_service.dart';
 import '../services/stream_health_monitor.dart';
 import '../services/auth_service.dart';
+import '../utils/platform_utils.dart';
+
+// Web interop - conditional imports
+import 'dart:html' if (dart.library.io) '../utils/web_stub.dart' as web;
+import 'dart:js_util' if (dart.library.html) 'dart:js_util' 
+    if (dart.library.io) '../utils/js_util_stub.dart' as js_util;
 
 /// Simple player screen for mobile platforms using video_player
 /// with automatic reconnection and lifecycle handling
@@ -89,17 +96,24 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       duration: const Duration(milliseconds: 200),
     );
     
-    // Start in landscape/fullscreen mode
-    Future.microtask(() async {
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    // Start in landscape/fullscreen mode (skip on web - let browser handle it)
+    if (!kIsWeb) {
+      Future.microtask(() async {
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+        await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+        setState(() {
+          _isFullscreen = true;
+        });
+      });
+    } else {
+      // On web, just set fullscreen state
       setState(() {
         _isFullscreen = true;
       });
-    });
+    }
     
     _initConnectivityListener();
     _initPlayer();
@@ -177,12 +191,14 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
     _seekForwardAnimationController.dispose();
     _fullscreenAnimationController.dispose();
     
-    // Restore portrait mode and system UI
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    // Restore portrait mode and system UI (skip on web)
+    if (!kIsWeb) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
     
     // Disable wake lock when player is disposed
     WakelockPlus.disable();
@@ -226,10 +242,17 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       // Check if user has valid ticket authentication
       final hasValidToken = await authService.isTokenValid();
       if (!hasValidToken) {
-        // Redirect to ticket input screen
+        // Redirect back to menu - user can click stream button to show ticket dialog
         if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/ticket');
+          Navigator.of(context).pushReplacementNamed('/menu');
         }
+        return;
+      }
+      
+      // On web, use JavaScript HLS player instead of video_player
+      if (kIsWeb) {
+        print('Web platform detected - using JavaScript HLS player');
+        await _initWebPlayer();
         return;
       }
       
@@ -299,6 +322,150 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       _handleInitializationError(e);
     }
   }
+  
+  Future<void> _initWebPlayer() async {
+    // First, get the authenticated stream URL
+    try {
+      final authService = AuthService();
+      
+      // Check if token is valid
+      final isTokenValid = await authService.isTokenValid();
+      if (!isTokenValid) {
+        print('❌ No valid token found - cannot initialize player');
+        setState(() {
+          _errorMessage = 'Authentication required. Please enter your ticket number.';
+          _isInitialized = false;
+        });
+        return;
+      }
+      
+      // Get authenticated HLS URL with token
+      final authedUrl = await authService.getAuthedHlsUrl();
+      print('✅ Got authenticated stream URL: ${authedUrl.substring(0, 50)}...');
+      
+      // Call JavaScript to initialize player with authenticated URL
+      try {
+        // ignore: avoid_web_libraries_in_flutter
+        final window = web.window;
+        final initFunction = js_util.getProperty(window, 'initializeHLSPlayerWithToken');
+        if (initFunction != null) {
+          // Call the function with the authenticated URL
+          js_util.callMethod(initFunction, [authedUrl]);
+          print('✅ Called JavaScript to initialize HLS player with token');
+        } else {
+          print('❌ initializeHLSPlayerWithToken function not found');
+          setState(() {
+            _errorMessage = 'HLS player initialization function not available';
+          });
+          return;
+        }
+      } catch (e) {
+        print('❌ Error calling JavaScript init function: $e');
+        setState(() {
+          _errorMessage = 'Failed to initialize player: $e';
+        });
+        return;
+      }
+      
+      // Wait for JS player to initialize (retry up to 10 times)
+      int retries = 0;
+      while (retries < 10) {
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        final jsPlayer = _getJSPlayer();
+        if (jsPlayer != null) {
+          print('JavaScript HLS player found, initializing...');
+          
+          // Show the video element
+          _callJSMethod('show', []);
+          
+          // Try to play
+          try {
+            _callJSMethod('play', []);
+          } catch (e) {
+            print('Autoplay may be blocked: $e');
+          }
+          
+          setState(() {
+            _isInitialized = true;
+            _errorMessage = null;
+            _reconnectAttempt = 0;
+          });
+          
+          print('Web HLS player initialized successfully');
+          return;
+        }
+        
+        retries++;
+        print('Waiting for JS HLS player... (attempt $retries/10)');
+      }
+      
+      // If we get here, player never initialized
+      print('JavaScript HLS player not available after retries');
+      setState(() {
+        _errorMessage = 'HLS player failed to initialize. Token may be invalid or stream offline.';
+      });
+    } catch (e) {
+      print('❌ Error in _initWebPlayer: $e');
+      setState(() {
+        _errorMessage = 'Failed to initialize player: $e';
+      });
+    }
+  }
+  
+  dynamic _getJSPlayer() {
+    if (!kIsWeb) return null;
+    
+    try {
+      // Access window.hlsVideoPlayer using js_util for proper JS interop
+      // ignore: avoid_web_libraries_in_flutter
+      final window = web.window;
+      
+      // Try to get the player directly (it might exist even if ready flag isn't set yet)
+      final player = js_util.getProperty(window, 'hlsVideoPlayer');
+      if (player != null) {
+        // Check if it's a valid player object (has video property or methods)
+        final hasVideo = js_util.getProperty(player, 'video');
+        final hasPlay = js_util.getProperty(player, 'play');
+        if (hasVideo != null || hasPlay != null) {
+          print('✅ JS player found (has valid player object)');
+          return player;
+        }
+      }
+      
+      // Also check ready flag for additional confirmation
+      final isReady = js_util.getProperty(window, 'hlsPlayerReady');
+      if (isReady == true && player != null) {
+        print('✅ JS player found and ready flag confirmed');
+        return player;
+      }
+      
+      print('⏳ JS player not available (player: ${player != null ? "exists" : "null"}, ready: $isReady)');
+    } catch (e) {
+      print('Error accessing JS player: $e');
+    }
+    return null;
+  }
+  
+  void _callJSMethod(String method, List<dynamic> args) {
+    if (!kIsWeb) return;
+    
+    try {
+      // Use js_util for proper JS interop to access and call JS methods
+      // ignore: avoid_web_libraries_in_flutter
+      final window = web.window;
+      final player = js_util.getProperty(window, 'hlsVideoPlayer');
+      if (player != null) {
+        // Call the method directly on the player object
+        js_util.callMethod(player, method, args);
+        print('✅ Called JS method: $method');
+        return;
+      }
+      print('⚠️ JS player not available (window.hlsVideoPlayer is null)');
+    } catch (e) {
+      print('❌ Error calling JS method $method: $e');
+    }
+  }
 
   void _handleInitializationError(dynamic error) {
     final errorMsg = error.toString();
@@ -356,6 +523,18 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   }
 
   Future<void> _performReconnect() async {
+    // On web, don't use video_player reconnection - use JS player
+    if (kIsWeb) {
+      print('Web platform: Retrying JS HLS player initialization...');
+      setState(() {
+        _isReconnecting = false;
+        _isInitialized = false;
+        _errorMessage = null;
+      });
+      await _initWebPlayer();
+      return;
+    }
+    
     try {
       print('Attempting to reconnect with fresh stream URL...');
       
@@ -374,9 +553,9 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       final authService = AuthService();
       final hasValidToken = await authService.isTokenValid();
       if (!hasValidToken) {
-        // Redirect to ticket input screen
+        // Redirect back to menu - user can click stream button to show ticket dialog
         if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/ticket');
+          Navigator.of(context).pushReplacementNamed('/menu');
         }
         return;
       }
@@ -466,11 +645,13 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
           return false;
         }
         // In portrait mode, navigate to menu instead of exiting app
-        await SystemChrome.setPreferredOrientations([
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown,
-        ]);
-        await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        if (!kIsWeb) {
+          await SystemChrome.setPreferredOrientations([
+            DeviceOrientation.portraitUp,
+            DeviceOrientation.portraitDown,
+          ]);
+          await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+        }
         if (mounted) {
           Navigator.pushReplacementNamed(context, '/menu');
         }
@@ -484,12 +665,14 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () async {
-            // Restore portrait mode
-            await SystemChrome.setPreferredOrientations([
-              DeviceOrientation.portraitUp,
-              DeviceOrientation.portraitDown,
-            ]);
-            await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+            // Restore portrait mode (skip on web)
+            if (!kIsWeb) {
+              await SystemChrome.setPreferredOrientations([
+                DeviceOrientation.portraitUp,
+                DeviceOrientation.portraitDown,
+              ]);
+              await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+            }
             
             // Return to menu
             if (mounted) {
@@ -641,6 +824,11 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   }
 
   Widget _buildPlayerView() {
+    // On web, the JS HLS player handles video display
+    if (kIsWeb) {
+      return _buildWebPlayerView();
+    }
+    
     return GestureDetector(
       onTapDown: _onVideoTap,
       child: Stack(
@@ -952,6 +1140,111 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       ],
     );
   }
+  
+  Widget _buildWebPlayerView() {
+    // On web, the JavaScript HLS player handles the video display
+    // This widget just provides the Flutter UI overlay (controls, etc.)
+    // The actual video element is managed by JavaScript in index.html
+    return GestureDetector(
+      onTapDown: _onVideoTap,
+      child: Stack(
+        children: [
+          // Placeholder/background - video is handled by JS
+          Container(
+            color: Colors.black,
+            width: double.infinity,
+            height: double.infinity,
+          ),
+          
+          // Stream health indicator overlay - same as mobile
+          Positioned(
+            top: 10,
+            left: 10,
+            child: AnimatedOpacity(
+              opacity: _showControls ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _isStreamHealthy ? Colors.green.withValues(alpha: 0.8) : Colors.orange.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      _isStreamHealthy ? Icons.check_circle : Icons.warning,
+                      color: Colors.white,
+                      size: 12,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _isStreamHealthy ? 'HEALTHY' : 'CHECKING',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          
+          // Casting indicator overlay
+          if (_isCasting)
+            Positioned(
+              top: 50,
+              left: 10,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.green.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.cast_connected,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Casting to $_castDeviceName',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'VT323',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          
+          // Controls - simplified for web (no fullscreen toggle needed)
+          // Center play/pause button
+          Center(
+            child: AnimatedOpacity(
+              opacity: _showControls ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: _buildLargePlayButton(
+                icon: Icons.play_arrow, // TODO: Check JS player state
+                onPressed: () {
+                  _togglePlayPause();
+                  _showControlsTemporarily();
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildPortraitControls() {
     return Positioned(
@@ -989,21 +1282,32 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
                 animationController: _seekBackAnimationController,
               ),
               
-              // Play/Pause button - reactive to player state
-              ValueListenableBuilder<VideoPlayerValue>(
-                valueListenable: _videoPlayerController!,
-                builder: (context, value, child) {
-                  return _buildControlButton(
-                    icon: value.isPlaying ? Icons.pause : Icons.play_arrow,
-                    onPressed: () {
-                      _togglePlayPause();
-                      _showControlsTemporarily();
-                    },
-                    animationController: _playPauseAnimationController,
-                    isMainButton: true,
-                  );
-                },
-              ),
+              // Play/Pause button - reactive to player state (skip on web)
+              if (!kIsWeb)
+                ValueListenableBuilder<VideoPlayerValue>(
+                  valueListenable: _videoPlayerController!,
+                  builder: (context, value, child) {
+                    return _buildControlButton(
+                      icon: value.isPlaying ? Icons.pause : Icons.play_arrow,
+                      onPressed: () {
+                        _togglePlayPause();
+                        _showControlsTemporarily();
+                      },
+                      animationController: _playPauseAnimationController,
+                      isMainButton: true,
+                    );
+                  },
+                )
+              else
+                _buildControlButton(
+                  icon: Icons.play_arrow, // TODO: Get state from JS player
+                  onPressed: () {
+                    _togglePlayPause();
+                    _showControlsTemporarily();
+                  },
+                  animationController: _playPauseAnimationController,
+                  isMainButton: true,
+                ),
               
               // Forward 30s button
               _buildControlButton(
@@ -1021,15 +1325,16 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
                 title: 'Live Stream',
               ),
               
-              // Fullscreen button
-              _buildControlButton(
-                icon: Icons.fullscreen,
-                onPressed: () {
-                  _toggleFullscreen();
-                  _showControlsTemporarily();
-                },
-                animationController: _fullscreenAnimationController,
-              ),
+              // Fullscreen button (skip on web - browser handles it)
+              if (!kIsWeb)
+                _buildControlButton(
+                  icon: Icons.fullscreen,
+                  onPressed: () {
+                    _toggleFullscreen();
+                    _showControlsTemporarily();
+                  },
+                  animationController: _fullscreenAnimationController,
+                ),
             ],
           ),
         ),
@@ -1095,7 +1400,33 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   }
 
   void _togglePlayPause() {
-    if (_videoPlayerController != null) {
+    if (kIsWeb) {
+      // On web, control the JS HLS player
+      // Check if video is playing and toggle
+      try {
+        // ignore: avoid_web_libraries_in_flutter
+        final window = web.window;
+        final player = js_util.getProperty(window, 'hlsVideoPlayer');
+        if (player != null) {
+          final video = js_util.getProperty(player, 'video');
+          if (video != null) {
+            final paused = js_util.getProperty(video, 'paused');
+            if (paused == true) {
+              _callJSMethod('play', []);
+            } else {
+              _callJSMethod('pause', []);
+            }
+            setState(() {}); // Trigger rebuild
+            return;
+          }
+        }
+      } catch (e) {
+        print('Error toggling play/pause: $e');
+      }
+      // Fallback to just calling play
+      _callJSMethod('play', []);
+      setState(() {}); // Trigger rebuild
+    } else if (_videoPlayerController != null) {
       if (_videoPlayerController!.value.isPlaying) {
         _videoPlayerController!.pause();
       } else {
@@ -1123,25 +1454,31 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   }
 
   void _toggleFullscreen() async {
-    HapticFeedback.lightImpact();
+    if (!kIsWeb) {
+      HapticFeedback.lightImpact();
+    }
     
     if (!_isFullscreen) {
-      // Enter fullscreen mode
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeLeft,
-        DeviceOrientation.landscapeRight,
-      ]);
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      // Enter fullscreen mode (skip on web - use browser fullscreen API)
+      if (!kIsWeb) {
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+        await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      }
       setState(() {
         _isFullscreen = true;
       });
     } else {
-      // Exit fullscreen mode
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      // Exit fullscreen mode (skip on web)
+      if (!kIsWeb) {
+        await SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
+        await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      }
       setState(() {
         _isFullscreen = false;
       });

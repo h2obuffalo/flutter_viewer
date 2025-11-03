@@ -9,6 +9,8 @@ import '../services/now_playing_service.dart';
 import '../services/remote_lineup_sync_service.dart';
 import '../services/notification_service.dart';
 import '../widgets/bangface_popup.dart';
+import '../widgets/ticket_input_dialog.dart';
+import '../services/auth_service.dart';
 import 'lineup_list_screen.dart';
 import 'simple_player_screen.dart';
 import 'updates_screen.dart';
@@ -201,9 +203,22 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
     await _buttonController.forward();
     await _buttonController.reverse();
     
-    // Navigate to player
-    if (mounted) {
+    if (!mounted) return;
+    
+    // Check if user already has valid token
+    final authService = AuthService();
+    final hasValidToken = await authService.isTokenValid();
+    
+    if (hasValidToken) {
+      // User already authenticated, go directly to player
       Navigator.pushReplacementNamed(context, '/player');
+    } else {
+      // Show ticket input dialog
+      showDialog(
+        context: context,
+        barrierDismissible: true, // Allow dismissing by tapping outside
+        builder: (context) => const TicketInputDialog(),
+      );
     }
   }
 

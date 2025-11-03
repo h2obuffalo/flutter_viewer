@@ -535,8 +535,13 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
   }
   
   String _formatDayAndTime(DateTime dateTime) {
+    // Handle overnight sets: before 6am counts as previous day
+    final displayDate = dateTime.hour < 6 
+        ? dateTime.subtract(const Duration(days: 1))
+        : dateTime;
+    
     final dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    final dayName = dayNames[dateTime.weekday - 1];
+    final dayName = dayNames[displayDate.weekday - 1];
     return '$dayName ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 }
