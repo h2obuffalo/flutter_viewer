@@ -144,9 +144,17 @@ class CraicAudioService {
   }
   
   /// Reload tracks from API (useful for refreshing after uploads)
+  /// This is public so it can be called externally if needed
   Future<void> reloadTracks() async {
     await _loadTracksFromApi();
+    // Reset index if it's out of bounds after reload
+    if (_currentTrackIndex >= _tracks.length) {
+      _currentTrackIndex = 0;
+    }
   }
+  
+  /// Get the current number of tracks loaded
+  int get trackCount => _tracks.length;
 
   /// Add a track to the pool
   void addTrack(TrackInfo track) {
@@ -304,6 +312,11 @@ class CraicAudioService {
     if (_tracks.isEmpty) {
       print('No tracks available for playNextTrack');
       return;
+    }
+
+    // Reset index if it's out of bounds (e.g., if tracks were removed)
+    if (_currentTrackIndex >= _tracks.length) {
+      _currentTrackIndex = 0;
     }
 
     print('playNextTrack: Current index=$_currentTrackIndex, Total tracks=${_tracks.length}');

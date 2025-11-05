@@ -320,27 +320,30 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
       return;
     }
     
-    // Get track info BEFORE playing (so we show the correct track name)
-    final trackName = _raveAudioService.currentTrackName;
-    final artistName = _raveAudioService.currentArtistName;
-    
-    // Update state to show track info and start rave mode IMMEDIATELY
-    if (mounted) {
-      setState(() {
-        _currentTrackName = trackName;
-        _currentArtistName = artistName;
-        _showTrackInfo = true;
-        _isRaveMode = true;
-      });
-    }
-    
-    // Start everything simultaneously - don't await, let them all start at once
-    _raveButtonController.forward(); // Start 6-second animation
-    _strobeController.repeat(); // Start the rave mode strobe effects
-    _screenGlitchController.repeat(); // Start screen glitch effects
-    
-    // Start playing the track (don't await - let it start in parallel)
-    _raveAudioService.playNextTrack(); // Fire and forget - starts immediately
+    // Reload tracks first to get any new uploads, then get track info
+    _raveAudioService.reloadTracks().then((_) {
+      // Get track info AFTER reloading (so we show the correct track name)
+      final trackName = _raveAudioService.currentTrackName;
+      final artistName = _raveAudioService.currentArtistName;
+      
+      // Update state to show track info and start rave mode
+      if (mounted) {
+        setState(() {
+          _currentTrackName = trackName;
+          _currentArtistName = artistName;
+          _showTrackInfo = true;
+          _isRaveMode = true;
+        });
+      }
+      
+      // Start everything simultaneously
+      _raveButtonController.forward(); // Start 6-second animation
+      _strobeController.repeat(); // Start the rave mode strobe effects
+      _screenGlitchController.repeat(); // Start screen glitch effects
+      
+      // Start playing the track (don't await - let it start in parallel)
+      _raveAudioService.playNextTrack(); // Fire and forget - starts immediately
+    });
     
     // Set up timer to stop after 6 seconds
     _raveModeTimer?.cancel();
@@ -358,9 +361,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
     _raveAudioService.stop();
     
     // Stop animations and reset state
-    if (mounted) {
-      setState(() {
-        _isRaveMode = false;
+        if (mounted) {
+          setState(() {
+            _isRaveMode = false;
         _showTrackInfo = false;
       });
       _strobeController.stop();
@@ -428,9 +431,9 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
           
           // Main content
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                 // Title with beta stamp
                 Stack(
                   alignment: Alignment.center,
@@ -492,7 +495,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                 // Interactive Rave button
                 _buildRaveButton(),
               ],
-            ),
+          ),
           ),
         ],
       ),
