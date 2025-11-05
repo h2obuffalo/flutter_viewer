@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:io' if (dart.library.html) 'dart:html' show window;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_chrome_cast/flutter_chrome_cast.dart';
-import '../config/constants.dart';
 import '../utils/platform_utils.dart';
+import '../utils/web_stub.dart' if (dart.library.html) 'dart:html' as web;
+import '../utils/js_util_stub.dart' if (dart.library.html) 'dart:js_util' as js_util;
 import 'auth_service.dart';
 
 class CastService {
@@ -17,6 +17,9 @@ class CastService {
   bool _isConnected = false;
   String? _deviceName;
   bool _mediaLoaded = false;
+  DateTime? _lastLoadMediaAttempt;
+  StreamSubscription? _sessionSubscription;
+  StreamSubscription? _mediaStatusSubscription;
 
   // Streams for UI to listen to
   Stream<bool> get isConnectedStream => _isConnectedController!.stream;
@@ -29,6 +32,8 @@ class CastService {
   void _resetConnectionState() {
     _isConnected = false;
     _deviceName = null;
+    _mediaLoaded = false;
+    _lastLoadMediaAttempt = null;
     _isConnectedController?.add(false);
     _deviceNameController?.add(null);
   }
@@ -39,9 +44,29 @@ class CastService {
     _isConnectedController = StreamController<bool>.broadcast();
     _deviceNameController = StreamController<String?>.broadcast();
     
-    // Skip ChromeCast initialization on web platform
+    // Web platform uses JavaScript Cast SDK
     if (kIsWeb) {
-      print('CastService: ChromeCast not supported on web platform');
+      print('CastService: Initializing ChromeCast for web platform');
+      // Cast SDK is initialized in index.html
+      // We just need to check if it's available
+      try {
+        // Check if webCastAPI is available
+        // ignore: avoid_web_libraries_in_flutter
+        final window = web.window;
+        final webCastAPI = js_util.getProperty(window, 'webCastAPI');
+        if (webCastAPI != null) {
+          final isAvailable = js_util.callMethod(webCastAPI, 'isAvailable', []);
+          if (isAvailable == true) {
+            print('✅ CastService: ChromeCast available on web');
+          } else {
+            print('⚠️ CastService: ChromeCast SDK not fully initialized yet');
+          }
+        } else {
+          print('⚠️ CastService: webCastAPI not found - Cast SDK may not be loaded');
+        }
+      } catch (e) {
+        print('⚠️ CastService: Error checking web cast availability: $e');
+      }
       _isInitialized = true;
       return;
     }
@@ -56,7 +81,8 @@ class CastService {
         final castOptions = IOSGoogleCastOptions(discoveryCriteria);
         await GoogleCastContext.instance.setSharedInstanceWithOptions(castOptions);
         _isInitialized = true;
-        print('CastService initialized with Chromecast support (iOS)');
+        print('✅ CastService initialized with Chromecast support (iOS)');
+        print('   App ID: $appId');
       } else if (PlatformUtils.isAndroid) {
         // Android initialization
         final castOptions = GoogleCastOptionsAndroid(
@@ -64,11 +90,22 @@ class CastService {
         );
         await GoogleCastContext.instance.setSharedInstanceWithOptions(castOptions);
         _isInitialized = true;
-        print('CastService initialized with Chromecast support (Android)');
+        print('✅ CastService initialized with Chromecast support (Android)');
+        print('   App ID: $appId');
+        
+        // Start discovery automatically on Android for better device detection
+        try {
+          final discoveryManager = GoogleCastDiscoveryManager.instance;
+          discoveryManager.startDiscovery();
+          print('✅ Started automatic device discovery');
+        } catch (e) {
+          print('⚠️  Could not start automatic discovery: $e');
+        }
       }
       
-    } catch (e) {
-      print('Error initializing ChromeCast: $e');
+    } catch (e, stackTrace) {
+      print('❌ Error initializing ChromeCast: $e');
+      print('   Stack trace: $stackTrace');
     }
   }
 
@@ -89,23 +126,42 @@ class CastService {
       print('CastService: Getting discovery manager...');
       final discoveryManager = GoogleCastDiscoveryManager.instance;
       
-      // Don't start discovery if it's already running - just get current devices
+      // Start discovery if not already running
+      print('CastService: Starting device discovery...');
+      discoveryManager.startDiscovery();
+      
+      // Wait a moment for discovery to begin
+      await Future.delayed(const Duration(milliseconds: 500));
+      
       print('CastService: Getting current devices from discovery manager...');
-      final devices = discoveryManager.devices;
+      var devices = discoveryManager.devices;
       print('CastService: Raw devices from discovery manager: ${devices.length}');
       
-      // If no devices found, wait a bit for discovery to catch up
+      // If no devices found, wait longer for discovery to catch up
       if (devices.isEmpty) {
-        print('CastService: No devices found, waiting 2 seconds for discovery...');
-        await Future.delayed(const Duration(seconds: 2));
-        final devicesAfterWait = discoveryManager.devices;
-        print('CastService: Devices after wait: ${devicesAfterWait.length}');
-        return _filterVideoCapableDevices(devicesAfterWait);
+        print('CastService: No devices found, waiting 3 seconds for discovery...');
+        await Future.delayed(const Duration(seconds: 3));
+        devices = discoveryManager.devices;
+        print('CastService: Devices after wait: ${devices.length}');
+        
+        // If still no devices, try one more time
+        if (devices.isEmpty) {
+          print('CastService: Still no devices, waiting 2 more seconds...');
+          await Future.delayed(const Duration(seconds: 2));
+          devices = discoveryManager.devices;
+          print('CastService: Devices after second wait: ${devices.length}');
+        }
+      }
+      
+      // Log all discovered devices for debugging
+      for (var device in devices) {
+        print('CastService: Discovered device - ${device.friendlyName} (${device.modelName}) - ID: ${device.deviceID}');
       }
       
       return _filterVideoCapableDevices(devices);
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('CastService: Error discovering devices: $e');
+      print('CastService: Stack trace: $stackTrace');
       return [];
     }
   }
@@ -139,59 +195,273 @@ class CastService {
     
     try {
       final sessionManager = GoogleCastSessionManager.instance;
-      await sessionManager.startSessionWithDevice(device);
       
-      // Listen to session state changes
-      sessionManager.currentSessionStream.listen((session) {
-        if (session != null) {
-          _isConnected = true;
-          _deviceName = device.friendlyName;
-          _isConnectedController?.add(true);
-          _deviceNameController?.add(_deviceName);
-          print('Connected to ${device.friendlyName}');
-
-          // Auto-load our HLS stream on connect/resume (after a short delay so media channel is ready)
-          if (!_mediaLoaded) {
-            Future<void>.delayed(const Duration(milliseconds: 700), () async {
-              final authService = AuthService();
-              final url = await authService.getAuthedHlsUrl();
-              if (_mediaLoaded || url == null) return;
-              print('🎬 Auto-loading HLS on Chromecast: $url');
-              final ok = await startCasting(url, 'BangFace Live');
-              if (ok) {
-                _mediaLoaded = true;
-                print('✅ HLS load request sent successfully');
-              } else {
-                print('❌ HLS load request failed to send');
-              }
-            });
-          }
+      // On iOS, the session may already be established automatically
+      // Check if we're already connected to this device
+      var currentSession = sessionManager.currentSession;
+      if (currentSession != null && PlatformUtils.isIOS) {
+        print('ℹ️  iOS: Session already exists, checking if it matches selected device...');
+        // On iOS, if session already exists, we might already be connected
+        // Just verify we're connected and update state
+        if (_isConnected && _deviceName == device.friendlyName) {
+          print('✅ iOS: Already connected to ${device.friendlyName}');
+          return true;
+        }
+      }
+      
+      // Cancel any existing session subscription to avoid duplicate listeners
+      await _sessionSubscription?.cancel();
+      _sessionSubscription = null;
+      await _mediaStatusSubscription?.cancel();
+      _mediaStatusSubscription = null;
+      
+      // Set up session listener BEFORE starting the session to catch connection events
+      // Listen to session state changes (only once per connection)
+      _sessionSubscription = sessionManager.currentSessionStream.listen(
+        (session) {
+          if (session != null) {
+            _isConnected = true;
+            _deviceName = device.friendlyName;
+            _isConnectedController?.add(true);
+            _deviceNameController?.add(_deviceName);
+            print('✅ Connected to ${device.friendlyName}');
+            print('   Device ID: ${device.deviceID}');
+            print('   Model: ${device.modelName}');
           
-          // Listen to media status changes for debugging and state management
-          GoogleCastRemoteMediaClient.instance.mediaStatusStream.listen((status) {
-            print('📺 Chromecast Media Status: ${status?.playerState}');
-            print('📺 Media Info: ${status?.mediaInformation?.contentId}');
-            
-            // Check if the stream has ended or failed
-            final playerState = status?.playerState?.toString();
-            if (playerState == 'GoogleCastPlayerState.idle') {
-              print('⚠️  Chromecast is idle - stream may have failed to load');
-              // Don't automatically disconnect here - let user control it
-            } else if (playerState == 'GoogleCastPlayerState.buffering') {
-              print('🔄 Chromecast is buffering...');
-            } else if (playerState == 'GoogleCastPlayerState.playing') {
-              print('▶️  Chromecast is playing');
-            } else if (playerState == 'GoogleCastPlayerState.paused') {
-              print('⏸️  Chromecast is paused');
-            }
-          });
+          // Note: Auto-load is disabled - CastButton will handle loading manually
+          // This prevents conflicts when CastButton explicitly calls startCasting
+          print('⏭️  Auto-load disabled - CastButton will handle loading');
+          
+          // Listen to media status changes for debugging and state management (only once)
+          if (_mediaStatusSubscription == null) {
+              _mediaStatusSubscription = GoogleCastRemoteMediaClient.instance.mediaStatusStream.listen(
+              (status) {
+                print('📺 Chromecast Media Status Update:');
+                print('   Player State: ${status?.playerState}');
+                print('   Media Information: ${status?.mediaInformation != null ? "Present" : "NULL"}');
+                if (status?.mediaInformation != null) {
+                  final mediaInfo = status!.mediaInformation!;
+                  print('   Content ID: ${mediaInfo.contentId}');
+                  print('   Content URL: ${mediaInfo.contentUrl}');
+                  print('   Content Type: ${mediaInfo.contentType}');
+                  print('   Stream Type: ${mediaInfo.streamType}');
+                  print('   Metadata: ${mediaInfo.metadata != null ? "Present" : "NULL"}');
+                  
+                  // If we just attempted to load media and now have media info, mark as loaded
+                  if (_lastLoadMediaAttempt != null) {
+                    final timeSinceLoad = DateTime.now().difference(_lastLoadMediaAttempt!);
+                    if (timeSinceLoad.inSeconds < 10) {
+                      print('✅ Media accepted by Chromecast after ${timeSinceLoad.inMilliseconds}ms');
+                      _mediaLoaded = true;
+                    }
+                  }
+                } else {
+                  // If we recently attempted to load media and still have NULL, Chromecast rejected it
+                  if (_lastLoadMediaAttempt != null) {
+                    final timeSinceLoad = DateTime.now().difference(_lastLoadMediaAttempt!);
+                    if (timeSinceLoad.inSeconds < 10 && _mediaLoaded) {
+                      print('   ⚠️⚠️⚠️ CRITICAL: Media Information is NULL after loadMedia attempt!');
+                      print('   Time since loadMedia: ${timeSinceLoad.inSeconds}s');
+                      print('   This means Chromecast rejected the media request');
+                      print('   Resetting _mediaLoaded flag to allow retry');
+                      _mediaLoaded = false; // Reset to allow retry
+                    } else {
+                      print('   ⚠️ WARNING: Media Information is NULL!');
+                      print('   This means the media info was not properly sent to Chromecast');
+                    }
+                  } else {
+                    print('   ℹ️  Media Information is NULL (no media loaded yet)');
+                  }
+                }
+                
+                // Check if the stream has ended or failed
+                if (status == null) return; // Skip if status is null
+                
+              final playerState = status.playerState?.toString();
+              print('   Idle Reason: ${status.idleReason}');
+              print('   Idle Reason Type: ${status.idleReason?.runtimeType}');
+              print('   Playback Rate: ${status.playbackRate}');
+              
+              // Log detailed error information if idle
+              if (status.idleReason != null) {
+                final idleReasonStr = status.idleReason.toString();
+                print('   🔍 Idle Reason Details: $idleReasonStr');
+                print('   🔍 Idle Reason Value: ${status.idleReason}');
+                
+                // Try to get all available status properties for debugging
+                print('   🔍 Full Status Debug Info:');
+                print('      Player State: ${status.playerState}');
+                print('      Playback Rate: ${status.playbackRate}');
+                print('      Volume: ${status.volume}');
+                print('      Is Muted: ${status.isMuted}');
+                
+                if (idleReasonStr.contains('ERROR') || 
+                    idleReasonStr.contains('INTERRUPTED') ||
+                    idleReasonStr.contains('FINISHED') ||
+                    idleReasonStr.contains('CANCELLED')) {
+                  print('   ⚠️ Critical: Stream failed with reason: $idleReasonStr');
+                }
+              }
+              
+              if (playerState == 'GoogleCastPlayerState.idle') {
+                  print('⚠️  Chromecast is idle - stream may have failed to load');
+                  // Check if there's an error in the media status
+                  if (status.idleReason != null) {
+                    final idleReason = status.idleReason!;
+                    print('   Idle Reason: $idleReason');
+                    print('   Idle Reason Type: ${idleReason.runtimeType}');
+                    
+                    // Check if it's an error (most common issue)
+                    if (idleReason == GoogleCastMediaIdleReason.error) {
+                      print('   ❌❌❌ STREAM ERROR DETECTED ❌❌❌');
+                      print('   Chromecast cannot load or play the stream');
+                      print('   ');
+                      print('   📋 DIAGNOSTIC INFORMATION:');
+                      
+                      // Log the media information to help debug
+                      if (status.mediaInformation != null) {
+                        final mediaInfo = status.mediaInformation!;
+                        print('   📋 Media Info:');
+                        print('      Content ID: ${mediaInfo.contentId ?? "NULL"}');
+                        print('      Content URL: ${mediaInfo.contentUrl ?? "NULL"}');
+                        print('      Content Type: ${mediaInfo.contentType ?? "NULL"}');
+                        print('      Stream Type: ${mediaInfo.streamType ?? "NULL"}');
+                        print('      Metadata: ${mediaInfo.metadata != null ? "Present" : "NULL"}');
+                        
+                        // Try to get the actual URL being used
+                        final actualUrl = mediaInfo.contentId ?? mediaInfo.contentUrl?.toString() ?? "Unknown";
+                        print('   📋 Actual URL being cast: $actualUrl');
+                        print('   📋 Verify this URL works: curl -I "$actualUrl"');
+                      } else {
+                        print('   ⚠️⚠️⚠️ CRITICAL: Media Information is NULL ⚠️⚠️⚠️');
+                        print('   This means Chromecast rejected the media information we sent');
+                        print('   Possible reasons:');
+                        print('   1. Invalid content type for Chromecast');
+                        print('   2. URL format rejected by Chromecast');
+                        print('   3. Serialization issue with GoogleCastMediaInformation');
+                        print('   4. Chromecast firmware/version incompatibility');
+                        print('   5. Network connectivity issue');
+                        print('   ');
+                        print('   🔍 What we attempted to send:');
+                        print('      URL: https://tv.danpage.uk/live/playlist.m3u8');
+                        print('      Content Type: application/x-mpegurl');
+                        print('      Stream Type: CastMediaStreamType.live');
+                        print('   ');
+                        print('   💡 Try manually testing the playlist:');
+                        print('      curl "https://tv.danpage.uk/live/playlist.m3u8"');
+                        print('   💡 Verify Chromecast can access R2:');
+                        print('      curl -I "https://pub-81f1de5a4fc945bdaac36449630b5685.r2.dev/live/.../segment.ts"');
+                      }
+                      
+                      print('   ');
+                      print('   🔍 POSSIBLE CAUSES:');
+                      print('   1. HLS playlist format incompatible with Chromecast');
+                      print('   2. TS segments not accessible (R2 URLs may need CORS or different config)');
+                      print('   3. Content type mismatch (trying application/x-mpegurl)');
+                      print('   4. Chromecast firmware/version incompatibility');
+                      print('   5. Network/firewall blocking Chromecast from R2');
+                      print('   ');
+                      print('   💡 NEXT STEPS:');
+                      print('   1. Test playlist URL manually: curl "https://tv.danpage.uk/live/playlist.m3u8"');
+                      print('   2. Test a segment URL: curl -I "<segment-url-from-playlist>"');
+                      print('   3. Check Chromecast logs if possible (Cast Connect app)');
+                      print('   4. Try with a known-working HLS stream to verify Chromecast works');
+                    } else if (idleReason == GoogleCastMediaIdleReason.interrupted) {
+                      print('   ⚠️ Stream interrupted - attempting to resume');
+                      Future.delayed(const Duration(seconds: 2), () async {
+                        try {
+                          final mediaClient = GoogleCastRemoteMediaClient.instance;
+                          await mediaClient.play();
+                          print('   ✅ Retried play command after interruption');
+                        } catch (e) {
+                          print('   ❌ Retry play failed: $e');
+                        }
+                      });
+                    }
+                  }
+                  // Don't automatically disconnect here - let user control it
+                } else if (playerState == 'GoogleCastPlayerState.buffering') {
+                  print('🔄 Chromecast is buffering...');
+                } else if (playerState == 'GoogleCastPlayerState.playing') {
+                  print('▶️  Chromecast is playing');
+                } else if (playerState == 'GoogleCastPlayerState.paused') {
+                  print('⏸️  Chromecast is paused');
+                }
+              },
+              onError: (error) {
+                print('❌❌❌ MEDIA STATUS STREAM ERROR ❌❌❌');
+                print('   Error: $error');
+                print('   Error type: ${error.runtimeType}');
+                print('   Error toString: ${error.toString()}');
+                
+                // Try to extract more error details
+                try {
+                  if (error is Exception) {
+                    print('   Exception details: ${error.toString()}');
+                  }
+                  // Check if error has a message property
+                  try {
+                    final errorMessage = error.toString();
+                    print('   Full error message: $errorMessage');
+                    
+                    // Look for common error patterns
+                    if (errorMessage.contains('INVALID_REQUEST')) {
+                      print('   🚨 DETECTED: INVALID_REQUEST error');
+                      print('   This means Chromecast rejected the media request format');
+                    }
+                    if (errorMessage.contains('LOAD_FAILED')) {
+                      print('   🚨 DETECTED: LOAD_FAILED error');
+                      print('   Chromecast could not load the media URL');
+                    }
+                    if (errorMessage.contains('CORS')) {
+                      print('   🚨 DETECTED: CORS error');
+                      print('   Cross-origin resource sharing issue');
+                    }
+                    if (errorMessage.contains('network') || errorMessage.contains('Network')) {
+                      print('   🚨 DETECTED: Network error');
+                      print('   Chromecast cannot reach the media URL');
+                    }
+                  } catch (e) {
+                    print('   Could not extract additional error details: $e');
+                  }
+                } catch (e) {
+                  print('   Error extracting error details: $e');
+                }
+                print('   Stack trace: ${StackTrace.current}');
+              },
+            );
+          }
         } else {
-          // Session ended - reset state
+          // Session ended - reset state and cancel subscriptions
           _resetConnectionState();
-          _mediaLoaded = false;
+          // Cancel media status subscription when session ends
+          _mediaStatusSubscription?.cancel();
+          _mediaStatusSubscription = null;
           print('Disconnected from Chromecast');
         }
-      });
+      },
+      onError: (error) {
+        print('❌❌❌ SESSION STREAM ERROR ❌❌❌');
+        print('   Error: $error');
+        print('   Error type: ${error.runtimeType}');
+        print('   This may cause the session to disconnect');
+        // Don't reset state here - let the session == null handler do it
+      },
+      cancelOnError: false, // Keep listening even if there's an error
+      );
+      
+      // Now start the session after listener is set up
+      try {
+        await sessionManager.startSessionWithDevice(device);
+        print('✅ Session start request sent to ${device.friendlyName}');
+      } catch (e, stackTrace) {
+        print('❌ Error starting session: $e');
+        print('   Stack trace: $stackTrace');
+        // Cancel the subscription if session failed to start
+        await _sessionSubscription?.cancel();
+        _sessionSubscription = null;
+        return false;
+      }
       
       return true;
     } catch (e) {
@@ -201,54 +471,336 @@ class CastService {
   }
 
   Future<bool> startCasting(String hlsUrl, String title) async {
-    if (!isConnected) {
-      print('No active cast session');
+    if (kIsWeb) {
+      print('CastService: Starting cast on web platform');
+      try {
+        // ignore: avoid_web_libraries_in_flutter
+        final window = web.window;
+        final webCastAPI = js_util.getProperty(window, 'webCastAPI');
+        if (webCastAPI == null) {
+          print('❌ CastService: webCastAPI not found - Cast SDK may not be loaded');
+          return false;
+        }
+        
+        // Check if Cast SDK is available
+        final isAvailable = js_util.callMethod(webCastAPI, 'isAvailable', []);
+        if (isAvailable != true) {
+          print('⚠️ CastService: Cast SDK not available');
+          print('   Make sure you are using Chrome browser');
+          return false;
+        }
+        
+        print('✅ Cast SDK is available, requesting session...');
+        
+        // Request session first (this will show device picker if needed)
+        final requestSessionMethod = js_util.getProperty(webCastAPI, 'requestSession');
+        if (requestSessionMethod != null) {
+          // Request session and wait for it
+          final sessionPromise = js_util.callMethod(webCastAPI, 'requestSession', []);
+          if (sessionPromise is Future) {
+            await sessionPromise;
+            print('✅ Session established, starting cast...');
+          } else {
+            // If it's not a promise, wait a bit for session to be established
+            await Future.delayed(const Duration(seconds: 2));
+          }
+        } else {
+          // Fallback: try to get session directly
+          final cast = js_util.getProperty(window, 'cast');
+          if (cast != null) {
+            final framework = js_util.getProperty(cast, 'framework');
+            if (framework != null) {
+              final CastContext = js_util.getProperty(framework, 'CastContext');
+              final castContext = js_util.callMethod(CastContext, 'getInstance', []);
+              final currentSession = js_util.callMethod(castContext, 'getCurrentSession', []);
+              if (currentSession == null) {
+                // Request session
+                js_util.callMethod(castContext, 'requestSession', []);
+                await Future.delayed(const Duration(seconds: 2));
+              }
+            }
+          }
+        }
+        
+        // Now start casting
+        final startCastingMethod = js_util.getProperty(webCastAPI, 'startCasting');
+        if (startCastingMethod != null) {
+          final castPromise = js_util.callMethod(webCastAPI, 'startCasting', [hlsUrl, title]);
+          
+          if (castPromise is Future) {
+            // Handle promise
+            final result = await castPromise;
+            if (result == true) {
+              _isConnected = true;
+              _deviceName = 'Chromecast';
+              _isConnectedController?.add(true);
+              _deviceNameController?.add('Chromecast');
+              print('✅ Casting started on web successfully');
+              return true;
+            } else {
+              print('❌ Casting failed: result was $result');
+              return false;
+            }
+          } else {
+            // Not a promise, check result directly
+            if (castPromise == true) {
+              _isConnected = true;
+              _deviceName = 'Chromecast';
+              _isConnectedController?.add(true);
+              _deviceNameController?.add('Chromecast');
+              print('✅ Casting started on web');
+              return true;
+            }
+          }
+        } else {
+          print('❌ startCasting method not found in webCastAPI');
+        }
+      } catch (e, stackTrace) {
+        print('❌ Error starting cast on web: $e');
+        print('   Stack trace: $stackTrace');
+      }
       return false;
     }
-
-    if (kIsWeb) {
-      return false; // Not supported on web
+    
+    if (!isConnected) {
+      print('❌ No active cast session');
+      return false;
+    }
+    
+    // Prevent duplicate loadMedia calls - especially important on iOS where session may be pre-loaded
+    if (_mediaLoaded) {
+      print('⏭️  Media already loaded, skipping duplicate loadMedia call');
+      return true;
     }
 
     try {
+      // Ensure session is ready before loading media
+      final sessionManager = GoogleCastSessionManager.instance;
+      var currentSession = sessionManager.currentSession;
+      if (currentSession == null) {
+        print('❌ No active session - waiting for session to be ready...');
+        // Platform-specific retry logic:
+        // - iOS: Session may be pre-loaded, fewer retries needed
+        // - Android: Session needs explicit establishment, more retries
+        final maxRetries = PlatformUtils.isIOS ? 3 : 5;
+        for (int i = 0; i < maxRetries; i++) {
+          await Future.delayed(const Duration(milliseconds: 500));
+          currentSession = sessionManager.currentSession;
+          if (currentSession != null) {
+            print('✅ Session ready after ${(i + 1) * 500}ms (${PlatformUtils.isIOS ? "iOS" : "Android"})');
+            break;
+          }
+        }
+        if (currentSession == null) {
+          print('❌ Session still not ready after wait');
+          return false;
+        }
+      } else {
+        print('ℹ️  Session already active (${PlatformUtils.isIOS ? "iOS - may be pre-loaded" : "Android"})');
+      }
+      
+      // Wait for application to be connected (receiver app must be launched)
+      // Platform-specific wait times:
+      // - iOS: Session often pre-initialized, needs less time
+      // - Android: Needs full initialization of receiver app and media channel
+      final waitTime = PlatformUtils.isIOS 
+        ? const Duration(milliseconds: 2000)  // iOS: Session may be pre-loaded
+        : const Duration(milliseconds: 5000);  // Android: Needs full initialization
+      
+      print('⏳ Waiting for receiver application and media channel to be ready (${PlatformUtils.isIOS ? "iOS" : "Android"})...');
+      await Future.delayed(waitTime);
+      
+      // Verify session is still active before proceeding (re-check after wait)
+      currentSession = sessionManager.currentSession;
+      if (currentSession == null) {
+        print('❌ Session lost while waiting for media channel');
+        return false;
+      }
+      print('✅ Session still active, media channel should be ready');
+      
       final mediaClient = GoogleCastRemoteMediaClient.instance;
-
+      
       print('Attempting to cast HLS stream to $_deviceName');
       print('HLS URL: $hlsUrl');
-
-      // Prefer the standard HLS MIME first
-      final primaryInfo = GoogleCastMediaInformation(
-        contentId: hlsUrl,
-        contentUrl: Uri.parse(hlsUrl),
-        contentType: 'application/vnd.apple.mpegurl',
+      
+      // Chromecast may have issues with query parameters in URLs
+      // Try stripping auth token parameters for Chromecast (the broadcaster endpoint doesn't require auth)
+      // Use full URL with auth tokens - Chromecast needs them to access the playlist
+      // The broadcaster endpoint may require authentication for the playlist
+      print('📤 Using full URL with auth tokens: $hlsUrl');
+      
+      // Based on GitHub example: use application/vnd.apple.mpegurl (primary) or application/x-mpegURL (fallback)
+      // Include both contentId and contentUrl as per example
+      final mediaInformation = GoogleCastMediaInformation(
+        contentId: hlsUrl, // Use full URL WITH auth tokens - Chromecast needs them
+        contentUrl: Uri.parse(hlsUrl), // Include contentUrl - required by Chromecast
+        contentType: 'application/vnd.apple.mpegurl', // Primary MIME type for HLS as per GitHub example
         streamType: CastMediaStreamType.live,
-        metadata: GoogleCastMediaMetadata(
-          metadataType: GoogleCastMediaMetadataType.genericMediaMetadata,
-        ),
+        // Don't include metadata for live streams - can cause serialization issues
       );
 
-      await mediaClient.loadMedia(primaryInfo);
-      print('✅ Successfully started casting HLS (m3u8, live)');
-      return true;
+      print('📤 Loading media with HLS configuration...');
+      print('   Content ID: $hlsUrl (with auth tokens)');
+      print('   Content URL: ${mediaInformation.contentUrl}');
+      print('   Content Type: application/vnd.apple.mpegurl (as per GitHub example)');
+      print('   Stream Type: ${CastMediaStreamType.live}');
+      print('   Metadata: ${mediaInformation.metadata != null ? "Present" : "NULL"}');
+      print('   ✅ Using full URL with auth tokens (Chromecast needs them to access playlist)');
+      print('   ✅ Including both contentId and contentUrl (as per GitHub example)');
+      
+      try {
+        print('📤 Attempting to load media with information:');
+        print('   Content ID: ${mediaInformation.contentId}');
+        print('   Content URL: ${mediaInformation.contentUrl ?? "NULL (not set - may help with serialization)"}');
+        print('   Content Type: ${mediaInformation.contentType}');
+        print('   Stream Type: ${mediaInformation.streamType}');
+        
+        // Record when we attempt to load media (but don't mark as loaded yet)
+        // We'll wait for media status to confirm Chromecast accepted it
+        _lastLoadMediaAttempt = DateTime.now();
+        _mediaLoaded = false; // Reset before attempting - will be set to true if accepted
+        
+        try {
+          await mediaClient.loadMedia(mediaInformation);
+          print('✅ Media load request sent successfully (no exception thrown)');
+          print('⚠️  Note: This doesn\'t guarantee Chromecast accepted it - check media status');
+          print('Using application/vnd.apple.mpegurl content type (HLS M3U8 - as per GitHub example)');
+        } catch (loadException) {
+          print('❌❌❌ EXCEPTION during loadMedia call ❌❌❌');
+          print('   This is a synchronous error - Chromecast rejected BEFORE processing');
+          print('   Error: $loadException');
+          print('   Error type: ${loadException.runtimeType}');
+          print('   Error toString: ${loadException.toString()}');
+          
+          // Try to extract detailed error information
+          try {
+            final errorStr = loadException.toString();
+            print('   🔍 Error analysis:');
+            
+            if (errorStr.contains('INVALID_REQUEST') || errorStr.contains('invalid')) {
+              print('   🚨 INVALID_REQUEST: Chromecast rejected the media request format');
+              print('   Possible causes:');
+              print('      - Invalid content type');
+              print('      - Invalid URL format');
+              print('      - Malformed GoogleCastMediaInformation');
+            }
+            if (errorStr.contains('network') || errorStr.contains('Network') || errorStr.contains('connect')) {
+              print('   🚨 Network error: Chromecast cannot reach the URL');
+            }
+            if (errorStr.contains('serialize') || errorStr.contains('JSON')) {
+              print('   🚨 Serialization error: Failed to serialize media information');
+            }
+          } catch (e) {
+            print('   Could not analyze error: $e');
+          }
+          
+          rethrow; // Re-throw to trigger fallback
+        }
+        
+        // Wait longer for Chromecast to process the load request
+        // Media channel needs time to initialize and process the HLS URL
+        // The mediaStatusStream listener will detect if media was accepted or rejected
+        print('⏳ Waiting for Chromecast to process media load request...');
+        print('   The mediaStatusStream will report if media was accepted or rejected');
+        await Future.delayed(const Duration(milliseconds: 3000));
+      } catch (loadError) {
+        print('❌❌❌ EXCEPTION during loadMedia call ❌❌❌');
+        print('   Error: $loadError');
+        print('   Error type: ${loadError.runtimeType}');
+        print('   Stack trace: ${StackTrace.current}');
+        print('   🔍 Detailed error info:');
+        try {
+          // Try to get more error details if available
+          print('   Error string: ${loadError.toString()}');
+          if (loadError is Exception) {
+            print('   Exception message: ${loadError.toString()}');
+          }
+        } catch (e) {
+          print('   Could not extract additional error details: $e');
+        }
+        print('   This is a synchronous error - Chromecast rejected the request before processing');
+        rethrow; // Re-throw to trigger fallback
+      }
+      
+        // Wait longer for media to load before calling play() (similar to example's approach)
+        // The example uses shouldAutoplay=true, but since we don't have that API,
+        // we wait and then explicitly call play()
+        // Chromecast needs time to fetch and parse the HLS playlist
+        // The mediaStatusStream listener will detect if media was rejected
+        print('⏳ Waiting for Chromecast to load playlist before sending play command...');
+        await Future.delayed(const Duration(milliseconds: 3000));
+        
+        // Note: We can't synchronously check media status, but the mediaStatusStream
+        // listener will detect if media was rejected and reset _mediaLoaded accordingly
+        
+        // Send play command after media has loaded
+        // Media status is available through the stream, but we can't easily check it synchronously
+        // So we'll just try to play and let the error handling catch any issues
+        try {
+          print('▶️  Sending play command...');
+          await mediaClient.play();
+          print('✅ Play command sent to Chromecast');
+        } catch (playError) {
+          print('⚠️  Error sending play command: $playError');
+          // Try one more time after a delay
+          await Future.delayed(const Duration(milliseconds: 1000));
+          try {
+            await mediaClient.play();
+            print('✅ Play command sent on retry');
+          } catch (retryError) {
+            print('❌ Play command failed on retry: $retryError');
+            // Don't fail the whole operation - the stream might auto-play
+          }
+        }
+        
+        return true;
     } catch (e) {
-      print('❌ Primary HLS load failed: $e');
+      print('❌ Error starting HLS cast: $e');
       print('Trying fallback method...');
 
-      // Fallback with alternative MIME and buffered stream type
+      // Fallback with alternative HLS MIME type (also use clean URL)
       try {
+        final uri = Uri.parse(hlsUrl);
+        final cleanUrl = Uri(
+          scheme: uri.scheme,
+          host: uri.host,
+          port: uri.port,
+          path: uri.path,
+        ).toString();
+        
         final mediaClient = GoogleCastRemoteMediaClient.instance;
         final fallbackMediaInfo = GoogleCastMediaInformation(
-          contentId: hlsUrl,
-          contentUrl: Uri.parse(hlsUrl),
-          contentType: 'video/mp2t',
-          streamType: CastMediaStreamType.buffered,
-          metadata: GoogleCastMediaMetadata(
-            metadataType: GoogleCastMediaMetadataType.genericMediaMetadata,
-          ),
+          contentId: cleanUrl, // Use clean URL without query params
+          contentUrl: Uri.parse(cleanUrl), // Include contentUrl as per GitHub example
+          contentType: 'application/x-mpegURL', // Fallback MIME type if primary fails
+          streamType: CastMediaStreamType.live,
+          // Don't include metadata in fallback either
         );
+        
+        print('🔄 Fallback: Retrying with application/x-mpegURL (capital URL required by Chromecast)');
 
+        // Reset state for fallback attempt
+        _lastLoadMediaAttempt = DateTime.now();
+        _mediaLoaded = false;
+        
         await mediaClient.loadMedia(fallbackMediaInfo);
-        print('✅ Fallback method successful - video/mp2t buffered');
+        print('✅ Fallback method successful - application/x-mpegURL');
+        
+        // Wait for Chromecast to process the fallback request
+        // The mediaStatusStream listener will detect if media was accepted or rejected
+        await Future.delayed(const Duration(milliseconds: 3000));
+        
+        // Note: We can't synchronously check media status, but the mediaStatusStream
+        // listener will detect if fallback was accepted and set _mediaLoaded accordingly
+        // If it was rejected, the listener will reset _mediaLoaded and we'll return false
+        
+        try {
+          await mediaClient.play();
+          print('✅ Play command sent (fallback)');
+        } catch (e) {
+          print('⚠️  Play failed on fallback: $e');
+        }
+        
         return true;
       } catch (fallbackError) {
         print('❌ Fallback method also failed: $fallbackError');
@@ -312,7 +864,7 @@ class CastService {
       final mediaInformation = GoogleCastMediaInformation(
         contentId: hlsUrl,
         contentUrl: Uri.parse(hlsUrl),
-        contentType: 'video/mp2t', // Alternative MIME type for HLS
+        contentType: 'application/vnd.apple.mpegurl', // Correct MIME type for HLS
         streamType: CastMediaStreamType.live,
         metadata: GoogleCastMediaMetadata(
           metadataType: GoogleCastMediaMetadataType.genericMediaMetadata,
@@ -323,7 +875,7 @@ class CastService {
       
       print('Started casting HLS (alternative): $title to $_deviceName');
       print('HLS URL: $hlsUrl');
-      print('Using video/mp2t content type');
+      print('Using application/vnd.apple.mpegurl content type');
       
       return true;
     } catch (e) {
@@ -336,9 +888,16 @@ class CastService {
     if (!isConnected) return false;
 
     try {
+      // Cancel subscriptions before ending session
+      await _sessionSubscription?.cancel();
+      _sessionSubscription = null;
+      await _mediaStatusSubscription?.cancel();
+      _mediaStatusSubscription = null;
+      
       final sessionManager = GoogleCastSessionManager.instance;
       await sessionManager.endSession();
       _resetConnectionState();
+      _mediaLoaded = false;
       
       print('Stopped casting');
       return true;
@@ -351,10 +910,18 @@ class CastService {
   /// Force reset the casting state (useful when session ends unexpectedly)
   void forceResetCastingState() {
     print('Force resetting casting state');
+    _mediaLoaded = false;
+    _lastLoadMediaAttempt = null;
     _resetConnectionState();
   }
 
   void dispose() {
+    // Cancel all subscriptions
+    _sessionSubscription?.cancel();
+    _sessionSubscription = null;
+    _mediaStatusSubscription?.cancel();
+    _mediaStatusSubscription = null;
+    
     // Skip ChromeCast dispose on web (not supported anyway)
     if (!kIsWeb) {
       final discoveryManager = GoogleCastDiscoveryManager.instance;
