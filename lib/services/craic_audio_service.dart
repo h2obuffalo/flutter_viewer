@@ -344,8 +344,12 @@ class CraicAudioService {
       // Play the track
       if (track.isAsset) {
         // Check if it's a local file path (cached) or an asset
-        if (track.source.startsWith('/') || track.source.contains(Platform.pathSeparator)) {
-          // It's a local file path (cached file)
+        // Asset paths always start with "assets/", local file paths are absolute paths starting with /
+        final isAssetPath = track.source.startsWith('assets/');
+        final isLocalFile = track.source.startsWith('/'); // Absolute file system path
+        
+        if (isLocalFile) {
+          // It's a local file path (cached file) - use AudioSource.file()
           print('Playing cached local file: ${track.source}');
           _loadCompleter = Completer<void>();
           try {
@@ -365,6 +369,12 @@ class CraicAudioService {
             _loadCompleter = null;
           }
           return; // Exit early since we've handled the cached file
+        }
+        
+        // It's an asset path - must start with "assets/"
+        if (!isAssetPath) {
+          print('WARNING: Track marked as asset but source does not start with "assets/": ${track.source}');
+          // Fall through to URL playback
         }
         
         // It's an asset path (not a cached file)
