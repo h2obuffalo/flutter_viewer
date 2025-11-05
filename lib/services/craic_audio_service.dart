@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 import '../config/constants.dart';
 
 class TrackInfo {
@@ -84,43 +88,179 @@ class CraicAudioService {
 
   bool get isPlaying => _isPlaying || _audioPlayer.playing;
 
-  /// Load tracks from the API
+  /// Load tracks from the API, with offline fallback to cached data
   Future<void> _loadTracksFromApi() async {
     try {
       print('Loading audio tracks from API...');
       final url = Uri.parse('${AppConstants.lineupApiUrl}/lineup/admin/audio-tracks');
-      final response = await http.get(url);
+      final response = await http.get(url).timeout(const Duration(seconds: 10));
       
       if (response.statusCode == 200) {
         final List<dynamic> tracksData = jsonDecode(response.body);
         print('Received ${tracksData.length} tracks from API');
         
+        // Cache the track data for offline use
+        await _cacheTracksData(tracksData);
+        
         _tracks.clear();
         for (var trackData in tracksData) {
+          final audioUrl = trackData['audioUrl'] as String;
+          // Check if we have a cached version of this file
+          final cachedPath = await _getCachedAudioPath(audioUrl);
+          
           final track = TrackInfo(
-            source: trackData['audioUrl'] as String,
+            source: cachedPath ?? audioUrl, // Use cached path if available, otherwise use URL
             trackName: trackData['trackName'] as String? ?? trackData['filename'] as String? ?? 'Untitled',
             artistName: trackData['artistName'] as String? ?? 'Unknown Artist',
-            isAsset: false, // All API tracks are remote URLs
+            isAsset: cachedPath != null, // If cached locally, treat as asset-like
           );
           _tracks.add(track);
-          print('Added track: ${track.trackName} by ${track.artistName}');
+          print('Added track: ${track.trackName} by ${track.artistName} (${cachedPath != null ? "cached" : "remote"})');
+          
+          // Download and cache the audio file in the background if not already cached
+          if (cachedPath == null) {
+            _downloadAndCacheAudio(audioUrl).catchError((e) {
+              print('Failed to cache audio file: $e');
+            });
+          }
         }
         
         if (_tracks.isEmpty) {
-          print('No tracks found in API, using fallback tracks');
-          _initializeFallbackTracks();
+          print('No tracks found in API, trying cached data...');
+          await _loadCachedTracks();
+          if (_tracks.isEmpty) {
+            print('No cached tracks found, using fallback tracks');
+            _initializeFallbackTracks();
+          }
         } else {
           print('Successfully loaded ${_tracks.length} tracks from API');
         }
       } else {
-        print('Failed to load tracks from API: ${response.statusCode}');
-        _initializeFallbackTracks();
+        print('Failed to load tracks from API: ${response.statusCode}, trying cached data...');
+        await _loadCachedTracks();
+        if (_tracks.isEmpty) {
+          _initializeFallbackTracks();
+        }
       }
     } catch (e) {
-      print('Error loading tracks from API: $e');
-      _initializeFallbackTracks();
+      print('Error loading tracks from API: $e, trying cached data...');
+      // If network fails, try loading from cache
+      await _loadCachedTracks();
+      if (_tracks.isEmpty) {
+        _initializeFallbackTracks();
+      }
     }
+  }
+
+  /// Cache track metadata to SharedPreferences
+  Future<void> _cacheTracksData(List<dynamic> tracksData) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('cached_audio_tracks', jsonEncode(tracksData));
+      await prefs.setInt('cached_audio_tracks_timestamp', DateTime.now().millisecondsSinceEpoch);
+      print('Cached ${tracksData.length} tracks metadata');
+    } catch (e) {
+      print('Error caching tracks data: $e');
+    }
+  }
+
+  /// Load tracks from cache
+  Future<void> _loadCachedTracks() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cachedData = prefs.getString('cached_audio_tracks');
+      if (cachedData == null) {
+        print('No cached tracks data found');
+        return;
+      }
+
+      final List<dynamic> tracksData = jsonDecode(cachedData);
+      print('Loading ${tracksData.length} tracks from cache...');
+      
+      _tracks.clear();
+      for (var trackData in tracksData) {
+        final audioUrl = trackData['audioUrl'] as String;
+        final cachedPath = await _getCachedAudioPath(audioUrl);
+        
+        final track = TrackInfo(
+          source: cachedPath ?? audioUrl,
+          trackName: trackData['trackName'] as String? ?? trackData['filename'] as String? ?? 'Untitled',
+          artistName: trackData['artistName'] as String? ?? 'Unknown Artist',
+          isAsset: cachedPath != null,
+        );
+        _tracks.add(track);
+        print('Loaded cached track: ${track.trackName} by ${track.artistName} (${cachedPath != null ? "cached file" : "URL only"})');
+      }
+      
+      print('Successfully loaded ${_tracks.length} tracks from cache');
+    } catch (e) {
+      print('Error loading cached tracks: $e');
+    }
+  }
+
+  /// Get the cached file path for an audio URL if it exists
+  Future<String?> _getCachedAudioPath(String audioUrl) async {
+    try {
+      final cacheDir = await _getAudioCacheDir();
+      final fileName = _getCacheFileName(audioUrl);
+      final filePath = path.join(cacheDir.path, fileName);
+      final file = File(filePath);
+      
+      if (await file.exists()) {
+        return filePath;
+      }
+    } catch (e) {
+      print('Error checking cached audio path: $e');
+    }
+    return null;
+  }
+
+  /// Download and cache an audio file
+  Future<void> _downloadAndCacheAudio(String audioUrl) async {
+    try {
+      final cacheDir = await _getAudioCacheDir();
+      final fileName = _getCacheFileName(audioUrl);
+      final filePath = path.join(cacheDir.path, fileName);
+      final file = File(filePath);
+      
+      // Skip if already cached
+      if (await file.exists()) {
+        print('Audio file already cached: $fileName');
+        return;
+      }
+      
+      print('Downloading audio file for caching: $audioUrl');
+      final response = await http.get(Uri.parse(audioUrl)).timeout(const Duration(seconds: 30));
+      
+      if (response.statusCode == 200) {
+        await file.writeAsBytes(response.bodyBytes);
+        print('Cached audio file: $fileName (${(response.bodyBytes.length / 1024).toStringAsFixed(1)} KB)');
+      } else {
+        print('Failed to download audio file: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error downloading/caching audio file: $e');
+    }
+  }
+
+  /// Get the audio cache directory
+  Future<Directory> _getAudioCacheDir() async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final cacheDir = Directory(path.join(appDir.path, 'audio_cache'));
+    if (!await cacheDir.exists()) {
+      await cacheDir.create(recursive: true);
+    }
+    return cacheDir;
+  }
+
+  /// Generate a cache filename from a URL
+  String _getCacheFileName(String url) {
+    // Use the last part of the URL as filename, sanitize it
+    final uri = Uri.parse(url);
+    final segments = uri.pathSegments;
+    final originalName = segments.isNotEmpty ? segments.last : 'audio.mp3';
+    // Sanitize filename to be filesystem-safe
+    return originalName.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
   }
 
   /// Initialize with fallback tracks if API fails
@@ -203,6 +343,31 @@ class CraicAudioService {
 
       // Play the track
       if (track.isAsset) {
+        // Check if it's a local file path (cached) or an asset
+        if (track.source.startsWith('/') || track.source.contains(Platform.pathSeparator)) {
+          // It's a local file path (cached file)
+          print('Playing cached local file: ${track.source}');
+          _loadCompleter = Completer<void>();
+          try {
+            final audioSource = AudioSource.file(track.source);
+            await _audioPlayer.setAudioSource(audioSource);
+            print('setAudioSource call completed, waiting for source to load...');
+            await _loadCompleter!.future.timeout(const Duration(seconds: 5));
+            print('Source loaded successfully, calling play()');
+            await _audioPlayer.play();
+            print('play() called successfully');
+          } catch (fileError, stackTrace) {
+            print('Error with AudioSource.file("${track.source}"): $fileError');
+            print('Stack trace: $stackTrace');
+            _loadCompleter = null;
+            rethrow;
+          } finally {
+            _loadCompleter = null;
+          }
+          return; // Exit early since we've handled the cached file
+        }
+        
+        // It's an asset path (not a cached file)
         // Try both with and without assets/ prefix - just_audio might need the full path
         final assetPathWithoutPrefix = track.source.replaceFirst('assets/', '');
         final assetPathWithPrefix = track.source;
