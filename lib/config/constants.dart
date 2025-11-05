@@ -7,9 +7,9 @@ class AppConstants {
   // HLS Stream URLs - DEPRECATED: Stream URL is now stored dynamically in SharedPreferences
   // The URL should be set via AuthService.setStreamUrl() after validation or from a config API
   // This constant is kept for backward compatibility - used as fallback if not in storage
-  // Using broadcaster endpoint (doesn't require auth, has R2 URLs, larger buffer)
+  // Using /live/stream.m3u8 endpoint (has larger buffer, better for web)
   @Deprecated('Use AuthService.getStreamUrl() instead')
-  static const String hlsManifestUrl = 'https://tv.danpage.uk/live/playlist.m3u8';
+  static const String hlsManifestUrl = 'https://tv.danpage.uk/live/stream.m3u8';
   static const String cloudflareR2BaseUrl = 'https://pub-81f1de5a4fc945bdaac36449630b5685.r2.dev';
   
   // Lineup API Endpoint

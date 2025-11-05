@@ -103,18 +103,19 @@ class AuthService {
     }
     
     // Get stream URL from storage (set via config API or auth response)
-    // Fallback to constant URL if not in storage (for backward compatibility)
-    var streamUrl = await getStreamUrl();
+    String? streamUrl = await getStreamUrl();
     if (streamUrl == null) {
       // Use fallback constant URL if not configured dynamically
       streamUrl = AppConstants.hlsManifestUrl;
       print('⚠️ Stream URL not in storage, using fallback: $streamUrl');
     }
     
+    // Append token as query parameter
     final expiryTimestamp = DateTime.parse(expiry).millisecondsSinceEpoch;
-    // Add token as query parameter
     final separator = streamUrl.contains('?') ? '&' : '?';
-    return '$streamUrl$separator token=$token&expires=$expiryTimestamp';
+    streamUrl = '$streamUrl${separator}token=$token&expires=$expiryTimestamp';
+    
+    return streamUrl;
   }
   
   Future<void> clearAuth() async {

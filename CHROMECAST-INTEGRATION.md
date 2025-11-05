@@ -1,178 +1,241 @@
 # Chromecast Integration for P2P Live Streaming
 
-This document describes the Chromecast integration implemented in the Flutter viewer app, similar to how Stremio handles torrent streaming with transcoding and casting.
+This document describes the Chromecast integration implemented in the Flutter viewer app, including troubleshooting, configuration, and best practices learned from implementation.
 
 ## Overview
 
 The Chromecast integration allows users to:
 - Discover and connect to Chromecast devices on the same network
-- Cast P2P streams to Chromecast with automatic transcoding
-- Control playback (play, pause, seek) on the Chromecast device
-- Handle transcoding for incompatible formats
+- Cast HLS live streams to Chromecast devices
+- Control playback (play, pause) on the Chromecast device
+- Handle both iOS and Android platforms
 
 ## Architecture
 
 ### Components
 
-1. **ChromecastService** (`lib/services/chromecast_service.dart`)
+1. **CastService** (`lib/services/cast_service.dart`)
    - Manages device discovery and connection
-   - Handles casting operations
-   - Provides playback control methods
+   - Handles casting operations using `flutter_chrome_cast` package
+   - Provides connection state streams for UI updates
+   - Auto-loads HLS stream on device connection
 
-2. **TranscodingService** (`lib/services/transcoding_service.dart`)
-   - Manages transcoding of P2P streams for Chromecast compatibility
-   - Supports different transcoding profiles (Chromecast, Mobile, Desktop)
-   - Handles transcoding job management
-
-3. **ChromecastControls** (`lib/widgets/chromecast_controls.dart`)
-   - UI components for device selection and casting
+2. **CastButton** (`lib/widgets/cast_button.dart`)
+   - UI component for device selection and casting
    - Retro-cyberpunk styling consistent with the app theme
    - Device discovery and connection interface
 
-4. **PlayerScreen** (`lib/screens/player_screen.dart`)
+3. **SimplePlayerScreen** (`lib/screens/simple_player_screen.dart`)
    - Integrated video player with Chromecast support
-   - Automatic transcoding detection and handling
-   - Cast button and device selection
+   - Automatically pauses local player when casting starts
+   - Resumes local player when casting stops
 
-## Features
+## Critical Configuration
 
-### Device Discovery
-- Automatic discovery of Chromecast devices on the local network
-- Real-time device list updates
-- Device information display (name, model)
+### HLS Stream Requirements for Chromecast
 
-### P2P Stream Casting
-- Direct casting of P2P streams to Chromecast
-- Automatic transcoding for incompatible formats
-- Support for various video formats (MP4, MKV, AVI, etc.)
+Chromecast has specific requirements for HLS streams that must be met:
 
-### Transcoding Support
-- **Chromecast Profile**: Optimized for Chromecast devices
-  - H.264 video codec
-  - AAC audio codec
-  - MP4 container format
-  - 1080p max resolution
-  - Fast start optimization
-
-- **Mobile Profile**: Optimized for mobile devices
-  - H.264 video codec
-  - AAC audio codec
-  - 720p max resolution
-  - Lower bitrate for mobile networks
-
-- **Desktop Profile**: High-quality transcoding
-  - H.264 video codec
-  - AAC audio codec
-  - Original resolution
-  - Higher bitrate for desktop viewing
-
-### Playback Control
-- Play/Pause control
-- Seek functionality
-- Progress tracking
-- Volume control (via Chromecast device)
-
-## Usage
-
-### Basic Casting
+#### 1. **MIME Type**
+- **Required**: `application/vnd.apple.mpegurl` for HLS M3U8 playlists
+- **Alternative**: `application/x-mpegURL` (fallback)
+- **❌ DO NOT USE**: `video/mp2t` (this is for TS segments, not playlists)
 
 ```dart
-// Initialize Chromecast service
-final chromecastService = ChromecastService();
-await chromecastService.initialize();
-
-// Cast a P2P stream
-final success = await chromecastService.castP2PStream(
-  streamUrl: 'http://example.com/stream.m3u8',
-  title: 'Live Stream',
-  subtitle: 'P2P Live Streaming',
-  posterUrl: 'http://example.com/poster.jpg',
-  transcodingRequired: true,
+final mediaInformation = GoogleCastMediaInformation(
+  contentId: hlsUrl,
+  contentUrl: Uri.parse(hlsUrl),
+  contentType: 'application/vnd.apple.mpegurl', // ✅ Correct
+  streamType: CastMediaStreamType.live,
 );
 ```
 
-### Transcoding
+#### 2. **HLS Playlist Format**
+
+The broadcaster must generate HLS manifests with the correct format:
+
+```m3u8
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-TARGETDURATION:6
+#EXT-X-MEDIA-SEQUENCE:123
+#EXT-X-PLAYLIST-TYPE:LIVE  # ✅ Use LIVE for continuous live streams
+#EXT-X-PROGRAM-DATE-TIME:2025-01-04T12:00:00.000Z
+#EXTINF:6.000,
+https://example.com/chunk1.ts
+#EXTINF:6.000,
+https://example.com/chunk2.ts
+```
+
+**Critical Points:**
+- **Use `LIVE` not `EVENT`**: `#EXT-X-PLAYLIST-TYPE:LIVE` is required for continuous live streams
+- `EVENT` playlists expect an `#EXT-X-ENDLIST` tag, which live streams never have
+- Chromecast will reject `EVENT` playlists without endlist tags
+
+#### 3. **Stream Type**
+- Use `CastMediaStreamType.live` for live HLS streams
+- `CastMediaStreamType.buffered` is for on-demand content
+
+#### 4. **Segment Duration**
+- Recommended: 4-6 seconds per segment for optimal Chromecast compatibility
+- Chromecast has a ~20 second buffer limitation
+- Smaller segments reduce latency and improve compatibility
+
+### MediaInformation Structure
+
+The `GoogleCastMediaInformation` object must be structured correctly:
 
 ```dart
-// Initialize transcoding service
-final transcodingService = TranscodingService();
-
-// Start transcoding
-final transcodedUrl = await transcodingService.startTranscoding(
-  streamUrl: 'http://example.com/stream.mkv',
-  streamId: 'stream_123',
-  profile: TranscodingProfile.chromecast,
-  onProgress: (progress) {
-    print('Transcoding progress: ${(progress * 100).toInt()}%');
-  },
+final mediaInformation = GoogleCastMediaInformation(
+  contentId: hlsUrl,           // String URL to M3U8 playlist
+  contentUrl: Uri.parse(hlsUrl), // Uri object of the same URL
+  contentType: 'application/vnd.apple.mpegurl',
+  streamType: CastMediaStreamType.live,
+  // Metadata is optional and can be omitted if causing serialization issues
 );
 ```
 
-### Playback Control
+**Important Notes:**
+- Both `contentId` (String) and `contentUrl` (Uri) should be provided
+- Metadata can sometimes cause serialization issues on iOS/Android bridges
+- If experiencing `INVALID_REQUEST` errors, try removing metadata first
+
+## Common Issues and Solutions
+
+### Issue: `INVALID_REQUEST` Error (Error Code 2)
+
+**Symptoms:**
+- Logcat shows: `onMessageSendFailed: urn:x-cast:com.google.cast.media 2 INVALID_REQUEST`
+- Flutter logs show: `Media Information is NULL`
+
+**Causes:**
+1. Wrong MIME type (`video/mp2t` instead of `application/vnd.apple.mpegurl`)
+2. Wrong playlist type (`EVENT` instead of `LIVE`)
+3. Missing or incorrect `contentId`/`contentUrl`
+4. Metadata serialization issues on iOS/Android bridge
+
+**Solutions:**
+1. ✅ Use correct MIME type: `application/vnd.apple.mpegurl`
+2. ✅ Ensure broadcaster generates `#EXT-X-PLAYLIST-TYPE:LIVE`
+3. ✅ Verify both `contentId` and `contentUrl` are set
+4. ✅ Try removing metadata if serialization issues persist
+
+### Issue: Duplicate Cast Attempts
+
+**Symptoms:**
+- TV shows multiple cast connection attempts
+- Auto-load fires multiple times
+
+**Cause:**
+- Multiple session listeners registered without cleanup
+
+**Solution:**
+```dart
+// Cancel existing subscriptions before connecting
+await _sessionSubscription?.cancel();
+_sessionSubscription = null;
+await _mediaStatusSubscription?.cancel();
+_mediaStatusSubscription = null;
+
+// Then register new listener
+_sessionSubscription = sessionManager.currentSessionStream.listen(...);
+```
+
+### Issue: Player Conflicts After Casting
+
+**Symptoms:**
+- Local player has trouble playing after casting stops
+- Resource conflicts between local player and Chromecast
+
+**Solution:**
+- Automatically pause local player when casting starts
+- Resume local player when casting stops
 
 ```dart
-// Play/Pause
-await chromecastService.togglePlayPause();
-
-// Seek to position
-await chromecastService.seekTo(Duration(minutes: 5));
-
-// Get current position
-final position = await chromecastService.getCurrentPosition();
-
-// Stop casting
-await chromecastService.stopCasting();
+_castService.isConnectedStream.listen((connected) {
+  if (connected && !wasCasting) {
+    _videoPlayerController?.pause(); // Pause local
+  } else if (!connected && wasCasting) {
+    _videoPlayerController?.play(); // Resume local
+  }
+});
 ```
 
 ## Implementation Details
 
-### Chromecast Compatibility
+### Device Discovery
 
-The implementation ensures Chromecast compatibility by:
-
-1. **Format Detection**: Automatically detecting if transcoding is needed
-2. **Transcoding**: Converting streams to Chromecast-compatible formats
-3. **Proxy Server**: Serving transcoded streams via HTTP proxy
-4. **Metadata**: Providing proper metadata for Chromecast display
-
-### P2P Integration
-
-Similar to Stremio's approach:
-
-1. **P2P Stream Reception**: Receiving P2P stream chunks
-2. **Transcoding Pipeline**: Converting to Chromecast-compatible format
-3. **HTTP Proxy**: Serving transcoded stream via HTTP
-4. **Chromecast Casting**: Casting the HTTP stream to Chromecast
-
-### Error Handling
-
-- Network connectivity issues
-- Device discovery failures
-- Transcoding errors
-- Casting failures
-- Playback interruptions
-
-## Configuration
-
-### Android Configuration
-
-Add to `android/app/src/main/AndroidManifest.xml`:
-
-```xml
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-<application>
-  <meta-data
-    android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-    android:value="your.package.name.CastOptionsProvider" />
-</application>
+```dart
+Future<List<GoogleCastDevice>> discoverDevices() async {
+  final discoveryManager = GoogleCastDiscoveryManager.instance;
+  discoveryManager.startDiscovery();
+  await Future.delayed(const Duration(milliseconds: 500));
+  var devices = discoveryManager.devices;
+  
+  // Wait longer if no devices found initially
+  if (devices.isEmpty) {
+    await Future.delayed(const Duration(seconds: 3));
+    devices = discoveryManager.devices;
+  }
+  
+  return _filterVideoCapableDevices(devices);
+}
 ```
+
+### Connection Flow
+
+1. **Initialize Cast Service**: `CastService().initialize()`
+2. **Discover Devices**: `discoverDevices()`
+3. **Connect to Device**: `connectToDevice(device)`
+4. **Auto-load Stream**: Automatically loads HLS stream after 700ms delay
+5. **Manual Cast**: Can also call `startCasting(url, title)` manually
+
+### Session Management
+
+**Critical**: Always cancel subscriptions to prevent duplicates:
+
+```dart
+// Before connecting
+await _sessionSubscription?.cancel();
+_sessionSubscription = null;
+
+// Register listener once
+_sessionSubscription = sessionManager.currentSessionStream.listen((session) {
+  if (session != null) {
+    // Connected
+    _isConnected = true;
+    // Auto-load stream after delay
+  } else {
+    // Disconnected
+    _resetConnectionState();
+    await _mediaStatusSubscription?.cancel();
+    _mediaStatusSubscription = null;
+  }
+});
+```
+
+## Platform-Specific Configuration
 
 ### iOS Configuration
 
-Add to `ios/Runner/Info.plist`:
+**AppDelegate.swift:**
+```swift
+import UIKit
+import Flutter
 
+@UIApplicationMain
+@objc class AppDelegate: FlutterAppDelegate {
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
+    GeneratedPluginRegistrant.register(with: self)
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+}
+```
+
+**Info.plist** (required permissions):
 ```xml
 <key>NSLocalNetworkUsageDescription</key>
 <string>Used to search for Chromecast devices</string>
@@ -182,105 +245,107 @@ Add to `ios/Runner/Info.plist`:
 </array>
 ```
 
+### Android Configuration
+
+**AndroidManifest.xml:**
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+```
+
 ## Dependencies
 
 ```yaml
 dependencies:
-  flutter_chrome_cast: ^0.0.8
-  better_player: ^0.0.83
-  shelf: ^1.4.0
-  shelf_static: ^1.1.2
-```
-
-## Future Enhancements
-
-1. **Real Transcoding**: Integrate with FFmpeg for actual transcoding
-2. **Multiple Devices**: Support for casting to multiple devices
-3. **Queue Management**: Media queue management for Chromecast
-4. **Custom Receivers**: Support for custom Chromecast receivers
-5. **Analytics**: Casting analytics and usage tracking
-
-## Troubleshooting
-
-### Common Issues
-
-1. **Device Not Found**
-   - Ensure Chromecast is on the same network
-   - Check network permissions
-   - Restart device discovery
-
-2. **Casting Fails**
-   - Verify stream URL is accessible
-   - Check transcoding requirements
-   - Ensure Chromecast is connected
-
-3. **Transcoding Issues**
-   - Verify FFmpeg installation (for real transcoding)
-   - Check transcoding parameters
-   - Monitor transcoding progress
-
-### Debug Information
-
-Enable debug logging:
-
-```dart
-// Enable Chromecast debug logging
-ChromeCastController.setDebugLoggingEnabled(true);
+  flutter_chrome_cast: ^1.2.5
 ```
 
 ## Testing
 
-### Test Scenarios
+### Verify HLS Playlist Format
 
-1. **Device Discovery**
-   - Multiple Chromecast devices
-   - Network connectivity issues
-   - Device connection/disconnection
+Check that your broadcaster generates correct HLS manifests:
 
-2. **Stream Casting**
-   - Various video formats
-   - Different transcoding profiles
-   - Network bandwidth limitations
+```bash
+curl https://tv.danpage.uk/live/playlist.m3u8 | head -20
+```
 
-3. **Playback Control**
-   - Play/pause functionality
-   - Seek operations
-   - Volume control
+Should show:
+- `#EXT-X-PLAYLIST-TYPE:LIVE` (not EVENT)
+- Correct MIME type headers
+- Valid segment URLs
 
-4. **Error Handling**
-   - Network failures
-   - Device disconnections
-   - Transcoding errors
+### Debug Logs
 
-## Performance Considerations
+Enable verbose logging to debug casting issues:
 
-1. **Transcoding Performance**
-   - Use hardware acceleration when available
-   - Optimize transcoding parameters
-   - Monitor CPU usage
+```dart
+print('Attempting to cast HLS stream to $_deviceName');
+print('HLS URL: $hlsUrl');
+print('Using application/vnd.apple.mpegurl content type');
+```
 
-2. **Network Optimization**
-   - Adaptive bitrate streaming
-   - Buffer management
-   - Network quality detection
+Check Android logcat:
+```bash
+adb logcat | grep -iE "(cast|invalid|media|load|error)"
+```
 
-3. **Memory Management**
-   - Stream buffer management
-   - Transcoding job cleanup
-   - Device connection cleanup
+Look for:
+- `INVALID_REQUEST` errors
+- `Media Information is NULL` warnings
+- Connection/disconnection events
 
-## Security Considerations
+## Known Working Configuration
 
-1. **Network Security**
-   - Secure device discovery
-   - Encrypted stream transmission
-   - Authentication for casting
+Based on testing and debugging, the following configuration works reliably:
 
-2. **Content Protection**
-   - DRM support (if needed)
-   - Content access control
-   - Stream protection
+**CastService Implementation:**
+- MIME Type: `application/vnd.apple.mpegurl`
+- Stream Type: `CastMediaStreamType.live`
+- No metadata (to avoid serialization issues)
+- Auto-load delay: 700ms after connection
+- Subscription cleanup before reconnecting
 
-## Conclusion
+**Broadcaster HLS Manifest:**
+- Playlist Type: `LIVE` (not `EVENT`)
+- Target Duration: 6 seconds
+- Media Sequence: Incremental
+- Program Date Time: ISO format
+- Valid segment URLs (R2 or CDN)
 
-This Chromecast integration provides a comprehensive solution for casting P2P streams to Chromecast devices, similar to Stremio's approach. The implementation includes automatic transcoding, device discovery, and playback control, making it suitable for production use in P2P live streaming applications.
+## Troubleshooting Checklist
+
+- [ ] Verify HLS playlist uses `#EXT-X-PLAYLIST-TYPE:LIVE`
+- [ ] Check MIME type is `application/vnd.apple.mpegurl`
+- [ ] Ensure both `contentId` and `contentUrl` are set
+- [ ] Verify stream type is `CastMediaStreamType.live`
+- [ ] Check for duplicate session listeners
+- [ ] Verify subscription cleanup on disconnect
+- [ ] Test with broadcaster restarted (new manifest format)
+- [ ] Check logcat for `INVALID_REQUEST` errors
+- [ ] Verify network connectivity (same Wi-Fi)
+- [ ] Test on both iOS and Android devices
+
+## Future Enhancements
+
+1. **Custom Receiver App**: Support for custom Chromecast receiver applications
+2. **Playback Controls**: Add seek, volume, and other playback controls
+3. **Queue Management**: Support for media queues
+4. **Analytics**: Casting analytics and usage tracking
+5. **Error Recovery**: Automatic retry logic for failed casts
+
+## References
+
+- [Google Cast SDK Documentation](https://developers.google.com/cast/docs)
+- [HLS Streaming Specification](https://tools.ietf.org/html/rfc8216)
+- [flutter_chrome_cast Package](https://pub.dev/packages/flutter_chrome_cast)
+- [Chromecast HLS Compatibility Guide](https://developers.google.com/cast/docs/media)
+
+## Changelog
+
+### 2025-01-04
+- Fixed MIME type from `video/mp2t` to `application/vnd.apple.mpegurl`
+- Changed HLS playlist type from `EVENT` to `LIVE` for Chromecast compatibility
+- Added subscription cleanup to prevent duplicate listeners
+- Added automatic pause/resume for local player during casting
+- Removed metadata parameter to avoid serialization issues

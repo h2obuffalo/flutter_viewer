@@ -202,7 +202,33 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
       // Sort based on user preference
       switch (_sortMode) {
         case 0: // Alphabetical
-          _filteredArtists.sort((a, b) => a.name.compareTo(b.name));
+          _filteredArtists.sort((a, b) {
+            // Normalize names: remove special characters but keep numbers
+            String normalize(String name) {
+              // Remove all special characters except alphanumeric and spaces
+              return name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9\s]'), '');
+            }
+            
+            // Check if names start with numbers
+            String aNormalized = normalize(a.name);
+            String bNormalized = normalize(b.name);
+            
+            // Extract first character for comparison
+            bool aStartsWithNumber = aNormalized.isNotEmpty && 
+                aNormalized[0].codeUnitAt(0) >= 48 && 
+                aNormalized[0].codeUnitAt(0) <= 57; // 0-9
+            
+            bool bStartsWithNumber = bNormalized.isNotEmpty && 
+                bNormalized[0].codeUnitAt(0) >= 48 && 
+                bNormalized[0].codeUnitAt(0) <= 57; // 0-9
+            
+            // Numbers come first
+            if (aStartsWithNumber && !bStartsWithNumber) return -1;
+            if (!aStartsWithNumber && bStartsWithNumber) return 1;
+            
+            // Both same type (both numbers or both letters), compare alphabetically
+            return aNormalized.compareTo(bNormalized);
+          });
           break;
         case 1: // Stage order
           _filteredArtists.sort((a, b) {

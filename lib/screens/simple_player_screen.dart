@@ -48,7 +48,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   late AnimationController _seekForwardAnimationController;
   late AnimationController _fullscreenAnimationController;
   
-  // Controls visibility state
+  // Controls visibility state - always show on web initially for debugging
   bool _showControls = true;
   Timer? _hideControlsTimer;
   
@@ -128,14 +128,26 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
     // Listen to cast state changes
     _castService.isConnectedStream.listen((connected) {
       if (mounted) {
+        final wasCasting = _isCasting;
         setState(() {
           _isCasting = connected;
         });
+        
+        // Pause local player when casting starts to avoid resource conflicts
+        // Resume when casting stops
+        if (!kIsWeb && _videoPlayerController != null) {
+          if (connected && !wasCasting) {
+            // Casting just started - pause local player
+            print('🎬 Casting started - pausing local player');
+            _videoPlayerController?.pause();
+          } else if (!connected && wasCasting) {
+            // Casting just stopped - resume local player
+            print('📱 Casting stopped - resuming local player');
+            _videoPlayerController?.play();
+          }
+        }
       }
     });
-    
-    // Note: For live streaming, local playback continues when casting
-    // Both devices play the same live stream independently - no sync needed
     
     _castService.deviceNameStream.listen((deviceName) {
       if (mounted) {
@@ -366,26 +378,34 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       }
       print('✅ Got authenticated stream URL: ${authedUrl.substring(0, authedUrl.length > 50 ? 50 : authedUrl.length)}...');
       
-      // Store authenticated URL for casting
-      setState(() {
-        _streamUrl = authedUrl;
-      });
+        // Store authenticated URL for casting
+        setState(() {
+          _streamUrl = authedUrl;
+        });
       
       // Call JavaScript to initialize player with authenticated URL
       try {
-        // ignore: avoid_web_libraries_in_flutter
-        // On web, web.window gives us the window object. On mobile, stub provides it.
-        final window = web.window;
-        // Call the function directly as a method on window
         if (kIsWeb) {
+          // ignore: avoid_web_libraries_in_flutter
+          // On web, web.window gives us the window object. On mobile, stub provides it.
+          final window = web.window;
+          
+          // Check if function exists
+          final func = js_util.getProperty(window, 'initializeHLSPlayerWithToken');
+          if (func == null) {
+            throw Exception('initializeHLSPlayerWithToken function not found on window');
+          }
+          
+          // Call the function with the authenticated URL
           js_util.callMethod(window, 'initializeHLSPlayerWithToken', [authedUrl]);
+          print('✅ Called JavaScript to initialize HLS player with token');
         } else {
           // Should never reach here on mobile (kIsWeb check above)
           throw UnsupportedError('Web player initialization not supported on mobile');
         }
-        print('✅ Called JavaScript to initialize HLS player with token');
       } catch (e) {
         print('❌ Error calling JavaScript init function: $e');
+        print('   This might mean index.html was not updated or page needs refresh');
         setState(() {
           _errorMessage = 'Failed to initialize player: $e';
         });
@@ -416,6 +436,24 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
             _errorMessage = null;
             _reconnectAttempt = 0;
           });
+          
+          // Register JavaScript click callback for better web compatibility
+          // This works better than Flutter's onTapDown when video is behind Flutter
+          if (kIsWeb) {
+            try {
+              final window = web.window;
+              js_util.setProperty(window, 'onVideoClick', js_util.allowInterop(() {
+                print('📹 JavaScript click detected - showing controls');
+                if (mounted) {
+                  _showControlsTemporarily();
+                }
+              }));
+              print('✅ Registered JavaScript click callback');
+            } catch (e) {
+              print('⚠️ Could not register click callback: $e');
+              // Continue anyway - Flutter's GestureDetector should still work
+            }
+          }
           
           print('Web HLS player initialized successfully');
           return;
@@ -1183,46 +1221,46 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
     // The actual video element is managed by JavaScript in index.html
     return GestureDetector(
       onTapDown: _onVideoTap,
+      behavior: HitTestBehavior.opaque, // Capture all taps to show controls
       child: Stack(
         children: [
-          // Placeholder/background - video is handled by JS
-          Container(
-            color: Colors.black,
-            width: double.infinity,
-            height: double.infinity,
-          ),
+          // Video is rendered by JavaScript - transparent background so video shows through
+          // Use const SizedBox.expand for better performance (lighter than Container)
+          const SizedBox.expand(),
           
-          // Stream health indicator overlay - same as mobile
+          // Stream health indicator overlay - optimized for performance
+          // Use Opacity instead of AnimatedOpacity for better performance on low-end hardware
           Positioned(
             top: 10,
             left: 10,
-            child: AnimatedOpacity(
-              opacity: _showControls ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 300),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: _isStreamHealthy ? Colors.green.withValues(alpha: 0.8) : Colors.orange.withValues(alpha: 0.8),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _isStreamHealthy ? Icons.check_circle : Icons.warning,
-                      color: Colors.white,
-                      size: 12,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      _isStreamHealthy ? 'HEALTHY' : 'CHECKING',
-                      style: const TextStyle(
+            child: RepaintBoundary(
+              child: Opacity(
+                opacity: _showControls ? 1.0 : 0.0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _isStreamHealthy ? Colors.green.withValues(alpha: 0.8) : Colors.orange.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        _isStreamHealthy ? Icons.check_circle : Icons.warning,
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        size: 12,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 4),
+                      Text(
+                        _isStreamHealthy ? 'HEALTHY' : 'CHECKING',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -1262,21 +1300,85 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
               ),
             ),
           
-          // Controls - simplified for web (no fullscreen toggle needed)
-          // Center play/pause button
-          Center(
-            child: AnimatedOpacity(
-              opacity: _showControls ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 300),
-              child: _buildLargePlayButton(
-                icon: Icons.play_arrow, // TODO: Check JS player state
-                onPressed: () {
-                  _togglePlayPause();
-                  _showControlsTemporarily();
-                },
-              ),
+          // Web controls - optimized for performance
+          // Always visible initially on web for debugging, then user can toggle
+          Positioned(
+            bottom: 40,
+            left: 0,
+            right: 0,
+            child: RepaintBoundary(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 20,
+                ),
+                // Simplified decoration - solid color instead of gradient for better performance
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.7), // Simpler than gradient
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                        // Back 30s button - larger for web
+                        RepaintBoundary(
+                          child: _buildWebControlButton(
+                            icon: Icons.replay_30,
+                            onPressed: () {
+                              _seekBackward();
+                              _showControlsTemporarily();
+                            },
+                            animationController: _seekBackAnimationController,
+                          ),
+                        ),
+                        
+                        // Play/Pause button - simplified for web (no StreamBuilder)
+                        RepaintBoundary(
+                          child: Transform.scale(
+                            scale: 1.5,
+                            child: _buildControlButton(
+                              icon: Icons.play_arrow, // Will be updated on tap
+                              onPressed: () {
+                                _togglePlayPause();
+                                _showControlsTemporarily();
+                                setState(() {}); // Force rebuild to update icon
+                              },
+                              animationController: _playPauseAnimationController,
+                              isMainButton: true,
+                            ),
+                          ),
+                        ),
+                        
+                        // Forward 30s button - larger for web
+                        RepaintBoundary(
+                          child: _buildWebControlButton(
+                            icon: Icons.forward_30,
+                            onPressed: () {
+                              _seekForward();
+                              _showControlsTemporarily();
+                            },
+                            animationController: _seekForwardAnimationController,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
             ),
           ),
+          
+          // Debug: Always-visible test indicator to verify Flutter is rendering
+          if (kIsWeb)
+            Positioned(
+              top: 50,
+              right: 10,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                color: Colors.red.withValues(alpha: 0.9),
+                child: Text(
+                  'Controls: $_showControls',
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -1474,7 +1576,19 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   }
 
   void _seekBackward() {
-    if (_videoPlayerController != null) {
+    if (kIsWeb) {
+      // On web, use JS player seek method
+      try {
+        final window = web.window;
+        final player = js_util.getProperty(window, 'hlsVideoPlayer');
+        if (player != null) {
+          js_util.callMethod(player, 'seekBackward', [30]);
+          print('✅ Seeked backward 30 seconds');
+        }
+      } catch (e) {
+        print('Error seeking backward: $e');
+      }
+    } else if (_videoPlayerController != null) {
       final currentPosition = _videoPlayerController!.value.position;
       final newPosition = currentPosition - const Duration(seconds: 30);
       _videoPlayerController!.seekTo(newPosition);
@@ -1482,11 +1596,57 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   }
 
   void _seekForward() {
-    if (_videoPlayerController != null) {
+    if (kIsWeb) {
+      // On web, use JS player seek method
+      try {
+        final window = web.window;
+        final player = js_util.getProperty(window, 'hlsVideoPlayer');
+        if (player != null) {
+          js_util.callMethod(player, 'seekForward', [30]);
+          print('✅ Seeked forward 30 seconds');
+        }
+      } catch (e) {
+        print('Error seeking forward: $e');
+      }
+    } else if (_videoPlayerController != null) {
       final currentPosition = _videoPlayerController!.value.position;
       final newPosition = currentPosition + const Duration(seconds: 10);
       _videoPlayerController!.seekTo(newPosition);
     }
+  }
+  
+  Widget _buildWebControlButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+    required AnimationController animationController,
+  }) {
+    // Scaled up for web - 1.5x larger than mobile
+    return Transform.scale(
+      scale: 1.5,
+      child: _buildControlButton(
+        icon: icon,
+        onPressed: onPressed,
+        animationController: animationController,
+      ),
+    );
+  }
+  
+  Widget _buildWebPlayPauseButton() {
+    // Use a simpler approach - just use play icon, toggle on press
+    // Avoid polling which causes performance issues
+    return Transform.scale(
+      scale: 1.5,
+      child: _buildControlButton(
+        icon: Icons.play_arrow, // Will be updated via setState
+        onPressed: () {
+          _togglePlayPause();
+          _showControlsTemporarily();
+          setState(() {}); // Force rebuild to potentially update icon
+        },
+        animationController: _playPauseAnimationController,
+        isMainButton: true,
+      ),
+    );
   }
 
   void _toggleFullscreen() async {
@@ -1533,10 +1693,15 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   }
 
   void _showControlsTemporarily() {
-    setState(() {
-      _showControls = true;
-    });
-    _startHideControlsTimer();
+    if (mounted) {
+      setState(() {
+        _showControls = true;
+      });
+      // Don't auto-hide controls on web - keep them visible
+      if (!kIsWeb) {
+        _startHideControlsTimer();
+      }
+    }
   }
 
   void _onVideoTap(TapDownDetails details) {

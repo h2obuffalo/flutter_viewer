@@ -1,0 +1,200 @@
+11-04 15:51:43.389 18059 18059 I flutter : 📺 Chromecast Media Status Update:
+11-04 15:51:43.389 18059 18059 I flutter :    Player State: CastMediaPlayerState.loading
+11-04 15:51:43.389 18059 18059 I flutter :    Media Information: Present
+11-04 15:51:43.389 18059 18059 I flutter :    Content ID: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:43.390 18059 18059 I flutter :    Content URL: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:43.390 18059 18059 I flutter :    Stream Type: CastMediaStreamType.live
+11-04 15:51:43.390 18059 18059 I flutter : 📺 Chromecast Media Status Update:
+11-04 15:51:43.390 18059 18059 I flutter :    Player State: CastMediaPlayerState.loading
+11-04 15:51:43.390 18059 18059 I flutter :    Media Information: Present
+11-04 15:51:43.391 18059 18059 I flutter :    Content ID: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:43.391 18059 18059 I flutter :    Content URL: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:43.391 18059 18059 I flutter :    Stream Type: CastMediaStreamType.live
+11-04 15:51:43.426 18059 18059 I flutter : Attempting to cast HLS stream to Living Room TV
+11-04 15:51:43.426 18059 18059 I flutter : HLS URL: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:43.427 18059 18059 I flutter : 📤 Loading media with HLS configuration...
+11-04 15:51:43.427 18059 18059 I flutter :    Content ID: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:43.427 18059 18059 I flutter :    Stream Type: CastMediaStreamType.live
+11-04 15:51:43.430 18059 18059 I flutter : ✅ Media load request sent successfully
+11-04 15:51:43.430 18059 18059 I flutter : Using application/vnd.apple.mpegurl content type (HLS M3U8)
+11-04 15:51:43.581 18059 18059 W MediaControlChannel: received unexpected error: Invalid Request.
+11-04 15:51:43.581 18059 18059 W MediaQueue: Error fetching queue item ids, statusCode=2001, statusMessage=null
+11-04 15:51:43.585  8834  8834 W MediaControlChannel: received unexpected error: Invalid Request.
+11-04 15:51:43.585  8834  8834 W MediaQueue: Error fetching queue item ids, statusCode=2001, statusMessage=null
+11-04 15:51:43.586 18059 18059 W RemoteMediaClient: onStatusUpdated {"mediaSessionId":4,"playerState":"LOADING","playbackRate":1,"currentTime":0,"supportedMediaCommands":274447,"volume":{"level":1,"muted":false},"shuffle":false,"media":{"contentId":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475","contentUrl":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475","streamType":"LIVE","contentType":"application\/vnd.apple.mpegurl","metadata":{"metadataType":0},"duration":null},"currentItemId":1,"repeatMode":"REPEAT_OFF","activeTrackIds":"null"}
+11-04 15:51:43.589 18059 18059 W RemoteMediaClient: onStatusUpdated {"mediaSessionId":4,"playerState":"LOADING","playbackRate":1,"currentTime":0,"supportedMediaCommands":274447,"volume":{"level":1,"muted":false},"shuffle":false,"media":{"contentId":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475","contentUrl":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475","streamType":"LIVE","contentType":"application\/vnd.apple.mpegurl","metadata":{"metadataType":0},"duration":null},"currentItemId":1,"repeatMode":"REPEAT_OFF","activeTrackIds":"null"}
+11-04 15:51:43.592 18059 18059 W RemoteMediaClient: onStatusUpdated {"mediaSessionId":4,"playerState":"LOADING","playbackRate":1,"currentTime":0,"supportedMediaCommands":274447,"volume":{"level":1,"muted":false},"shuffle":false,"media":{"contentId":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475","contentUrl":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475","streamType":"LIVE","contentType":"application\/vnd.apple.mpegurl","metadata":{"metadataType":0},"duration":null},"currentItemId":1,"repeatMode":"REPEAT_OFF","activeTrackIds":"null"}
+11-04 15:51:43.594 18059 18059 I flutter : 📺 Chromecast Media Status Update:
+11-04 15:51:43.594 18059 18059 I flutter :    Player State: CastMediaPlayerState.loading
+11-04 15:51:43.594 18059 18059 I flutter :    Media Information: Present
+11-04 15:51:43.594 18059 18059 I flutter :    Content ID: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:43.595 18059 18059 I flutter :    Content URL: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:43.595 18059 18059 I flutter :    Stream Type: CastMediaStreamType.live
+11-04 15:51:43.596 18059 18059 I flutter : 📺 Chromecast Media Status Update:
+11-04 15:51:43.596 18059 18059 I flutter :    Player State: CastMediaPlayerState.loading
+11-04 15:51:43.596 18059 18059 I flutter :    Media Information: Present
+11-04 15:51:43.596 18059 18059 I flutter :    Content ID: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:43.596 18059 18059 I flutter :    Content URL: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:43.597 18059 18059 I flutter :    Stream Type: CastMediaStreamType.live
+11-04 15:51:43.597 18059 18059 I flutter : 📺 Chromecast Media Status Update:
+11-04 15:51:43.597 18059 18059 I flutter :    Player State: CastMediaPlayerState.loading
+11-04 15:51:43.597 18059 18059 I flutter :    Media Information: Present
+11-04 15:51:43.597 18059 18059 I flutter :    Content ID: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:43.597 18059 18059 I flutter :    Content URL: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:43.598 18059 18059 I flutter :    Stream Type: CastMediaStreamType.live
+11-04 15:51:43.880  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:51:43.880  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:51:43.880  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:51:43.892  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:51:43.892  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:51:43.892  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:51:43.902  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:51:43.902  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:51:43.902  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:51:43.907  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:51:43.907  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:51:43.907  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:51:44.074 18059 18059 I flutter : ✅ Play command sent to Chromecast
+11-04 15:51:44.799 18059 18059 I flutter : ✅ Play command sent to Chromecast
+11-04 15:51:44.799 18059 18059 I flutter : ✅ HLS load request sent successfully
+11-04 15:51:44.934 18059 18059 I flutter : ✅ Play command sent to Chromecast
+11-04 15:51:44.934 18059 18059 I flutter : ✅ HLS load request sent successfully
+11-04 15:51:47.297 18059 18059 W MediaControlChannel: received unexpected error: Invalid Request.
+11-04 15:51:47.298 18059 18059 W MediaQueue: Error fetching queue item ids, statusCode=2001, statusMessage=null
+11-04 15:51:47.305 18059 18059 W MediaControlChannel: received unexpected error: Invalid Request.
+11-04 15:51:47.307  8834  8834 W MediaControlChannel: received unexpected error: Invalid Request.
+11-04 15:51:47.308  8834  8834 W MediaQueue: Error fetching queue item ids, statusCode=2001, statusMessage=null
+11-04 15:51:47.311 18059 18059 W MediaControlChannel: received unexpected error: Invalid Request.
+11-04 15:51:47.318 18059 18059 W MediaControlChannel: received unexpected error: Invalid Request.
+11-04 15:51:47.323 18059 18059 W RemoteMediaClient: onStatusUpdated {"mediaSessionId":4,"playerState":"IDLE","idleReason":"ERROR","playbackRate":1,"currentTime":0,"supportedMediaCommands":274447,"volume":{"level":1,"muted":false},"shuffle":false,"media":{"contentId":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475","contentUrl":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475","streamType":"LIVE","contentType":"application\/vnd.apple.mpegurl","metadata":{"metadataType":0},"duration":null},"repeatMode":"REPEAT_OFF","activeTrackIds":"null"}
+11-04 15:51:47.324  2364  3418 D MediaSessionService: onSessionPlaybackStateChanged: record=com.google.android.gms/cast_rcn_media_session/296 (userId=0) playbackState=PlaybackState {state=NONE(0), position=0, buffered position=0, speed=1.0, updated=417666658, actions=0, custom actions=[], active item id=-1, error=null}
+11-04 15:51:47.326 18059 18059 I flutter : 📺 Chromecast Media Status Update:
+11-04 15:51:47.326 18059 18059 I flutter :    Player State: CastMediaPlayerState.idle
+11-04 15:51:47.326 18059 18059 I flutter :    Media Information: Present
+11-04 15:51:47.326 18059 18059 I flutter :    Content ID: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:47.326 18059 18059 I flutter :    Content URL: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiVjJVSTM1LjQzLTEyLTQiLCJleHAiOjE3NjI1NzIzMzEsImlhdCI6MTc2MjIyNjczMX0.GyM5TFvy9PFKEAo6CE5Z4pKNfKwuSXQ1slbxtirJH8c&expires=1762572331475
+11-04 15:51:47.327 18059 18059 I flutter :    Stream Type: CastMediaStreamType.live
+11-04 15:51:47.327 18059 18059 I flutter :    Idle Reason: GoogleCastMediaIdleReason.error
+11-04 15:51:47.327 18059 18059 I flutter :    Idle Reason Type: GoogleCastMediaIdleReason
+11-04 15:51:47.328 18059 18059 I flutter :    🔍 Idle Reason Details: GoogleCastMediaIdleReason.error
+11-04 15:51:47.377  3373  3373 D NotificationMediaManager: Not dismissing 0|com.google.android.gms|702852255|CastRCN|10218 because it was removed by the system
+11-04 15:51:47.378  6428  6428 I NotificationMonitorService: onNotificationRemoved: Notification(channel=cast_rcn_notification shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=NO_CLEAR|GROUP_SUMMARY color=0x00000000 category=transport groupKey=com.google.android.gms.cast.rcn.NOTIFICATIONS actions=5 vis=PUBLIC) reason= 8
+11-04 15:51:47.383  3373  3373 D QSPanel : Reattaching media host: false, current com.android.internal.widget.RemeasuringLinearLayout{c9df198 V.E...... ......ID 0,192-2460,823}, new com.android.systemui.qs.QSPanel{2deddf2 IFE...... ......ID 0,0-2460,992 #7f0b079b app:id/quick_settings_panel}
+11-04 15:51:47.386  3373  3373 D QuickQSPanel: Reattaching media host: false, current com.android.internal.widget.RemeasuringLinearLayout{26c5df1 V.E...... ......ID 0,0-2460,396}, new com.android.systemui.qs.QuickQSPanel{718394a VFE...... ......ID 0,23-2460,487 #7f0b0799 app:id/quick_qs_panel}
+11-04 15:51:49.398 18019 18021 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~eo8w-wHWDMyIFDB0eSInJA==/com.sporecast.app-vZo4-MSsOTF4mwgxi08t4g==/oat/arm64/base.odex) is kOatUpToDate with filter 'speed-profile' executable 'false'
+11-04 15:51:49.747  8834 18218 I CastService: [instance-39] [com.google.android.gms] Disconnecting
+11-04 15:51:49.747  8834 18218 I CastService: [instance-39] [com.google.android.gms] Disposing ConnectedClient; controller = CSC.
+11-04 15:51:51.115 18019 18021 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~QuYtlCPhyU2-uGoPQS-xqQ==/com.bambuna.podcastaddict-wmLIxxsdGei3YP1yMedPVA==/oat/arm64/base.odex) is kOatUpToDate with filter 'speed-profile' executable 'false'
+11-04 15:51:51.134 18019 18019 I artd    : GetBestInfo: odex next to the dex file (/data/user/0/com.bambuna.podcastaddict/app_pccache/5/A676523B3E46DAB04C3DAC7B4C5781491E6DC27A/oat/arm64/pcam.odex) is kOatUpToDate with filter 'verify' executable 'false'
+11-04 15:51:51.153 18019 18021 I artd    : GetBestInfo: odex next to the dex file (/data/user/0/com.bambuna.podcastaddict/app_pccache/5/0DB12F04482D5EE6F1C4FAFDFA9C30C300995A35/oat/arm64/pcam.odex) is kOatUpToDate with filter 'verify' executable 'false'
+11-04 15:51:54.074 14873 14873 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.mediaprovider' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+11-04 15:51:54.787 14873 14873 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.media' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+11-04 15:51:55.186 18299 18299 D nativeloader: Configuring clns-7 for other apk /system/framework/com.android.media.remotedisplay.jar. target_sdk_version=36, uses_libraries=ALL, library_path=/data/app/~~xpzEywd4y3g3lXHT37Eajw==/com.google.android.gms-FoVmagnq7dMeFwXueI8Nzw==/lib/arm64:/data/app/~~xpzEywd4y3g3lXHT37Eajw==/com.google.android.gms-FoVmagnq7dMeFwXueI8Nzw==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand:/data/user/0/com.google.android.gms
+11-04 15:51:56.149 14873 14873 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.cellbroadcast' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+11-04 15:52:00.121 14873 14873 W Finsky  : [2] STU: Failed to get storage stats for package 'com.google.android.media.swcodec' (1601: Error getting stats: android.content.pm.PackageManager.NameNotFoundException)
+11-04 15:52:00.731 18019 18019 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~prLFn2vySrzoBfPP2p_gAQ==/com.media.bestrecorder.audiorecorder-mgM_GdvcB7wG5x1PAFXWOA==/oat/arm64/base.odex) is kOatUpToDate with filter 'speed-profile' executable 'false'
+11-04 15:52:04.061 18019 18019 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~dRYh-n6_cs0YgR3ZouhYEA==/com.google.android.apps.chromecast.app-nehQAf2Vjgoc6Ryh3rM74w==/oat/arm64/base.odex) is kOatUpToDate with filter 'speed-profile' executable 'false'
+11-04 15:52:04.278 18019 18019 I artd    : GetBestInfo: odex next to the dex file (/data/app/~~ktkv32dW70MOxfWDDzt-xg==/com.dti.motorola-_5EDNO4mQx73yN1N8mu9Og==/oat/arm64/split_contentMedia.odex) is kOatUpToDate with filter 'speed-profile' executable 'false'
+11-04 15:53:20.651  2364  5932 D MediaSessionService: onSessionPlaybackStateChanged: record=com.google.android.gms/cast_rcn_media_session/296 (userId=0) playbackState=PlaybackState {state=NONE(0), position=0, buffered position=0, speed=1.0, updated=417759985, actions=0, custom actions=[], active item id=-1, error=null}
+11-04 15:53:20.658 18059 18059 W RemoteMediaClient: onStatusUpdated {"mediaSessionId":5,"playerState":"LOADING","playbackRate":1,"currentTime":0,"supportedMediaCommands":274447,"volume":{"level":1,"muted":false},"shuffle":false,"media":{"contentId":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173","contentUrl":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173","streamType":"LIVE","metadata":{"metadataType":0},"duration":null,"startAbsoluteTime":0},"currentItemId":1,"repeatMode":"REPEAT_OFF","activeTrackIds":"null"}
+11-04 15:53:20.706 18059 18059 W RemoteMediaClient: onStatusUpdated {"mediaSessionId":5,"playerState":"LOADING","playbackRate":1,"currentTime":0,"supportedMediaCommands":274447,"volume":{"level":1,"muted":false},"shuffle":false,"media":{"contentId":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173","contentUrl":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173","streamType":"LIVE","metadata":{"metadataType":0},"duration":null,"startAbsoluteTime":0},"currentItemId":1,"repeatMode":"REPEAT_OFF","activeTrackIds":"null"}
+11-04 15:53:20.710 18059 18059 I flutter : 📺 Chromecast Media Status Update:
+11-04 15:53:20.710 18059 18059 I flutter :    Player State: CastMediaPlayerState.loading
+11-04 15:53:20.710 18059 18059 I flutter :    Media Information: Present
+11-04 15:53:20.711 18059 18059 I flutter :    Content ID: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173
+11-04 15:53:20.711 18059 18059 I flutter :    Content URL: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173
+11-04 15:53:20.711 18059 18059 I flutter :    Stream Type: CastMediaStreamType.live
+11-04 15:53:20.712 18059 18059 I flutter : 📺 Chromecast Media Status Update:
+11-04 15:53:20.712 18059 18059 I flutter :    Player State: CastMediaPlayerState.loading
+11-04 15:53:20.712 18059 18059 I flutter :    Media Information: Present
+11-04 15:53:20.712 18059 18059 I flutter :    Content ID: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173
+11-04 15:53:20.712 18059 18059 I flutter :    Content URL: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173
+11-04 15:53:20.713 18059 18059 I flutter :    Stream Type: CastMediaStreamType.live
+11-04 15:53:20.896  6428  6428 I NotificationMonitorService: onNotificationPosted hide: Notification(channel=cast_rcn_notification shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=NO_CLEAR|GROUP_SUMMARY color=0x00000000 category=transport groupKey=com.google.android.gms.cast.rcn.NOTIFICATIONS actions=5 vis=PUBLIC)
+11-04 15:53:20.903  3373  3506 D MediaDataManager: 0|com.google.android.gms|702852255|CastRCN|10218 is RCN for Living Room TV
+11-04 15:53:20.903  6428  6428 I NotificationMonitorService: onNotificationPosted hide: Notification(channel=cast_rcn_notification shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=NO_CLEAR|GROUP_SUMMARY color=0x00000000 category=transport groupKey=com.google.android.gms.cast.rcn.NOTIFICATIONS actions=5 vis=PUBLIC)
+11-04 15:53:20.947  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:20.947  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:20.947  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:20.952  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:20.952  3373  3373 W ConstraintSet: id unknown media_action_barrier_start
+11-04 15:53:20.952  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:20.952  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:20.957  3373  3373 D QSPanel : Reattaching media host: true, current com.android.systemui.qs.QSPanel{2deddf2 IFE...... ......ID 0,0-2460,992 #7f0b079b app:id/quick_settings_panel}, new com.android.internal.widget.RemeasuringLinearLayout{c9df198 G.E...... ......ID 0,-90-2460,541}
+11-04 15:53:20.958  3373  3373 D QuickQSPanel: Reattaching media host: true, current com.android.systemui.qs.QuickQSPanel{718394a VFE...... ......ID 0,23-2460,260 #7f0b0799 app:id/quick_qs_panel}, new com.android.internal.widget.RemeasuringLinearLayout{26c5df1 G.E...... ......ID 0,-106-2460,290}
+11-04 15:53:20.965  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:20.965  3373  3373 W ConstraintSet: id unknown media_action_barrier_start
+11-04 15:53:20.965  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:20.965  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:20.968  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:20.968  3373  3373 W ConstraintSet: id unknown media_action_barrier_start
+11-04 15:53:20.968  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:20.968  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:20.970  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:20.970  3373  3373 W ConstraintSet: id unknown media_action_barrier_start
+11-04 15:53:20.970  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:20.970  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:20.973  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:20.973  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:20.973  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:20.977  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:20.977  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:20.977  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:20.980  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:20.980  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:20.980  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:21.106  3373  3506 D MediaDataManager: 0|com.google.android.gms|702852255|CastRCN|10218 is RCN for Living Room TV
+11-04 15:53:21.133  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:21.133  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:21.133  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:21.140  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:21.140  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:21.140  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:21.144  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:21.144  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:21.144  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:21.147  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:21.147  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:21.147  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:21.562  8834  8834 W MediaControlChannel: received unexpected error: Invalid Request.
+11-04 15:53:21.563  8834  8834 W MediaQueue: Error fetching queue item ids, statusCode=2001, statusMessage=null
+11-04 15:53:21.585 18059 18059 W MediaControlChannel: received unexpected error: Invalid Request.
+11-04 15:53:21.588 18059 18059 W MediaQueue: Error fetching queue item ids, statusCode=2001, statusMessage=null
+11-04 15:53:21.599 18059 18059 W RemoteMediaClient: onStatusUpdated {"mediaSessionId":6,"playerState":"LOADING","playbackRate":1,"currentTime":0,"supportedMediaCommands":274447,"volume":{"level":1,"muted":false},"shuffle":false,"media":{"contentId":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173","contentUrl":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173","streamType":"LIVE","metadata":{"metadataType":0},"duration":null,"startAbsoluteTime":0},"currentItemId":1,"repeatMode":"REPEAT_OFF","activeTrackIds":"null"}
+11-04 15:53:21.601 18059 18059 I flutter : 📺 Chromecast Media Status Update:
+11-04 15:53:21.602 18059 18059 I flutter :    Player State: CastMediaPlayerState.loading
+11-04 15:53:21.602 18059 18059 I flutter :    Media Information: Present
+11-04 15:53:21.602 18059 18059 I flutter :    Content ID: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173
+11-04 15:53:21.602 18059 18059 I flutter :    Content URL: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173
+11-04 15:53:21.602 18059 18059 I flutter :    Stream Type: CastMediaStreamType.live
+11-04 15:53:21.784  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:21.785  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:21.785  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:21.808  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:21.808  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:21.808  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:21.819  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:21.819  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:21.819  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:21.825  3373  3373 W ConstraintSet: id unknown media_seamless
+11-04 15:53:21.825  3373  3373 W ConstraintSet: id unknown media_action_barrier_end
+11-04 15:53:21.825  3373  3373 W ConstraintSet: id unknown media_action_barrier_top
+11-04 15:53:25.181  8834  8834 W MediaControlChannel: received unexpected error: Invalid Request.
+11-04 15:53:25.182  8834  8834 W MediaQueue: Error fetching queue item ids, statusCode=2001, statusMessage=null
+11-04 15:53:25.193 18059 18059 W MediaControlChannel: received unexpected error: Invalid Request.
+11-04 15:53:25.196 18059 18059 W MediaQueue: Error fetching queue item ids, statusCode=2001, statusMessage=null
+11-04 15:53:25.208  2364  3418 D MediaSessionService: onSessionPlaybackStateChanged: record=com.google.android.gms/cast_rcn_media_session/296 (userId=0) playbackState=PlaybackState {state=NONE(0), position=0, buffered position=0, speed=1.0, updated=417764542, actions=0, custom actions=[], active item id=-1, error=null}
+11-04 15:53:25.212 18059 18059 W RemoteMediaClient: onStatusUpdated {"mediaSessionId":6,"playerState":"IDLE","idleReason":"ERROR","playbackRate":1,"currentTime":0,"supportedMediaCommands":274447,"volume":{"level":1,"muted":false},"shuffle":false,"media":{"contentId":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173","contentUrl":"https:\/\/tv.danpage.uk\/live\/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173","streamType":"LIVE","metadata":{"metadataType":0},"duration":null,"startAbsoluteTime":0},"repeatMode":"REPEAT_OFF","activeTrackIds":"null"}
+11-04 15:53:25.216 18059 18059 I flutter : 📺 Chromecast Media Status Update:
+11-04 15:53:25.216 18059 18059 I flutter :    Player State: CastMediaPlayerState.idle
+11-04 15:53:25.217 18059 18059 I flutter :    Media Information: Present
+11-04 15:53:25.217 18059 18059 I flutter :    Content ID: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173
+11-04 15:53:25.217 18059 18059 I flutter :    Content URL: https://tv.danpage.uk/live/playlist.m3u8?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0aWNrZXRJZCI6ImVtZXJnZW5jeSIsImRldmljZUlkIjoiMDJGRUE0NzItRjgyRS00MDU1LUE5MEYtNTREMzczMUQzQjQ0IiwiZXhwIjoxNzYyNTYyOTA3LCJpYXQiOjE3NjIyMTczMDd9.RdAzkg5UDigtPU6FZSC2VbQpT4YYcVnYGwGmuTVvrxY&expires=1762562907173
+11-04 15:53:25.217 18059 18059 I flutter :    Stream Type: CastMediaStreamType.live
+11-04 15:53:25.218 18059 18059 I flutter :    Idle Reason: GoogleCastMediaIdleReason.error
+11-04 15:53:25.218 18059 18059 I flutter :    Idle Reason Type: GoogleCastMediaIdleReason
+11-04 15:53:25.218 18059 18059 I flutter :    🔍 Idle Reason Details: GoogleCastMediaIdleReason.error
+11-04 15:53:25.224  3373  3373 D NotificationMediaManager: Not dismissing 0|com.google.android.gms|702852255|CastRCN|10218 because it was removed by the system
+11-04 15:53:25.225  6428  6428 I NotificationMonitorService: onNotificationRemoved: Notification(channel=cast_rcn_notification shortcut=null contentView=null vibrate=null sound=null defaults=0 flags=NO_CLEAR|GROUP_SUMMARY color=0x00000000 category=transport groupKey=com.google.android.gms.cast.rcn.NOTIFICATIONS actions=5 vis=PUBLIC) reason= 8
+11-04 15:53:25.228  3373  3373 D QSPanel : Reattaching media host: false, current com.android.internal.widget.RemeasuringLinearLayout{c9df198 V.E...... ......ID 0,192-2460,823}, new com.android.systemui.qs.QSPanel{2deddf2 IFE...... ......ID 0,0-2460,992 #7f0b079b app:id/quick_settings_panel}
+11-04 15:53:25.230  3373  3373 D QuickQSPanel: Reattaching media host: false, current com.android.internal.widget.RemeasuringLinearLayout{26c5df1 V.E...... ......ID 0,0-2460,396}, new com.android.systemui.qs.QuickQSPanel{718394a VFE...... ......ID 0,23-2460,487 #7f0b0799 app:id/quick_qs_panel}

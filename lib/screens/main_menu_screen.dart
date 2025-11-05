@@ -11,6 +11,7 @@ import '../services/notification_service.dart';
 import '../widgets/bangface_popup.dart';
 import '../widgets/ticket_input_dialog.dart';
 import '../services/auth_service.dart';
+import '../services/craic_audio_service.dart';
 import 'lineup_list_screen.dart';
 import 'simple_player_screen.dart';
 import 'updates_screen.dart';
@@ -29,11 +30,16 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
   late AnimationController _strobeController;
   late AnimationController _screenGlitchController;
   late AnimationController _betaStampController;
+  late AnimationController _raveButtonController;
+  late CraicAudioService _raveAudioService;
   bool _showGlitch = false;
   bool _isRaveMode = false;
   int _unseenUpdatesCount = 0;
   Timer? _updatesCheckTimer;
   bool? _isSmallScreen; // Cache device detection result
+  String? _currentTrackName;
+  String? _currentArtistName;
+  bool _showTrackInfo = false;
 
   @override
   void initState() {
@@ -68,6 +74,14 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
+
+    _raveButtonController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 6),
+    );
+
+    // Initialize audio service
+    _raveAudioService = CraicAudioService();
 
     // Detect device type for text sizing
     _detectDeviceType();
@@ -254,6 +268,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
   }
 
   void _onWhatsTheCrackPressed() async {
+    print('=== WHATS THE CRAIC BUTTON PRESSED (NO AUDIO) ===');
     // Haptic feedback
     HapticFeedback.mediumImpact();
     
@@ -292,44 +307,83 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
     }
   }
 
+  Timer? _raveModeTimer;
+
   void _onRaveButtonPressed() async {
+    print('=== RAVE BUTTON PRESSED (WITH AUDIO) ===');
     // Haptic feedback
     HapticFeedback.heavyImpact();
     
-    setState(() {
-      _isRaveMode = !_isRaveMode;
-    });
-
+    // If rave mode is already active, stop it early
     if (_isRaveMode) {
-      // Start the rave mode
-      _strobeController.repeat();
-      _screenGlitchController.repeat();
+      _stopRaveMode();
+      return;
+    }
+    
+    // Reload tracks first to get any new uploads, then get track info
+    _raveAudioService.reloadTracks().then((_) {
+      // Get track info AFTER reloading (so we show the correct track name)
+      final trackName = _raveAudioService.currentTrackName;
+      final artistName = _raveAudioService.currentArtistName;
       
-      // Stop after 3 seconds
-      Timer(const Duration(seconds: 3), () {
+      // Update state to show track info and start rave mode
+      if (mounted) {
+        setState(() {
+          _currentTrackName = trackName;
+          _currentArtistName = artistName;
+          _showTrackInfo = true;
+          _isRaveMode = true;
+        });
+      }
+      
+      // Start everything simultaneously
+      _raveButtonController.forward(); // Start 6-second animation
+      _strobeController.repeat(); // Start the rave mode strobe effects
+      _screenGlitchController.repeat(); // Start screen glitch effects
+      
+      // Start playing the track (don't await - let it start in parallel)
+      _raveAudioService.playNextTrack(); // Fire and forget - starts immediately
+    });
+    
+    // Set up timer to stop after 6 seconds
+    _raveModeTimer?.cancel();
+    _raveModeTimer = Timer(const Duration(seconds: 6), () {
+      _stopRaveMode();
+    });
+  }
+
+  void _stopRaveMode() {
+    // Cancel the timer
+    _raveModeTimer?.cancel();
+    _raveModeTimer = null;
+    
+    // Stop audio
+    _raveAudioService.stop();
+    
+    // Stop animations and reset state
         if (mounted) {
           setState(() {
             _isRaveMode = false;
-          });
-          _strobeController.stop();
-          _screenGlitchController.stop();
-        }
+        _showTrackInfo = false;
       });
-    } else {
       _strobeController.stop();
       _screenGlitchController.stop();
+      _raveButtonController.reset();
     }
   }
 
   @override
   void dispose() {
     _updatesCheckTimer?.cancel();
+    _raveModeTimer?.cancel();
     _glitchController.dispose();
     _pulseController.dispose();
     _buttonController.dispose();
     _strobeController.dispose();
     _screenGlitchController.dispose();
     _betaStampController.dispose();
+    _raveButtonController.dispose();
+    _raveAudioService.dispose();
     super.dispose();
   }
 
@@ -366,11 +420,20 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
             child: _buildUpdatesBellIcon(),
           ),
           
+          // Track info overlay at bottom
+          if (_showTrackInfo && _currentTrackName != null && _currentArtistName != null)
+            Positioned(
+              bottom: 40,
+              left: 0,
+              right: 0,
+              child: _buildTrackInfoOverlay(),
+            ),
+          
           // Main content
           Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
                 // Title with beta stamp
                 Stack(
                   alignment: Alignment.center,
@@ -432,7 +495,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                 // Interactive Rave button
                 _buildRaveButton(),
               ],
-            ),
+          ),
           ),
         ],
       ),
@@ -588,15 +651,30 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
     );
   }
 
+  Widget _buildTrackInfoOverlay() {
+    return Center(
+      child: Text(
+        '$_currentTrackName - $_currentArtistName',
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+          letterSpacing: 1,
+        ),
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
   Widget _buildRaveButton() {
     return AnimatedBuilder(
       animation: _pulseController,
       builder: (context, child) {
         return AnimatedBuilder(
-          animation: _buttonController,
+          animation: _raveButtonController,
           builder: (context, child) {
             return Transform.scale(
-              scale: 1.0 + (_pulseController.value * 0.1) + (_buttonController.value * 0.1),
+              scale: 1.0 + (_pulseController.value * 0.1) + (_raveButtonController.value * 0.1),
               child: GestureDetector(
                 onTap: _onRaveButtonPressed,
                 child: Container(

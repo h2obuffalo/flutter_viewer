@@ -21,7 +21,7 @@
   <meta name="description" content="Live Stream Viewer">
 
   <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Live Stream">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
@@ -32,123 +32,793 @@
   <title>Live Stream Viewer</title>
   <link rel="manifest" href="manifest.json">
 
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.0.7/dist/hls.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
+  <!-- Google Cast SDK for web -->
+  <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1"></script>
   <script>
-    // Fix for HLS playback on web
-    // Workaround for video_player HLS limitation
-    window.addEventListener('load', () => {
-      // Wait for Flutter to load, then inject HLS player
-      setTimeout(() => {
-        const container = document.querySelector('flt-scene-host');
-        if (container) {
-          // Create video element
-          const video = document.createElement('video');
-          video.id = 'hls-video';
-          video.style.width = '100%';
-          video.style.height = '100%';
-          video.style.position = 'absolute';
-          video.style.top = '0';
-          video.style.left = '0';
-          video.style.zIndex = '1000';
-          video.controls = true;
-          video.autoplay = true;
-          video.muted = true; // Required for autoplay
-          
-          // Hide Flutter content and show video
-          const flutterContent = container.querySelector('flt-scene');
-          if (flutterContent) {
-            flutterContent.style.display = 'none';
+    // Enhanced HLS playback for web
+    // Video player plugin doesn't support HLS on web, so we use HLS.js directly
+    let hlsInstance = null;
+    let retryCount = 0;
+    const MAX_RETRIES = 5;
+    const RETRY_DELAY = 3000; // 3 seconds
+    
+    // Don't hardcode the stream URL - Flutter will provide it with token
+    let STREAM_URL = null;
+    
+    // Helper function to ensure Flutter is on top of video
+    function _ensureFlutterOnTop() {
+      // Try multiple selectors to find Flutter elements
+      const selectors = [
+        'flt-scene-host',
+        'flt-scene-host flt-scene',
+        '#main',
+        'body > flt-scene-host',
+        '[class*="flutter"]'
+      ];
+      
+      selectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => {
+          if (el) {
+            el.style.zIndex = '9999';
+            el.style.pointerEvents = 'auto';
+            el.style.position = el.style.position || 'relative';
+            console.log(`✅ Positioned Flutter element: ${selector}`, el);
           }
+        });
+      });
+      
+      // Also ensure body and html allow proper stacking
+      document.body.style.position = 'relative';
+      document.body.style.zIndex = '0';
+      if (document.documentElement) {
+        document.documentElement.style.position = 'relative';
+      }
+    }
+    
+    function initializeHLSPlayer(streamUrl) {
+      // Only initialize if we have a stream URL (with token)
+      if (!streamUrl) {
+        console.warn('⚠️ Cannot initialize HLS player: No stream URL provided');
+        window.hlsPlayerReady = false;
+        return;
+      }
+      STREAM_URL = streamUrl; // Set the provided stream URL
+      
+      console.log('🎬 Starting HLS player initialization...');
+      
+      // Create video element (but keep it hidden initially)
+      let video = document.getElementById('hls-video');
+      if (!video) {
+        video = document.createElement('video');
+        video.id = 'hls-video';
+        video.style.width = '100%';
+        video.style.height = '100%';
+        video.style.position = 'fixed';
+        video.style.top = '0';
+        video.style.left = '0';
+        video.style.zIndex = '1'; // Lower z-index so Flutter controls appear on top
+        video.style.backgroundColor = '#000000';
+        video.controls = false; // We'll use Flutter controls
+        video.playsInline = true;
+        video.style.display = 'none'; // Hidden initially
+        video.style.pointerEvents = 'none'; // Allow clicks to pass through to Flutter
+        // Append to body immediately (don't wait for Flutter)
+        if (document.body) {
+          document.body.appendChild(video);
+          console.log('✅ Video element added to body');
+        } else {
+          // If body not ready, wait a bit
+          setTimeout(() => {
+            if (document.body) {
+              document.body.appendChild(video);
+              console.log('✅ Video element added to body (delayed)');
+            }
+          }, 100);
+        }
+      }
+      
+      // Only initialize HLS if not already initialized
+      if (!hlsInstance && Hls.isSupported()) {
+        console.log('🎬 Initializing HLS.js player with URL:', STREAM_URL);
+        
+        hlsInstance = new Hls({
+          // Buffer configuration - increased to prevent stuttering
+          maxBufferLength: 60,           // Increase max buffer to 60 seconds
+          maxMaxBufferLength: 120,       // Allow buffer to grow up to 2 minutes if needed
+          backBufferLength: 60,          // Keep more back buffer
+          maxBufferSize: 60 * 1000 * 1000, // 60MB max buffer size
+          maxBufferHole: 0.5,            // Allow small gaps in buffer
           
-          container.appendChild(video);
+          // Live stream sync configuration
+          liveSyncDuration: 10,          // Sync to 10 seconds behind live
+          liveMaxLatencyDuration: 20,    // Allow up to 20 seconds latency
+          liveDurationInfinity: false,    // Don't use infinite duration
+          lowLatencyMode: false,         // Disable low latency for better buffering
           
-          // Initialize HLS.js
-          const streamUrl = 'https://tv.danpage.uk/live/playlist.m3u8';
-          console.log('Initializing HLS player with URL:', streamUrl);
+          // Fragment loading strategy
+          fragLoadingTimeOut: 20000,      // 20 second timeout for fragments
+          manifestLoadingTimeOut: 10000,  // 10 second timeout for manifest
+          levelLoadingTimeOut: 10000,     // 10 second timeout for level switching
           
-          if (Hls.isSupported()) {
-            console.log('Using HLS.js for playback');
-            const hls = new Hls({
-              liveSyncDuration: 5,
-              liveMaxLatencyDuration: 15,
-              lowLatencyMode: false,
-              backBufferLength: 30,
-              maxBufferLength: 30,
-            });
+          // Performance
+          enableWorker: true,             // Use Web Worker for better performance
+          debug: false,                   // Disable debug logs
+          
+          // Error recovery
+          maxLoadingDelay: 4,             // Max delay between fragment loads
+          maxBufferHole: 0.5,             // Allow small buffer gaps
+          
+          // Start level
+          startLevel: -1,                 // Auto-select best quality
+        });
+        
+        hlsInstance.loadSource(STREAM_URL);
+        hlsInstance.attachMedia(video);
+        
+        hlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+          console.log('✅ HLS manifest loaded successfully');
+          retryCount = 0; // Reset retry count on success
+          
+          // Try to play (will fail if autoplay blocked)
+          video.play().then(() => {
+            console.log('▶️ Playback started');
+            // Show video but keep Flutter visible for controls
+            video.style.display = 'block';
+            video.style.zIndex = '1'; // Video behind Flutter
+            _ensureFlutterOnTop();
+          }).catch(err => {
+            console.log('⏸️ Autoplay blocked - user interaction required:', err.message);
+            // Still show video and ensure Flutter is on top even if autoplay blocked
+            video.style.display = 'block';
+            video.style.zIndex = '1';
+            _ensureFlutterOnTop();
+          });
+        });
+        
+        hlsInstance.on(Hls.Events.LEVEL_SWITCHED, function(event, data) {
+          console.log('📊 Quality switched to level:', data.level);
+        });
+        
+        // Monitor buffer health
+        hlsInstance.on(Hls.Events.FRAG_LOADED, function(event, data) {
+          if (video && video.buffered.length > 0) {
+            const bufferedEnd = video.buffered.end(video.buffered.length - 1);
+            const currentTime = video.currentTime;
+            const bufferAhead = bufferedEnd - currentTime;
             
-            hls.loadSource(streamUrl);
-            hls.attachMedia(video);
-            
-            hls.on(Hls.Events.MANIFEST_PARSED, function() {
-              console.log('HLS manifest loaded, starting playback');
-              video.play().catch(err => {
-                console.log('Autoplay blocked:', err);
-                // Show play button overlay
-                const playOverlay = document.createElement('div');
-                playOverlay.style.position = 'absolute';
-                playOverlay.style.top = '50%';
-                playOverlay.style.left = '50%';
-                playOverlay.style.transform = 'translate(-50%, -50%)';
-                playOverlay.style.color = '#00ffff';
-                playOverlay.style.fontSize = '24px';
-                playOverlay.style.fontFamily = 'monospace';
-                playOverlay.style.cursor = 'pointer';
-                playOverlay.style.zIndex = '1001';
-                playOverlay.textContent = 'Click to Play';
-                playOverlay.onclick = () => {
-                  video.play();
-                  playOverlay.remove();
-                };
-                container.appendChild(playOverlay);
-              });
-            });
-            
-            hls.on(Hls.Events.ERROR, function(event, data) {
-              console.error('HLS Error:', data);
-              if (data.fatal) {
-                switch(data.type) {
-                  case Hls.ErrorTypes.NETWORK_ERROR:
-                    console.log('Network error, retrying...');
-                    hls.startLoad();
-                    break;
-                  case Hls.ErrorTypes.MEDIA_ERROR:
-                    console.log('Media error, recovering...');
-                    hls.recoverMediaError();
-                    break;
-                  default:
-                    console.error('Fatal error, cannot recover');
-                    hls.destroy();
-                    break;
+            // Log if buffer is getting low (but don't spam)
+            if (bufferAhead < 5 && bufferAhead > 0) {
+              console.log(`⚠️ Buffer low: ${bufferAhead.toFixed(2)}s ahead`);
+            }
+          }
+        });
+        
+        hlsInstance.on(Hls.Events.ERROR, function(event, data) {
+          // Handle buffer stalling errors (non-fatal but annoying)
+          if (data.details === 'bufferStalledError' || data.details === 'bufferNudgeOnStall') {
+            // Buffer is stalling - try to recover by adjusting buffer
+            if (hlsInstance && video) {
+              const currentTime = video.currentTime;
+              const buffered = video.buffered;
+              
+              // If we have buffered content ahead, try to seek slightly forward
+              if (buffered.length > 0 && currentTime < buffered.end(buffered.length - 1) - 1) {
+                console.log('🔄 Buffer stalled, seeking slightly forward to recover...');
+                video.currentTime = Math.min(currentTime + 0.1, buffered.end(buffered.length - 1) - 0.5);
+              } else {
+                // No buffer ahead, try to reload
+                console.log('🔄 Buffer stalled with no buffer ahead, attempting recovery...');
+                try {
+                  hlsInstance.startLoad();
+                } catch (e) {
+                  console.error('❌ Buffer recovery failed:', e);
                 }
               }
-            });
-            
-          } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            console.log('Using native HLS support (Safari)');
-            video.src = streamUrl;
-            video.addEventListener('loadedmetadata', function() {
-              video.play().catch(err => {
-                console.log('Autoplay blocked:', err);
-              });
-            });
-          } else {
-            console.error('HLS not supported in this browser');
+            }
+            // Don't log these as errors - they're common and usually recover
+            return;
+          }
+          
+          // Log other errors
+          if (data.details !== 'bufferStalledError' && data.details !== 'bufferNudgeOnStall') {
+            console.error('❌ HLS Error:', data);
+          }
+          
+          if (data.fatal) {
+            switch(data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                console.log('🔄 Network error, attempting recovery...');
+                if (retryCount < MAX_RETRIES) {
+                  retryCount++;
+                  setTimeout(() => {
+                    console.log(`🔄 Retry attempt ${retryCount}/${MAX_RETRIES}`);
+                    hlsInstance.startLoad();
+                  }, RETRY_DELAY);
+                } else {
+                  console.error('❌ Max retries reached. Stream may be offline.');
+                  showStreamError('Stream connection failed. Please check your connection.');
+                }
+                break;
+                
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                console.log('🔄 Media error, attempting recovery...');
+                try {
+                  hlsInstance.recoverMediaError();
+                } catch (e) {
+                  console.error('❌ Media recovery failed:', e);
+                  if (retryCount < MAX_RETRIES) {
+                    retryCount++;
+                    setTimeout(() => {
+                      hlsInstance.startLoad();
+                    }, RETRY_DELAY);
+                  } else {
+                    showStreamError('Playback error. Please refresh the page.');
+                  }
+                }
+                break;
+                
+              default:
+                console.error('❌ Fatal error, cannot recover:', data.type);
+                showStreamError('Stream error. Please refresh the page.');
+                break;
+            }
+          }
+        });
+        
+        // Expose video element and HLS instance globally for Flutter to control
+        console.log('✅ HLS.js player initialized, exposing to Flutter');
+        window.hlsVideoPlayer = {
+          video: video,
+          hls: hlsInstance,
+          play: () => {
+            if (video && hlsInstance) {
+              video.play().then(() => {
+                video.style.display = 'block';
+                video.style.zIndex = '1'; // Video behind Flutter
+                video.style.pointerEvents = 'none'; // Allow clicks to pass through to Flutter
+                _ensureFlutterOnTop();
+              }).catch(console.error);
+            }
+          },
+          pause: () => video?.pause(),
+          show: () => {
+            video.style.display = 'block';
+            video.style.zIndex = '1'; // Keep video behind Flutter controls
+            video.style.pointerEvents = 'none'; // Allow clicks to pass through to Flutter
+            const flutterScene = document.querySelector('flt-scene-host flt-scene');
+            if (flutterScene) {
+              flutterScene.style.display = 'block'; // Keep Flutter visible for controls
+              flutterScene.style.zIndex = '10'; // Flutter controls on top
+              flutterScene.style.pointerEvents = 'auto'; // Flutter controls are interactive
+            }
+          },
+          hide: () => {
             video.style.display = 'none';
-            const errorDiv = document.createElement('div');
-            errorDiv.style.position = 'absolute';
-            errorDiv.style.top = '50%';
-            errorDiv.style.left = '50%';
-            errorDiv.style.transform = 'translate(-50%, -50%)';
-            errorDiv.style.color = '#ff6b6b';
-            errorDiv.style.fontSize = '18px';
-            errorDiv.style.fontFamily = 'monospace';
-            errorDiv.style.textAlign = 'center';
-            errorDiv.innerHTML = 'HLS playback not supported<br>in this browser';
-            container.appendChild(errorDiv);
+            const flutterScene = document.querySelector('flt-scene-host flt-scene');
+            if (flutterScene) flutterScene.style.display = 'block';
+          },
+          setVolume: (volume) => {
+            if (video) video.volume = Math.max(0, Math.min(1, volume));
+          },
+          getLevels: () => hlsInstance?.levels || [],
+          setLevel: (level) => {
+            if (hlsInstance && hlsInstance.levels[level] !== undefined) {
+              hlsInstance.currentLevel = level;
+            }
+          },
+          // Player state methods for Flutter controls
+          isPlaying: () => video && !video.paused && !video.ended && video.readyState > 2,
+          getCurrentTime: () => video ? video.currentTime : 0,
+          getDuration: () => video && !isNaN(video.duration) ? video.duration : 0,
+          seek: (time) => {
+            if (video) {
+              video.currentTime = Math.max(0, Math.min(time, video.duration || Infinity));
+            }
+          },
+          seekBackward: (seconds = 30) => {
+            if (video) {
+              video.currentTime = Math.max(0, video.currentTime - seconds);
+            }
+          },
+          seekForward: (seconds = 30) => {
+            if (video && video.duration) {
+              video.currentTime = Math.min(video.duration, video.currentTime + seconds);
+            }
+          },
+          togglePlayPause: () => {
+            if (video) {
+              if (video.paused) {
+                video.play();
+              } else {
+                video.pause();
+              }
+            }
+          }
+        };
+        window.hlsPlayerReady = true;
+        console.log('✅ window.hlsVideoPlayer ready for Flutter');
+        
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        // Native HLS support (Safari/iOS)
+        console.log('🍎 Using native HLS support (Safari)');
+        video.src = STREAM_URL;
+        video.addEventListener('loadedmetadata', function() {
+          console.log('✅ Native HLS manifest loaded');
+          video.play().catch(err => {
+            console.log('⏸️ Autoplay blocked:', err.message);
+          });
+        });
+        
+        // Expose for Flutter
+        window.hlsVideoPlayer = {
+          video: video,
+          hls: null,
+          play: () => video?.play(),
+          pause: () => video?.pause(),
+          show: () => {
+            video.style.display = 'block';
+            video.style.zIndex = '1'; // Keep video behind Flutter controls
+            video.style.pointerEvents = 'none'; // Allow clicks to pass through to Flutter
+            const flutterScene = document.querySelector('flt-scene-host flt-scene');
+            if (flutterScene) {
+              flutterScene.style.display = 'block'; // Keep Flutter visible for controls
+              flutterScene.style.zIndex = '10'; // Flutter controls on top
+              flutterScene.style.pointerEvents = 'auto'; // Flutter controls are interactive
+            }
+          },
+          hide: () => {
+            video.style.display = 'none';
+            const flutterScene = document.querySelector('flt-scene-host flt-scene');
+            if (flutterScene) flutterScene.style.display = 'block';
+          },
+          setVolume: (volume) => {
+            if (video) video.volume = Math.max(0, Math.min(1, volume));
+          },
+          getLevels: () => [],
+          setLevel: () => {}, // Not supported in native HLS
+          // Player state methods for Flutter controls
+          isPlaying: () => video && !video.paused && !video.ended && video.readyState > 2,
+          getCurrentTime: () => video ? video.currentTime : 0,
+          getDuration: () => video && !isNaN(video.duration) ? video.duration : 0,
+          seek: (time) => {
+            if (video) {
+              video.currentTime = Math.max(0, Math.min(time, video.duration || Infinity));
+            }
+          },
+          seekBackward: (seconds = 30) => {
+            if (video) {
+              video.currentTime = Math.max(0, video.currentTime - seconds);
+            }
+          },
+          seekForward: (seconds = 30) => {
+            if (video && video.duration) {
+              video.currentTime = Math.min(video.duration, video.currentTime + seconds);
+            }
+          },
+          togglePlayPause: () => {
+            if (video) {
+              if (video.paused) {
+                video.play();
+              } else {
+                video.pause();
+              }
+            }
+          }
+        };
+        window.hlsPlayerReady = true;
+        console.log('✅ Native HLS player ready for Flutter');
+      } else {
+        console.error('❌ HLS not supported in this browser');
+        // Still expose a minimal player object so Flutter can handle the error
+        window.hlsVideoPlayer = {
+          video: null,
+          hls: null,
+          play: () => console.error('HLS not supported'),
+          pause: () => {},
+          show: () => {},
+          hide: () => {},
+          setVolume: () => {},
+          getLevels: () => [],
+          setLevel: () => {},
+          isPlaying: () => false,
+          getCurrentTime: () => 0,
+          getDuration: () => 0,
+          seek: () => {},
+          seekBackward: () => {},
+          seekForward: () => {},
+          togglePlayPause: () => {},
+        };
+        window.hlsPlayerReady = false; // Explicitly false for unsupported browsers
+        showStreamError('HLS playback not supported in this browser. Please use Chrome, Firefox, or Safari.');
+      }
+    }
+    
+    // Initialize Google Cast SDK for web
+    let castContext = null;
+    let castSession = null;
+    let castSDKInitialized = false;
+    let castInitRetryCount = 0;
+    const MAX_CAST_INIT_RETRIES = 20; // Try for up to 10 seconds (20 * 500ms)
+    
+    function initializeCastSDK() {
+      // Check if we're in Chrome (Cast SDK only works in Chrome)
+      if (typeof chrome === 'undefined' || !chrome.cast) {
+        if (castInitRetryCount < MAX_CAST_INIT_RETRIES) {
+          castInitRetryCount++;
+          setTimeout(initializeCastSDK, 500);
+          return;
+        } else {
+          console.warn('⚠️ Chromecast SDK not available - Chrome browser required');
+          return;
+        }
+      }
+      
+      // Wait for both window.cast and window.cast.framework to be available
+      if (window.cast && window.cast.framework && chrome.cast && chrome.cast.isAvailable) {
+        try {
+          console.log('🎬 Initializing Google Cast SDK...');
+          
+          // Get CastContext instance
+          castContext = window.cast.framework.CastContext.getInstance();
+          
+          // Set options with proper error handling
+          try {
+            castContext.setOptions({
+              receiverApplicationId: 'CC1AD845', // Default Chromecast app ID
+              autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+            });
+          } catch (optionsError) {
+            console.warn('⚠️ Error setting Cast options:', optionsError);
+            // Try with different autoJoinPolicy
+            try {
+              castContext.setOptions({
+                receiverApplicationId: 'CC1AD845',
+                autoJoinPolicy: chrome.cast.AutoJoinPolicy.TAB_AND_ORIGIN_SCOPED
+              });
+            } catch (e) {
+              console.error('❌ Failed to set Cast options:', e);
+              return;
+            }
+          }
+          
+          // Listen for session state changes
+          castContext.addEventListener(
+            window.cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+            (event) => {
+              console.log('📺 Cast session state changed:', event.sessionState);
+              if (event.sessionState === window.cast.framework.SessionState.SESSION_STARTED) {
+                castSession = castContext.getCurrentSession();
+                console.log('✅ Cast session started');
+                // Notify Flutter if needed
+                if (window.webCastAPI && window.webCastAPI.onSessionStarted) {
+                  window.webCastAPI.onSessionStarted();
+                }
+              } else if (event.sessionState === window.cast.framework.SessionState.SESSION_ENDED) {
+                console.log('📺 Cast session ended');
+                castSession = null;
+                // Notify Flutter if needed
+                if (window.webCastAPI && window.webCastAPI.onSessionEnded) {
+                  window.webCastAPI.onSessionEnded();
+                }
+              } else if (event.sessionState === window.cast.framework.SessionState.SESSION_STARTING) {
+                console.log('🔄 Cast session starting...');
+              } else if (event.sessionState === window.cast.framework.SessionState.SESSION_START_FAILED) {
+                console.error('❌ Cast session start failed');
+                castSession = null;
+              }
+            }
+          );
+          
+          // Listen for cast state changes
+          castContext.addEventListener(
+            window.cast.framework.CastContextEventType.CAST_STATE_CHANGED,
+            (event) => {
+              console.log('📡 Cast state changed:', event.castState);
+            }
+          );
+          
+          castSDKInitialized = true;
+          console.log('✅ Google Cast SDK initialized successfully');
+        } catch (e) {
+          console.error('❌ Google Cast SDK initialization error:', e);
+          console.error('   Error details:', e.message, e.stack);
+          // Retry if we haven't exceeded max retries
+          if (castInitRetryCount < MAX_CAST_INIT_RETRIES) {
+            castInitRetryCount++;
+            setTimeout(initializeCastSDK, 500);
           }
         }
-      }, 2000); // Wait 2 seconds for Flutter to load
+      } else {
+        // Cast SDK not fully loaded yet, try again after a delay
+        if (castInitRetryCount < MAX_CAST_INIT_RETRIES) {
+          castInitRetryCount++;
+          setTimeout(initializeCastSDK, 500);
+        } else {
+          console.warn('⚠️ Cast SDK failed to load after', MAX_CAST_INIT_RETRIES * 500, 'ms');
+          console.warn('   Available:', {
+            'window.cast': !!window.cast,
+            'window.cast.framework': !!(window.cast && window.cast.framework),
+            'chrome.cast': typeof chrome !== 'undefined' && !!chrome.cast,
+            'chrome.cast.isAvailable': typeof chrome !== 'undefined' && chrome.cast && chrome.cast.isAvailable
+          });
+        }
+      }
+    }
+    
+    // Start initialization when page loads
+    window.addEventListener('load', () => {
+      // Wait for Cast SDK script to fully load
+      // The SDK script loads asynchronously, so we need to wait
+      setTimeout(initializeCastSDK, 500);
     });
+    
+    // Expose Chromecast API for Flutter
+    window.webCastAPI = {
+      isAvailable: () => {
+        // Check for Cast SDK framework and initialization
+        const hasFramework = window.cast && 
+                            window.cast.framework && 
+                            castContext !== null && 
+                            castSDKInitialized;
+        // Also check if chrome.cast API is available
+        const hasChromeCast = typeof chrome !== 'undefined' && 
+                             chrome.cast && 
+                             chrome.cast.isAvailable;
+        
+        const available = hasFramework || hasChromeCast;
+        if (!available) {
+          console.log('📡 Cast availability check:', {
+            hasFramework,
+            hasChromeCast,
+            castContext: !!castContext,
+            castSDKInitialized,
+            chromeCast: typeof chrome !== 'undefined' && !!chrome.cast
+          });
+        }
+        return available;
+      },
+      discoverDevices: () => {
+        if (!castContext) return [];
+        // Devices are automatically discovered by Cast SDK
+        // We can't directly get device list, but can check if session is available
+        return [];
+      },
+      requestSession: () => {
+        if (!castContext) {
+          console.error('❌ Cast context not initialized');
+          return Promise.reject(new Error('Cast context not initialized'));
+        }
+        
+        // Check if already have a session
+        const currentSession = castContext.getCurrentSession();
+        if (currentSession) {
+          console.log('✅ Already have an active session');
+          castSession = currentSession;
+          return Promise.resolve(currentSession);
+        }
+        
+        // Request new session (this will show device picker)
+        console.log('📡 Requesting Cast session...');
+        return castContext.requestSession()
+          .then((session) => {
+            console.log('✅ Cast session established');
+            castSession = session;
+            return session;
+          })
+          .catch((error) => {
+            console.error('❌ Failed to request Cast session:', error);
+            castSession = null;
+            throw error;
+          });
+      },
+      startCasting: (hlsUrl, title) => {
+        if (!castContext) {
+          console.error('❌ Cast context not initialized');
+          // Try to get context again
+          if (window.cast && window.cast.framework) {
+            try {
+              castContext = window.cast.framework.CastContext.getInstance();
+              console.log('✅ Re-initialized cast context');
+            } catch (e) {
+              console.error('❌ Could not get cast context:', e);
+              return Promise.reject(new Error('Cast context unavailable'));
+            }
+          } else {
+            return Promise.reject(new Error('Cast SDK not loaded'));
+          }
+        }
+        
+        // Get current session
+        castSession = castContext.getCurrentSession();
+        if (!castSession) {
+          console.error('❌ No cast session available');
+          return Promise.reject(new Error('No active session - call requestSession first'));
+        }
+        
+        try {
+          // Create media info for HLS stream
+          const mediaInfo = new chrome.cast.media.MediaInfo(hlsUrl, 'application/vnd.apple.mpegurl');
+          
+          // Set metadata
+          mediaInfo.metadata = new chrome.cast.media.GenericMediaMetadata();
+          mediaInfo.metadata.title = title || 'Live Stream';
+          
+          // Configure for live HLS stream
+          mediaInfo.streamType = chrome.cast.media.StreamType.LIVE;
+          mediaInfo.contentType = 'application/vnd.apple.mpegurl';
+          
+          // Create load request
+          const request = new chrome.cast.media.LoadRequest(mediaInfo);
+          request.currentTime = 0; // Start from beginning for live stream
+          request.autoplay = true;
+          
+          console.log('📺 Loading media to Chromecast:', {
+            url: hlsUrl,
+            title: title,
+            streamType: 'LIVE',
+            contentType: 'application/vnd.apple.mpegurl'
+          });
+          
+          // Load media and return promise
+          return castSession.loadMedia(request)
+            .then(() => {
+              console.log('✅ Casting started successfully:', title);
+              return true;
+            })
+            .catch((error) => {
+              console.error('❌ Casting error:', error);
+              console.error('   Error code:', error.code);
+              console.error('   Error message:', error.message);
+              throw error;
+            });
+        } catch (e) {
+          console.error('❌ Error creating cast request:', e);
+          return Promise.reject(e);
+        }
+      },
+      stopCasting: () => {
+        if (castSession) {
+          try {
+            castSession.endSession(true);
+            console.log('📺 Casting stopped');
+          } catch (e) {
+            console.error('❌ Error stopping cast:', e);
+          } finally {
+            castSession = null;
+          }
+        } else if (castContext) {
+          // Try to get current session and end it
+          try {
+            const currentSession = castContext.getCurrentSession();
+            if (currentSession) {
+              currentSession.endSession(true);
+              console.log('📺 Casting stopped (via context)');
+            }
+          } catch (e) {
+            console.error('❌ Error stopping cast via context:', e);
+          }
+        }
+      },
+      isConnected: () => {
+        if (!castContext) return false;
+        try {
+          const currentSession = castContext.getCurrentSession();
+          const connected = currentSession !== null && currentSession !== undefined;
+          if (connected) {
+            castSession = currentSession; // Update our reference
+          }
+          return connected;
+        } catch (e) {
+          console.error('❌ Error checking connection:', e);
+          return false;
+        }
+      },
+      // Callbacks for Flutter
+      onSessionStarted: () => {
+        console.log('📺 Cast session started callback');
+      },
+      onSessionEnded: () => {
+        console.log('📺 Cast session ended callback');
+        castSession = null;
+      }
+    };
+    
+    function showStreamError(message) {
+      let errorDiv = document.getElementById('hls-error');
+      if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'hls-error';
+        errorDiv.style.position = 'fixed';
+        errorDiv.style.top = '50%';
+        errorDiv.style.left = '50%';
+        errorDiv.style.transform = 'translate(-50%, -50%)';
+        errorDiv.style.color = '#ff6b6b';
+        errorDiv.style.fontSize = '18px';
+        errorDiv.style.fontFamily = 'monospace';
+        errorDiv.style.textAlign = 'center';
+        errorDiv.style.zIndex = '10000';
+        errorDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+        errorDiv.style.padding = '20px';
+        errorDiv.style.borderRadius = '8px';
+        errorDiv.style.border = '2px solid #ff6b6b';
+        document.body.appendChild(errorDiv);
+      }
+      errorDiv.innerHTML = message + '<br><button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; background: #ff6b6b; color: white; border: none; border-radius: 4px; cursor: pointer;">Refresh</button>';
+    }
+    
+    // DON'T initialize on page load - wait for Flutter to provide authenticated URL
+    // Flutter will call window.initializeHLSPlayerWithToken(streamUrl) when ready
+    
+    // Expose initialization function for Flutter to call with authenticated URL
+    window.initializeHLSPlayerWithToken = initializeHLSPlayer;
+    
+    // Also expose a global flag so Flutter can check if player is ready
+    // Initialized to false, set to true upon successful HLS player setup
+    window.hlsPlayerReady = false;
+    
+    // Expose callback for Flutter to register when video is clicked
+    window.onVideoClick = null;
+    
+    // Add click listener to video element to show controls
+    // This works better than Flutter's onTapDown on web
+    function setupVideoClickHandler() {
+      const video = document.getElementById('hls-video');
+      if (video) {
+        video.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('📹 Video clicked - showing controls');
+          if (window.onVideoClick && typeof window.onVideoClick === 'function') {
+            window.onVideoClick();
+          }
+        });
+        console.log('✅ Video click handler set up');
+      } else {
+        // Retry if video not ready yet
+        setTimeout(setupVideoClickHandler, 100);
+      }
+    }
+    
+    // Also add click listener to Flutter scene for better coverage
+    function setupFlutterSceneClickHandler() {
+      const flutterScene = document.querySelector('flt-scene-host flt-scene');
+      if (flutterScene) {
+        flutterScene.addEventListener('click', function(e) {
+          // Only trigger if clicking on the video area (not on controls)
+          const target = e.target;
+          if (target && target.tagName !== 'BUTTON' && !target.closest('button')) {
+            console.log('📹 Flutter scene clicked - showing controls');
+            if (window.onVideoClick && typeof window.onVideoClick === 'function') {
+              window.onVideoClick();
+            }
+          }
+        });
+        console.log('✅ Flutter scene click handler set up');
+      } else {
+        // Retry if Flutter scene not ready yet
+        setTimeout(setupFlutterSceneClickHandler, 500);
+      }
+    }
+    
+    // Set up click handlers after page loads
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        setupVideoClickHandler();
+        setupFlutterSceneClickHandler();
+        // Periodically ensure Flutter stays on top (in case it re-renders)
+        setInterval(_ensureFlutterOnTop, 1000);
+      });
+    } else {
+      setupVideoClickHandler();
+      setupFlutterSceneClickHandler();
+      // Periodically ensure Flutter stays on top
+      setInterval(_ensureFlutterOnTop, 1000);
+    }
+    
+    // Log that the function is available (for debugging)
+    console.log('✅ initializeHLSPlayerWithToken function is now available on window');
   </script>
 
   <style>
