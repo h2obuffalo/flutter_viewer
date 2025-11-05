@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../config/theme.dart';
 import '../services/auth_service.dart';
-import '../screens/simple_player_screen.dart';
 
 class TicketInputDialog extends StatefulWidget {
   const TicketInputDialog({super.key});
@@ -41,11 +40,8 @@ class _TicketInputDialogState extends State<TicketInputDialog> {
 
       if (success) {
         HapticFeedback.mediumImpact();
-        // Close dialog and navigate to player
-        Navigator.of(context).pop(); // Close dialog
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const SimplePlayerScreen()),
-        );
+        // Close dialog and return success result
+        Navigator.of(context).pop(true); // Return true to indicate success
       } else {
         setState(() {
           _errorMessage = 'Invalid ticket number. Please try again.';
@@ -103,7 +99,7 @@ class _TicketInputDialogState extends State<TicketInputDialog> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: RetroTheme.neonCyan),
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () => Navigator.of(context).pop(false), // Return false when cancelled
                       tooltip: 'Close',
                     ),
                     Expanded(
