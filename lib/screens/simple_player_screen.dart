@@ -439,18 +439,20 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
           
           // Register JavaScript click callback for better web compatibility
           // This works better than Flutter's onTapDown when video is behind Flutter
-          try {
-            final window = web.window;
-            js_util.setProperty(window, 'onVideoClick', js_util.allowInterop(() {
-              print('📹 JavaScript click detected - showing controls');
-              if (mounted) {
-                _showControlsTemporarily();
-              }
-            }));
-            print('✅ Registered JavaScript click callback');
-          } catch (e) {
-            print('⚠️ Could not register click callback: $e');
-            // Continue anyway - Flutter's GestureDetector should still work
+          if (kIsWeb) {
+            try {
+              final window = web.window;
+              js_util.setProperty(window, 'onVideoClick', js_util.allowInterop(() {
+                print('📹 JavaScript click detected - showing controls');
+                if (mounted) {
+                  _showControlsTemporarily();
+                }
+              }));
+              print('✅ Registered JavaScript click callback');
+            } catch (e) {
+              print('⚠️ Could not register click callback: $e');
+              // Continue anyway - Flutter's GestureDetector should still work
+            }
           }
           
           print('Web HLS player initialized successfully');

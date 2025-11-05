@@ -127,7 +127,7 @@ collect_tv_logs() {
         return
     fi
     
-    # List all connected devices
+se    # List all connected devices
     echo "Checking for connected devices..."
     adb devices
     

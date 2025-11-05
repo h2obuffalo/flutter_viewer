@@ -53,7 +53,8 @@ class Artist {
   final String name;
   final String photo;
   final String? website;
-  final String? bandcamp;
+  final String? soundcloud;
+  final String? soundcloudUserId;
   final String? blurb;
   final List<String> stages;
   final List<SetTime> setTimes;
@@ -64,7 +65,8 @@ class Artist {
     required this.name,
     required this.photo,
     this.website,
-    this.bandcamp,
+    this.soundcloud,
+    this.soundcloudUserId,
     this.blurb,
     required this.stages,
     required this.setTimes,
@@ -76,7 +78,8 @@ class Artist {
       name: json['name'] as String,
       photo: json['photo'] as String,
       website: json['website'] as String?,
-      bandcamp: json['bandcamp'] as String?,
+      soundcloud: json['soundcloud'] as String?,
+      soundcloudUserId: json['soundcloudUserId'] as String?,
       blurb: json['blurb'] as String?,
       stages: (json['stages'] as List<dynamic>).cast<String>(),
       setTimes: (json['setTimes'] as List<dynamic>)
@@ -91,7 +94,8 @@ class Artist {
       'name': name,
       'photo': photo,
       'website': website,
-      'bandcamp': bandcamp,
+      'soundcloud': soundcloud,
+      'soundcloudUserId': soundcloudUserId,
       'blurb': blurb,
       'stages': stages,
       'setTimes': setTimes.map((e) => e.toJson()).toList(),
@@ -134,7 +138,7 @@ class Artist {
 
   // Helper method to check if artist has any links
   bool get hasLinks {
-    return website != null || bandcamp != null;
+    return website != null || soundcloud != null;
   }
 
   // Helper method to get primary stage (most common stage)

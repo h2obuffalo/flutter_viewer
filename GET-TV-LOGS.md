@@ -134,3 +134,7 @@ When reporting issues, include:
 3. **Network test results** (can Chromecast reach the URL?)
 4. **TV/Chromecast model** and firmware version
 
+
+
+
+

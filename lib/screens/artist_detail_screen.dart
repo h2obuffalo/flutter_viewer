@@ -7,6 +7,7 @@ import '../config/theme.dart';
 import '../models/artist.dart';
 import '../services/remote_lineup_sync_service.dart';
 import '../services/favorites_service.dart';
+import '../widgets/audio_player_section.dart';
 
 class ArtistDetailScreen extends StatefulWidget {
   final Artist artist;
@@ -187,8 +188,14 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
               
               const SizedBox(height: 24),
               
-              // Links section
-              if (widget.artist.hasLinks) ...[
+              // Audio player section (SoundCloud)
+              if (widget.artist.soundcloud != null) ...[
+                AudioPlayerSection(artist: widget.artist),
+                const SizedBox(height: 24),
+              ],
+              
+              // Links section (website only, Bandcamp/SoundCloud handled by player)
+              if (widget.artist.website != null) ...[
                 _buildLinksSection(),
                 const SizedBox(height: 24),
               ],
@@ -438,23 +445,12 @@ class _ArtistDetailScreenState extends State<ArtistDetailScreen> with TickerProv
             ),
           ),
           const SizedBox(height: 12),
-          if (widget.artist.website != null) ...[
-            _buildLinkButton(
-              'Website',
-              Icons.language,
-              RetroTheme.electricGreen,
-              () => _launchUrl(widget.artist.website!),
-            ),
-            const SizedBox(height: 8),
-          ],
-          if (widget.artist.bandcamp != null) ...[
-            _buildLinkButton(
-              'Bandcamp',
-              Icons.music_note,
-              RetroTheme.hotPink,
-              () => _launchUrl(widget.artist.bandcamp!),
-            ),
-          ],
+          _buildLinkButton(
+            'Website',
+            Icons.language,
+            RetroTheme.electricGreen,
+            () => _launchUrl(widget.artist.website!),
+          ),
         ],
       ),
     );

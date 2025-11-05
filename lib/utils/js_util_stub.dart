@@ -7,3 +7,5 @@
 // When imported 'as js_util', these are accessible as js_util.getProperty() and js_util.callMethod()
 dynamic getProperty(dynamic object, String property) => null;
 dynamic callMethod(dynamic object, String method, List<dynamic> args) => null;
+dynamic setProperty(dynamic object, String property, dynamic value) => null;
+dynamic allowInterop(Function f) => f;

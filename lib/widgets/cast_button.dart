@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_chrome_cast/flutter_chrome_cast.dart';
 import '../services/cast_service.dart';
+import '../services/auth_service.dart';
+import '../utils/platform_utils.dart';
 
 class CastButton extends StatefulWidget {
   final VoidCallback? onPressed;
@@ -327,16 +329,58 @@ class _CastButtonState extends State<CastButton>
 
   Future<void> _connectToDevice(GoogleCastDevice device) async {
     try {
+      print('🔗 CastButton: Connecting to device ${device.friendlyName}');
+      print('   Provided HLS URL: ${widget.hlsUrl.isEmpty ? "EMPTY" : widget.hlsUrl}');
+      
       final success = await _castService.connectToDevice(device);
       if (success) {
+        // Platform-specific wait times:
+        // - iOS: Session may already be established, needs less time
+        // - Android: Session needs time to initialize receiver app and media channel
+        final waitTime = PlatformUtils.isIOS 
+          ? const Duration(milliseconds: 1500)  // iOS: Session often pre-loaded
+          : const Duration(milliseconds: 3000); // Android: Needs full initialization
+        
+        print('⏳ CastButton: Waiting for session and media channel to be ready (${PlatformUtils.isIOS ? "iOS" : "Android"})...');
+        await Future.delayed(waitTime);
+        
+        // Verify session is still active before casting
+        if (!_castService.isConnected) {
+          print('❌ CastButton: Session lost while waiting');
+          if (mounted) {
+            _showErrorDialog('Lost connection to ${device.friendlyName}');
+          }
+          return;
+        }
+        
+        // Get authenticated URL if not provided
+        final hlsUrl = widget.hlsUrl.isEmpty 
+          ? await AuthService().getAuthedHlsUrl() ?? ''
+          : widget.hlsUrl;
+        
+        if (hlsUrl.isEmpty) {
+          print('❌ CastButton: No HLS URL available');
+          if (mounted) {
+            _showErrorDialog('No stream URL available');
+          }
+          return;
+        }
+        
         // Start casting the HLS stream
-        await _castService.startCasting(widget.hlsUrl, widget.title);
+        print('🎬 CastButton: Starting to cast with URL: $hlsUrl');
+        final castSuccess = await _castService.startCasting(hlsUrl, widget.title);
+        
+        if (!castSuccess && mounted) {
+          _showErrorDialog('Failed to start casting to ${device.friendlyName}');
+        }
       } else {
         if (mounted) {
           _showErrorDialog('Failed to connect to ${device.friendlyName}');
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('❌ CastButton: Connection error: $e');
+      print('   Stack trace: $stackTrace');
       if (mounted) {
         _showErrorDialog('Connection error: $e');
       }
