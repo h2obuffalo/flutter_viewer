@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:just_audio/just_audio.dart';
+import 'package:http/http.dart' as http;
+import '../config/constants.dart';
 
 class TrackInfo {
   final String source; // Asset path or remote URL
@@ -21,14 +24,25 @@ class CraicAudioService {
   int _currentTrackIndex = 0;
   Timer? _playbackTimer;
   bool _isPlaying = false;
+  bool _tracksLoaded = false;
+  Completer<void>? _tracksLoadCompleter;
 
   StreamSubscription<PlayerState>? _playerStateSubscription;
   StreamSubscription<PlaybackEvent>? _playbackEventSubscription;
 
   CraicAudioService() {
-    // Initialize with placeholder tracks - can be expanded later
-    _initializeTracks();
     _setupAudioListeners();
+    // Load tracks from API asynchronously
+    _tracksLoadCompleter = Completer<void>();
+    _loadTracksFromApi().then((_) {
+      _tracksLoaded = true;
+      _tracksLoadCompleter?.complete();
+      _tracksLoadCompleter = null;
+    }).catchError((e) {
+      _tracksLoaded = true; // Even if failed, we have fallback tracks
+      _tracksLoadCompleter?.complete();
+      _tracksLoadCompleter = null;
+    });
   }
 
   Completer<void>? _loadCompleter;
@@ -70,9 +84,48 @@ class CraicAudioService {
 
   bool get isPlaying => _isPlaying || _audioPlayer.playing;
 
-  void _initializeTracks() {
-    // Initialize with tracks - cycling through pool
-    // Note: Files should be MP3 format for better compatibility
+  /// Load tracks from the API
+  Future<void> _loadTracksFromApi() async {
+    try {
+      print('Loading audio tracks from API...');
+      final url = Uri.parse('${AppConstants.lineupApiUrl}/lineup/admin/audio-tracks');
+      final response = await http.get(url);
+      
+      if (response.statusCode == 200) {
+        final List<dynamic> tracksData = jsonDecode(response.body);
+        print('Received ${tracksData.length} tracks from API');
+        
+        _tracks.clear();
+        for (var trackData in tracksData) {
+          final track = TrackInfo(
+            source: trackData['audioUrl'] as String,
+            trackName: trackData['trackName'] as String? ?? trackData['filename'] as String? ?? 'Untitled',
+            artistName: trackData['artistName'] as String? ?? 'Unknown Artist',
+            isAsset: false, // All API tracks are remote URLs
+          );
+          _tracks.add(track);
+          print('Added track: ${track.trackName} by ${track.artistName}');
+        }
+        
+        if (_tracks.isEmpty) {
+          print('No tracks found in API, using fallback tracks');
+          _initializeFallbackTracks();
+        } else {
+          print('Successfully loaded ${_tracks.length} tracks from API');
+        }
+      } else {
+        print('Failed to load tracks from API: ${response.statusCode}');
+        _initializeFallbackTracks();
+      }
+    } catch (e) {
+      print('Error loading tracks from API: $e');
+      _initializeFallbackTracks();
+    }
+  }
+
+  /// Initialize with fallback tracks if API fails
+  void _initializeFallbackTracks() {
+    // Fallback to hardcoded assets if API fails
     _tracks.addAll([
       TrackInfo(
         source: 'assets/sounds/Dolphin & The Teknoist - Ppl Gonna Bleed.mp3',
@@ -86,8 +139,13 @@ class CraicAudioService {
         artistName: 'Krest',
         isAsset: true,
       ),
-      // Add more tracks here as needed
     ]);
+    print('Initialized ${_tracks.length} fallback tracks');
+  }
+  
+  /// Reload tracks from API (useful for refreshing after uploads)
+  Future<void> reloadTracks() async {
+    await _loadTracksFromApi();
   }
 
   /// Add a track to the pool
@@ -106,6 +164,16 @@ class CraicAudioService {
 
   /// Play the current track for 6 seconds
   Future<void> playCurrentTrack() async {
+    // Wait for tracks to load if they haven't loaded yet
+    if (!_tracksLoaded && _tracksLoadCompleter != null) {
+      print('Waiting for tracks to load...');
+      try {
+        await _tracksLoadCompleter!.future.timeout(const Duration(seconds: 10));
+      } catch (e) {
+        print('Timeout waiting for tracks to load: $e');
+      }
+    }
+    
     if (_tracks.isEmpty) {
       print('No tracks available');
       return;
