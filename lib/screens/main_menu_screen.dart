@@ -276,20 +276,48 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
     await _buttonController.forward();
     await _buttonController.reverse();
     
-    if (mounted) {
-      // Load artists and check if there's scheduled content
-      await NowPlayingService.loadArtists();
+    if (!mounted) return;
+    
+    // Load artists and check if there's scheduled content
+    await NowPlayingService.loadArtists();
+    
+    if (NowPlayingService.hasScheduledContent()) {
+      // Show lineup with now playing filter
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LineupListScreen(showNowPlaying: true),
+        ),
+      );
+    } else {
+      // No scheduled content - check authentication first
+      final authService = AuthService();
+      final hasValidToken = await authService.isTokenValid();
       
-      if (NowPlayingService.hasScheduledContent()) {
-        // Show lineup with now playing filter
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const LineupListScreen(showNowPlaying: true),
-          ),
+      if (!hasValidToken) {
+        // Show ticket input dialog first
+        final authResult = await showDialog<bool>(
+          context: context,
+          barrierDismissible: true,
+          builder: (context) => const TicketInputDialog(),
         );
-      } else {
-        // Show video player with popup
+        
+        // If user cancelled or dismissed, don't proceed
+        if (!mounted || authResult != true) {
+          return;
+        }
+        
+        // Re-check authentication after dialog
+        final stillNotAuthenticated = !(await authService.isTokenValid());
+        if (stillNotAuthenticated) {
+          // User didn't authenticate successfully, don't proceed
+          return;
+        }
+      }
+      
+      // User is authenticated (or was already authenticated), proceed to player
+      if (mounted) {
+        // Navigate to video player
         Navigator.push(
           context,
           MaterialPageRoute(

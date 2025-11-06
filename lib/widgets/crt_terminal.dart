@@ -148,7 +148,8 @@ class CRTPainter extends CustomPainter {
     }
 
     // Calculate text position with some top padding
-    final textOffset = Offset(16, 32); // Add padding from top and left
+    // Horizontal padding is handled by parent container, so we only need left padding for alignment
+    final textOffset = Offset(0, 32); // Add padding from top only
 
     // Draw glow effect
     if (showGlow) {
