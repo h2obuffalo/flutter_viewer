@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import '../config/theme.dart';
 import '../services/remote_lineup_sync_service.dart';
+import '../services/notification_service.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 class UpdatesScreen extends StatefulWidget {
@@ -27,6 +28,8 @@ class _UpdatesScreenState extends State<UpdatesScreen> with TickerProviderStateM
       duration: const Duration(seconds: 1),
     );
     _loadUpdates();
+    // Mark all updates as seen when screen is opened
+    NotificationService().markAllUpdatesAsSeen();
   }
 
   @override

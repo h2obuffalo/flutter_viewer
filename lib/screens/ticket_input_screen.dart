@@ -63,8 +63,10 @@ class _TicketInputScreenState extends State<TicketInputScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
       backgroundColor: RetroTheme.darkBlue,
+      resizeToAvoidBottomInset: true,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -77,15 +79,21 @@ class _TicketInputScreenState extends State<TicketInputScreen> {
           ),
         ),
         child: SafeArea(
-          child: Center(
+          bottom: false,
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 24,
+              bottom: keyboardHeight + 24,
+            ),
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                     // Logo/Title
                     Icon(
                       Icons.qr_code,

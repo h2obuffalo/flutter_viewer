@@ -12,6 +12,7 @@ class NotificationService {
   bool _initialized = false;
   static const String _seenChangesKey = 'notification.seen_changes';
   static const String _notificationTimestampsKey = 'notification.timestamps';
+  static const String _notificationsEnabledKey = 'notification.enabled';
   static const int maxNotificationsPerHour = 5;
   static const int groupingThreshold = 5; // Group if >= 5 updates per artist
 
@@ -107,12 +108,54 @@ class NotificationService {
     await prefs.setStringList(_notificationTimestampsKey, timestampsStr);
   }
 
+  /// Set whether notifications are enabled
+  Future<void> setNotificationsEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_notificationsEnabledKey, enabled);
+  }
+
+  /// Check if notifications are enabled (defaults to true)
+  Future<bool> areNotificationsEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_notificationsEnabledKey) ?? true;
+  }
+
+  /// Mark all current updates as seen
+  Future<void> markAllUpdatesAsSeen() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final seenChanges = prefs.getStringList(_seenChangesKey) ?? [];
+      
+      // Get all updates from news log
+      final newsLog = await RemoteLineupSyncService().getNewsLog(limit: 200);
+      
+      // Mark all updates as seen
+      for (final update in newsLog) {
+        final changeKey = '${update['type']}_${update['artistId']}_${update['ts']}';
+        if (!seenChanges.contains(changeKey)) {
+          seenChanges.add(changeKey);
+        }
+      }
+      
+      await prefs.setStringList(_seenChangesKey, seenChanges);
+      print('✅ Marked ${newsLog.length} updates as seen');
+    } catch (e) {
+      print('Error marking updates as seen: $e');
+    }
+  }
+
   /// Show notification for lineup changes with smart grouping
   Future<void> showLineupChangeNotification({
     required List<Map<String, dynamic>> changes,
   }) async {
     if (!_initialized) await initialize();
     if (changes.isEmpty) return;
+
+    // Check if notifications are enabled
+    if (!await areNotificationsEnabled()) {
+      print('⚠️ Notifications are disabled, skipping notification');
+      return;
+    }
 
     // Check rate limiting
     if (!await _checkRateLimit()) {

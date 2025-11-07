@@ -448,6 +448,13 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
             child: _buildUpdatesBellIcon(),
           ),
           
+          // Settings cog icon in top-left corner
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            left: 16,
+            child: _buildSettingsCogIcon(),
+          ),
+          
           // Track info overlay at bottom
           if (_showTrackInfo && _currentTrackName != null && _currentArtistName != null)
             Positioned(
@@ -545,16 +552,7 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
       },
       child: Container(
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          // Removed background color and border
-          boxShadow: hasUnseen ? [
-            BoxShadow(
-              color: iconColor.withValues(alpha: 0.3),
-              blurRadius: 15,
-              spreadRadius: 2,
-            ),
-          ] : null,
-        ),
+        margin: const EdgeInsets.all(4),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -593,6 +591,28 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsCogIcon() {
+    return GestureDetector(
+      onTap: () async {
+        HapticFeedback.mediumImpact();
+        // Preload notification state before navigating to avoid animation jump
+        await NotificationService().areNotificationsEnabled();
+        if (mounted) {
+          Navigator.pushNamed(context, '/settings');
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.all(4),
+        child: Icon(
+          Icons.settings,
+          color: RetroTheme.neonCyan,
+          size: 24,
         ),
       ),
     );

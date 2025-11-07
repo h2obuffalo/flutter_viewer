@@ -581,10 +581,11 @@ class _LineupListScreenState extends State<LineupListScreen> with TickerProvider
                       ),
                     ),
                     const SizedBox(width: 8),
-                    // Sort button
+                    // Sort button - fixed width to prevent shifting
                     GestureDetector(
                       onTap: _toggleSorting,
                       child: Container(
+                        width: 85, // Fixed width to accommodate "Stage" text (longest option)
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: RetroTheme.retroBorder,
                         child: Row(

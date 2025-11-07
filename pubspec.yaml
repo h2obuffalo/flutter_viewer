@@ -1,7 +1,7 @@
 name: flutter_viewer
 description: P2P Live Streaming Viewer with Retro-Cyberpunk UI
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+4
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -44,6 +44,7 @@ dependencies:
   
   # Device info
   device_info_plus: ^10.0.0
+  package_info_plus: ^8.0.0
   
   # Retro fonts (available via Google Fonts)
   google_fonts: ^6.1.0
