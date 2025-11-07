@@ -14,6 +14,8 @@ import 'screens/lineup_list_screen.dart';
 import 'screens/ticket_input_screen.dart';
 import 'screens/artist_detail_screen.dart';
 import 'screens/updates_screen.dart';
+import 'screens/settings_screen.dart';
+import 'screens/privacy_policy_screen.dart';
 import 'services/lineup_service.dart';
 
 void main() async {
@@ -164,6 +166,8 @@ class _FlutterViewerAppState extends State<FlutterViewerApp> with WidgetsBinding
           '/player': (context) => const SimplePlayerScreen(),
           '/lineup': (context) => const LineupListScreen(),
           '/updates': (context) => const UpdatesScreen(),
+          '/settings': (context) => const SettingsScreen(),
+          '/privacy': (context) => const PrivacyPolicyScreen(),
         },
       ),
     );

@@ -106,10 +106,8 @@ class _ConspiracySplashScreenState extends State<ConspiracySplashScreen>
       _isFirstBoot = isFirstBoot;
     });
     
-    // Fixed durations: 20s first boot, 10s subsequent boots
-    final stage1Duration = isFirstBoot 
-        ? const Duration(seconds: 20)
-        : const Duration(seconds: 10);
+    // Fixed durations: 12s for stage 1 (first part)
+    final stage1Duration = const Duration(seconds: 12);
     
     // Total duration = Stage 1 + 1 second warning + 1 second final
     final totalDuration = stage1Duration + const Duration(seconds: 2);
