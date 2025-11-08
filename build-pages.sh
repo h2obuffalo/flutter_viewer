@@ -17,6 +17,9 @@ fi
 if ! command -v flutter &> /dev/null; then
   echo "📥 Installing Flutter..."
   
+  # Save current directory
+  PROJECT_DIR=$(pwd)
+  
   # Download Flutter SDK
   FLUTTER_VERSION="3.35.7"
   FLUTTER_SDK_DIR="$HOME/flutter"
@@ -33,6 +36,9 @@ if ! command -v flutter &> /dev/null; then
   
   # Accept licenses
   flutter doctor --android-licenses 2>/dev/null || true
+  
+  # Return to project directory
+  cd "$PROJECT_DIR"
   
   echo "✅ Flutter installed"
 fi
