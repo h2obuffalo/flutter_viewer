@@ -52,15 +52,17 @@ fi
 # Disable iOS/macOS builds to prevent Xcode errors
 export FLUTTER_BUILD_MODE=release
 export SKIP_POD_INSTALL=1
+export CI=false  # Prevent CI/CD from triggering platform builds
 
-# Get dependencies (web only, skip platform-specific setup)
-echo "📦 Getting Flutter dependencies (web only)..."
+# Explicitly disable iOS/macOS platforms before any Flutter commands
 flutter config --no-enable-ios 2>/dev/null || true
 flutter config --no-enable-macos 2>/dev/null || true
 flutter config --enable-web 2>/dev/null || true
 
-# Get dependencies without triggering platform builds
-flutter pub get
+# Get dependencies (web only, skip platform-specific setup)
+echo "📦 Getting Flutter dependencies (web only)..."
+# Use --no-example to skip example builds that might trigger platform builds
+flutter pub get --no-example 2>/dev/null || flutter pub get
 
 # Build for web only
 echo "🏗️  Building Flutter web (release mode)..."
