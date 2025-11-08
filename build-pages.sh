@@ -13,13 +13,22 @@ if [ ! -f "pubspec.yaml" ]; then
   exit 1
 fi
 
-# Get dependencies
-echo "📦 Getting Flutter dependencies..."
-flutter pub get
+# Disable iOS/macOS builds to prevent Xcode errors
+export FLUTTER_BUILD_MODE=release
+export SKIP_POD_INSTALL=1
 
-# Build for web
+# Get dependencies (web only, skip platform-specific setup)
+echo "📦 Getting Flutter dependencies (web only)..."
+flutter config --no-enable-ios 2>/dev/null || true
+flutter config --no-enable-macos 2>/dev/null || true
+flutter config --enable-web 2>/dev/null || true
+
+# Get dependencies without triggering platform builds
+flutter pub get --no-example
+
+# Build for web only
 echo "🏗️  Building Flutter web (release mode)..."
-flutter build web --release --base-href "/"
+flutter build web --release --base-href "/" --web-renderer canvaskit
 
 # Copy _redirects file for SPA routing
 echo "📋 Copying _redirects file..."
