@@ -38,6 +38,19 @@ class CastService {
     _deviceNameController?.add(null);
   }
 
+  /// Helper method to await JavaScript promises
+  Future<dynamic> _awaitJsResult(dynamic jsPromise) async {
+    if (kIsWeb && jsPromise != null) {
+      try {
+        return await js_util.promiseToFuture(jsPromise);
+      } catch (e) {
+        print('Error awaiting JS promise: $e');
+        rethrow;
+      }
+    }
+    return jsPromise;
+  }
+
   Future<void> initialize() async {
     if (_isInitialized) return;
     

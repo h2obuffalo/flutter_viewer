@@ -595,7 +595,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       print('❌ Error pausing web player: $e');
     }
     _isWebPlaying = false;
-    if (_playPauseIconController.hasListeners && _playPauseIconController.value != 0.0) {
+    if (_playPauseIconController.isAnimating && _playPauseIconController.value != 0.0) {
       _playPauseIconController.reverse();
     }
   }
