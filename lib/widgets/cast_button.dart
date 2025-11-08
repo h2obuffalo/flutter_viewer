@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_chrome_cast/flutter_chrome_cast.dart';
 import '../services/cast_service.dart';
@@ -95,6 +96,11 @@ class _CastButtonState extends State<CastButton>
   }
 
   Future<void> _showDeviceSelectionDialog() async {
+    if (kIsWeb) {
+      await _startCastingOnWeb();
+      return;
+    }
+
     setState(() {
       _isDiscovering = true;
     });
@@ -188,6 +194,39 @@ class _CastButtonState extends State<CastButton>
         ],
       ),
     );
+  }
+
+  Future<void> _startCastingOnWeb() async {
+    setState(() {
+      _isDiscovering = true;
+    });
+
+    try {
+      final hlsUrl = await _resolveHlsUrl();
+      if (hlsUrl.isEmpty) {
+        if (mounted) {
+          _showErrorDialog('No stream URL available');
+        }
+        return;
+      }
+
+      final success = await _castService.startCasting(hlsUrl, widget.title);
+      if (!success && mounted) {
+        _showErrorDialog('Failed to start casting');
+      }
+    } catch (e, stackTrace) {
+      print('❌ CastButton (web): error starting cast: $e');
+      print('   Stack trace: $stackTrace');
+      if (mounted) {
+        _showErrorDialog('Casting error: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDiscovering = false;
+        });
+      }
+    }
   }
 
   void _showNoDevicesDialog() {
@@ -354,9 +393,7 @@ class _CastButtonState extends State<CastButton>
         }
         
         // Get authenticated URL if not provided
-        final hlsUrl = widget.hlsUrl.isEmpty 
-          ? await AuthService().getAuthedHlsUrl() ?? ''
-          : widget.hlsUrl;
+        final hlsUrl = await _resolveHlsUrl();
         
         if (hlsUrl.isEmpty) {
           print('❌ CastButton: No HLS URL available');
@@ -385,6 +422,13 @@ class _CastButtonState extends State<CastButton>
         _showErrorDialog('Connection error: $e');
       }
     }
+  }
+
+  Future<String> _resolveHlsUrl() async {
+    if (widget.hlsUrl.isNotEmpty) {
+      return widget.hlsUrl;
+    }
+    return await AuthService().getAuthedHlsUrl() ?? '';
   }
 
   @override

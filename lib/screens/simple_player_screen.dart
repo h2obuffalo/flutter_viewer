@@ -47,6 +47,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   late AnimationController _seekBackAnimationController;
   late AnimationController _seekForwardAnimationController;
   late AnimationController _fullscreenAnimationController;
+  late AnimationController _playPauseIconController;
   
   // Controls visibility state - always show on web initially for debugging
   bool _showControls = true;
@@ -68,6 +69,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   bool _isCasting = false;
   String? _castDeviceName;
   String? _streamUrl; // Authenticated stream URL (with token)
+  bool _isWebPlaying = false;
   
   // Stream health monitoring
   final StreamHealthMonitor _healthMonitor = StreamHealthMonitor();
@@ -96,6 +98,11 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
+    _playPauseIconController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+      value: 0.0,
+    );
     
     // Start in landscape/fullscreen mode (skip on web - let browser handle it)
     if (!kIsWeb) {
@@ -119,32 +126,52 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
     _initConnectivityListener();
     _initPlayer();
     
-    // Start auto-hide timer for controls
-    _startHideControlsTimer();
+    // Start auto-hide timer for controls (skip on web so navigation remains visible)
+    if (!kIsWeb) {
+      _startHideControlsTimer();
+    }
     
     // Initialize cast service
     _castService.initialize();
     
     // Listen to cast state changes
     _castService.isConnectedStream.listen((connected) {
-      if (mounted) {
-        final wasCasting = _isCasting;
-        setState(() {
-          _isCasting = connected;
-        });
-        
-        // Pause local player when casting starts to avoid resource conflicts
-        // Resume when casting stops
-        if (!kIsWeb && _videoPlayerController != null) {
-          if (connected && !wasCasting) {
-            // Casting just started - pause local player
-            print('🎬 Casting started - pausing local player');
-            _videoPlayerController?.pause();
-          } else if (!connected && wasCasting) {
-            // Casting just stopped - resume local player
-            print('📱 Casting stopped - resuming local player');
-            _videoPlayerController?.play();
-          }
+      if (!mounted) return;
+      final wasCasting = _isCasting;
+      final shouldPauseWeb = kIsWeb && connected && !wasCasting;
+      final shouldResumeWeb = kIsWeb && !connected && wasCasting;
+
+      setState(() {
+        _isCasting = connected;
+        if (shouldPauseWeb) {
+          _isWebPlaying = false;
+        } else if (shouldResumeWeb) {
+          _isWebPlaying = true;
+        }
+      });
+
+      if (kIsWeb) {
+        if (shouldPauseWeb) {
+          _callJSMethod('pause', []);
+          _playPauseIconController.reverse();
+        } else if (shouldResumeWeb) {
+          _callJSMethod('play', []);
+          _playPauseIconController.forward();
+        }
+        return;
+      }
+      
+      // Pause local player when casting starts to avoid resource conflicts
+      // Resume when casting stops
+      if (_videoPlayerController != null) {
+        if (connected && !wasCasting) {
+          // Casting just started - pause local player
+          print('🎬 Casting started - pausing local player');
+          _videoPlayerController?.pause();
+        } else if (!connected && wasCasting) {
+          // Casting just stopped - resume local player
+          print('📱 Casting stopped - resuming local player');
+          _videoPlayerController?.play();
         }
       }
     });
@@ -199,10 +226,16 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
     _healthMonitor.dispose();
     
     // Dispose animation controllers
+    if (kIsWeb) {
+      _pauseWebPlayback();
+      _disposeWebPlayer();
+    }
+
     _playPauseAnimationController.dispose();
     _seekBackAnimationController.dispose();
     _seekForwardAnimationController.dispose();
     _fullscreenAnimationController.dispose();
+    _playPauseIconController.dispose();
     
     // Restore portrait mode and system UI (skip on web)
     if (!kIsWeb) {
@@ -216,6 +249,16 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
     // Disable wake lock when player is disposed
     WakelockPlus.disable();
     super.dispose();
+  }
+
+  @override
+  void deactivate() {
+    if (kIsWeb) {
+      _pauseWebPlayback();
+    } else {
+      _videoPlayerController?.pause();
+    }
+    super.deactivate();
   }
 
   @override
@@ -435,7 +478,9 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
             _isInitialized = true;
             _errorMessage = null;
             _reconnectAttempt = 0;
+            _isWebPlaying = true;
           });
+          _playPauseIconController.forward();
           
           // Register JavaScript click callback for better web compatibility
           // This works better than Flutter's onTapDown when video is behind Flutter
@@ -528,6 +573,30 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       print('⚠️ JS player not available (window.hlsVideoPlayer is null)');
     } catch (e) {
       print('❌ Error calling JS method $method: $e');
+    }
+  }
+
+  void _disposeWebPlayer() {
+    if (!kIsWeb) return;
+    try {
+      _pauseWebPlayback();
+      _callJSMethod('dispose', []);
+    } catch (e) {
+      print('❌ Error disposing web player: $e');
+    }
+    _isWebPlaying = false;
+  }
+
+  void _pauseWebPlayback() {
+    if (!kIsWeb) return;
+    try {
+      _callJSMethod('pause', []);
+    } catch (e) {
+      print('❌ Error pausing web player: $e');
+    }
+    _isWebPlaying = false;
+    if (_playPauseIconController.hasListeners && _playPauseIconController.value != 0.0) {
+      _playPauseIconController.reverse();
     }
   }
 
@@ -719,39 +788,20 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
           return false;
         }
         // In portrait mode, navigate to menu instead of exiting app
-        if (!kIsWeb) {
-          await SystemChrome.setPreferredOrientations([
-            DeviceOrientation.portraitUp,
-            DeviceOrientation.portraitDown,
-          ]);
-          await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-        }
-        if (mounted) {
-          Navigator.pushReplacementNamed(context, '/menu');
-        }
+        await _handleExitPlayer();
         return false;
       },
       child: Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: kIsWeb ? Colors.transparent : Colors.black,
+        extendBody: kIsWeb,
+        extendBodyBehindAppBar: kIsWeb,
         appBar: _isFullscreen ? null : AppBar(
         backgroundColor: Colors.transparent,
         elevation: 1,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () async {
-            // Restore portrait mode (skip on web)
-            if (!kIsWeb) {
-              await SystemChrome.setPreferredOrientations([
-                DeviceOrientation.portraitUp,
-                DeviceOrientation.portraitDown,
-              ]);
-              await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-            }
-            
-            // Return to menu
-            if (mounted) {
-              Navigator.pushReplacementNamed(context, '/menu');
-            }
+          onPressed: () {
+            _handleExitPlayer();
           },
         ),
         title: Row(
@@ -773,11 +823,32 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
           ? _buildReconnectingView()
           : _errorMessage != null
               ? _buildErrorView()
-              : _isInitialized && _videoPlayerController != null
+              : _isInitialized
                   ? _buildPlayerView()
                   : _buildLoadingView(),
       ),
     );
+  }
+
+  Future<void> _handleExitPlayer() async {
+    if (kIsWeb) {
+      _disposeWebPlayer();
+    } else {
+      _videoPlayerController?.pause();
+    }
+    await WakelockPlus.disable();
+
+    if (!kIsWeb) {
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
+
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, '/menu');
+    }
   }
 
   Widget _buildConnectionIndicator() {
@@ -1221,7 +1292,7 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
     // The actual video element is managed by JavaScript in index.html
     return GestureDetector(
       onTapDown: _onVideoTap,
-      behavior: HitTestBehavior.opaque, // Capture all taps to show controls
+      behavior: kIsWeb ? HitTestBehavior.translucent : HitTestBehavior.opaque,
       child: Stack(
         children: [
           // Video is rendered by JavaScript - transparent background so video shows through
@@ -1300,71 +1371,91 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
               ),
             ),
           
-          // Web controls - optimized for performance
-          // Always visible initially on web for debugging, then user can toggle
           Positioned(
-            bottom: 40,
-            left: 0,
-            right: 0,
-            child: RepaintBoundary(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 20,
-                ),
-                // Simplified decoration - solid color instead of gradient for better performance
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.7), // Simpler than gradient
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                        // Back 30s button - larger for web
-                        RepaintBoundary(
-                          child: _buildWebControlButton(
-                            icon: Icons.replay_30,
-                            onPressed: () {
-                              _seekBackward();
-                              _showControlsTemporarily();
-                            },
-                            animationController: _seekBackAnimationController,
-                          ),
+            bottom: 24,
+            right: 24,
+            child: AnimatedOpacity(
+              opacity: _showControls ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: Wrap(
+                alignment: WrapAlignment.end,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _buildWebControlButton(
+                    icon: Icons.replay_30,
+                    onPressed: () {
+                      _seekBackward();
+                      _showControlsTemporarily();
+                    },
+                    animationController: _seekBackAnimationController,
+                  ),
+                  _buildWebPlayPauseButton(),
+                  _buildWebControlButton(
+                    icon: Icons.forward_30,
+                    onPressed: () {
+                      _seekForward();
+                      _showControlsTemporarily();
+                    },
+                    animationController: _seekForwardAnimationController,
+                  ),
+                  SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: Center(
+                      child: CastButton(
+                        hlsUrl: _streamUrl ?? '',
+                        title: 'Live Stream',
+                      ),
+                    ),
+                  ),
+                  _buildWebFullscreenButton(),
+                ],
+              ),
+            ),
+          ),
+          
+          // Web navigation overlay (back button and cast)
+          Positioned(
+            top: 20,
+            left: 20,
+            right: 20,
+            child: SafeArea(
+              child: AnimatedOpacity(
+                opacity: _showControls ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 200),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.6),
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          tooltip: 'Back to Menu',
+                          onPressed: () {
+                            _handleExitPlayer();
+                          },
                         ),
-                        
-                        // Play/Pause button - simplified for web (no StreamBuilder)
-                        RepaintBoundary(
-                          child: Transform.scale(
-                            scale: 1.5,
-                            child: _buildControlButton(
-                              icon: Icons.play_arrow, // Will be updated on tap
-                              onPressed: () {
-                                _togglePlayPause();
-                                _showControlsTemporarily();
-                                setState(() {}); // Force rebuild to update icon
-                              },
-                              animationController: _playPauseAnimationController,
-                              isMainButton: true,
-                            ),
-                          ),
-                        ),
-                        
-                        // Forward 30s button - larger for web
-                        RepaintBoundary(
-                          child: _buildWebControlButton(
-                            icon: Icons.forward_30,
-                            onPressed: () {
-                              _seekForward();
-                              _showControlsTemporarily();
-                            },
-                            animationController: _seekForwardAnimationController,
-                          ),
+                        const SizedBox(width: 4),
+                        CastButton(
+                          hlsUrl: _streamUrl ?? '',
+                          title: 'Live Stream',
                         ),
                       ],
                     ),
                   ),
+                ),
+              ),
             ),
           ),
-          
+
           // Debug: Always-visible test indicator to verify Flutter is rendering
           if (kIsWeb)
             Positioned(
@@ -1548,13 +1639,20 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
         if (player != null) {
           final video = js_util.getProperty(player, 'video');
           if (video != null) {
-            final paused = js_util.getProperty(video, 'paused');
-            if (paused == true) {
+            final paused = js_util.getProperty(video, 'paused') == true;
+            if (paused) {
               _callJSMethod('play', []);
+              setState(() {
+                _isWebPlaying = true;
+              });
+              _playPauseIconController.forward();
             } else {
               _callJSMethod('pause', []);
+              setState(() {
+                _isWebPlaying = false;
+              });
+              _playPauseIconController.reverse();
             }
-            setState(() {}); // Trigger rebuild
             return;
           }
         }
@@ -1563,7 +1661,10 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
       }
       // Fallback to just calling play
       _callJSMethod('play', []);
-      setState(() {}); // Trigger rebuild
+      setState(() {
+        _isWebPlaying = true;
+      });
+      _playPauseIconController.forward();
     } else if (_videoPlayerController != null) {
       if (_videoPlayerController!.value.isPlaying) {
         _videoPlayerController!.pause();
@@ -1632,49 +1733,114 @@ class _SimplePlayerScreenState extends State<SimplePlayerScreen> with WidgetsBin
   }
   
   Widget _buildWebPlayPauseButton() {
-    // Use a simpler approach - just use play icon, toggle on press
-    // Avoid polling which causes performance issues
-    return Transform.scale(
-      scale: 1.5,
-      child: _buildControlButton(
-        icon: Icons.play_arrow, // Will be updated via setState
-        onPressed: () {
-          _togglePlayPause();
-          _showControlsTemporarily();
-          setState(() {}); // Force rebuild to potentially update icon
-        },
-        animationController: _playPauseAnimationController,
-        isMainButton: true,
-      ),
+    final scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.9,
+    ).animate(CurvedAnimation(
+      parent: _playPauseAnimationController,
+      curve: Curves.easeInOut,
+    ));
+
+    return AnimatedBuilder(
+      animation: scaleAnimation,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: scaleAnimation.value,
+          child: GestureDetector(
+            onTapDown: (_) {
+              _playPauseAnimationController.forward();
+            },
+            onTapUp: (_) {
+              _playPauseAnimationController.reverse();
+              _togglePlayPause();
+              _showControlsTemporarily();
+            },
+            onTapCancel: () {
+              _playPauseAnimationController.reverse();
+            },
+            child: Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.48),
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child: AnimatedIcon(
+                  icon: AnimatedIcons.play_pause,
+                  progress: _playPauseIconController,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildWebFullscreenButton() {
+    return _buildControlButton(
+      icon: _isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
+      onPressed: () {
+        _toggleFullscreen();
+        _showControlsTemporarily();
+      },
+      animationController: _fullscreenAnimationController,
     );
   }
 
   void _toggleFullscreen() async {
-    if (!kIsWeb) {
-      HapticFeedback.lightImpact();
+    if (kIsWeb) {
+      try {
+        final document = web.document;
+        final fullscreenElement = js_util.getProperty(document, 'fullscreenElement');
+        if (fullscreenElement == null) {
+          var target = document.getElementById('hls-video') ?? document.documentElement;
+          if (target != null) {
+            if (js_util.hasProperty(target, 'requestFullscreen')) {
+              js_util.callMethod(target, 'requestFullscreen', []);
+            } else if (js_util.hasProperty(target, 'webkitRequestFullscreen')) {
+              js_util.callMethod(target, 'webkitRequestFullscreen', []);
+            }
+            setState(() {
+              _isFullscreen = true;
+            });
+          }
+        } else {
+          if (js_util.hasProperty(document, 'exitFullscreen')) {
+            js_util.callMethod(document, 'exitFullscreen', []);
+          } else if (js_util.hasProperty(document, 'webkitExitFullscreen')) {
+            js_util.callMethod(document, 'webkitExitFullscreen', []);
+          }
+          setState(() {
+            _isFullscreen = false;
+          });
+        }
+      } catch (e) {
+        print('Error toggling browser fullscreen: $e');
+      }
+      return;
     }
+
+    HapticFeedback.lightImpact();
     
     if (!_isFullscreen) {
-      // Enter fullscreen mode (skip on web - use browser fullscreen API)
-      if (!kIsWeb) {
-        await SystemChrome.setPreferredOrientations([
-          DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight,
-        ]);
-        await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-      }
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
       setState(() {
         _isFullscreen = true;
       });
     } else {
-      // Exit fullscreen mode (skip on web)
-      if (!kIsWeb) {
-        await SystemChrome.setPreferredOrientations([
-          DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown,
-        ]);
-        await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      }
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       setState(() {
         _isFullscreen = false;
       });

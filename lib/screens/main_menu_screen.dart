@@ -465,10 +465,21 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
             ),
           
           // Main content
-          Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isSmallScreen ? 24.0 : 40.0,
+                        vertical: isSmallScreen ? 32.0 : 48.0,
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                 // Title with beta stamp
                 Stack(
                   alignment: Alignment.center,
@@ -530,7 +541,12 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                 // Interactive Rave button
                 _buildRaveButton(),
               ],
-          ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),

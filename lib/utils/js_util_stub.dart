@@ -9,3 +9,4 @@ dynamic getProperty(dynamic object, String property) => null;
 dynamic callMethod(dynamic object, String method, List<dynamic> args) => null;
 dynamic setProperty(dynamic object, String property, dynamic value) => null;
 dynamic allowInterop(Function f) => f;
+Future<T> promiseToFuture<T>(dynamic promise) => Future.value(promise);

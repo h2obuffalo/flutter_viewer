@@ -61,6 +61,25 @@ class CastService {
           } else {
             print('⚠️ CastService: ChromeCast SDK not fully initialized yet');
           }
+          js_util.setProperty(
+            webCastAPI,
+            'onSessionStarted',
+            js_util.allowInterop(() {
+              print('CastService: Web session started');
+              _isConnected = true;
+              _deviceName = 'Chromecast';
+              _isConnectedController?.add(true);
+              _deviceNameController?.add(_deviceName);
+            }),
+          );
+          js_util.setProperty(
+            webCastAPI,
+            'onSessionEnded',
+            js_util.allowInterop(() {
+              print('CastService: Web session ended');
+              _resetConnectionState();
+            }),
+          );
         } else {
           print('⚠️ CastService: webCastAPI not found - Cast SDK may not be loaded');
         }
@@ -495,15 +514,9 @@ class CastService {
         // Request session first (this will show device picker if needed)
         final requestSessionMethod = js_util.getProperty(webCastAPI, 'requestSession');
         if (requestSessionMethod != null) {
-          // Request session and wait for it
-          final sessionPromise = js_util.callMethod(webCastAPI, 'requestSession', []);
-          if (sessionPromise is Future) {
-            await sessionPromise;
-            print('✅ Session established, starting cast...');
-          } else {
-            // If it's not a promise, wait a bit for session to be established
-            await Future.delayed(const Duration(seconds: 2));
-          }
+          final sessionResult = js_util.callMethod(webCastAPI, 'requestSession', []);
+          await _awaitJsResult(sessionResult);
+          print('✅ Session established, starting cast...');
         } else {
           // Fallback: try to get session directly
           final cast = js_util.getProperty(window, 'cast');
@@ -514,9 +527,8 @@ class CastService {
               final castContext = js_util.callMethod(CastContext, 'getInstance', []);
               final currentSession = js_util.callMethod(castContext, 'getCurrentSession', []);
               if (currentSession == null) {
-                // Request session
-                js_util.callMethod(castContext, 'requestSession', []);
-                await Future.delayed(const Duration(seconds: 2));
+                final requestResult = js_util.callMethod(castContext, 'requestSession', []);
+                await _awaitJsResult(requestResult);
               }
             }
           }
@@ -525,33 +537,15 @@ class CastService {
         // Now start casting
         final startCastingMethod = js_util.getProperty(webCastAPI, 'startCasting');
         if (startCastingMethod != null) {
-          final castPromise = js_util.callMethod(webCastAPI, 'startCasting', [hlsUrl, title]);
+          final startResult = js_util.callMethod(webCastAPI, 'startCasting', [hlsUrl, title]);
+          await _awaitJsResult(startResult);
           
-          if (castPromise is Future) {
-            // Handle promise
-            final result = await castPromise;
-            if (result == true) {
-              _isConnected = true;
-              _deviceName = 'Chromecast';
-              _isConnectedController?.add(true);
-              _deviceNameController?.add('Chromecast');
-              print('✅ Casting started on web successfully');
-              return true;
-            } else {
-              print('❌ Casting failed: result was $result');
-              return false;
-            }
-          } else {
-            // Not a promise, check result directly
-            if (castPromise == true) {
-              _isConnected = true;
-              _deviceName = 'Chromecast';
-              _isConnectedController?.add(true);
-              _deviceNameController?.add('Chromecast');
-              print('✅ Casting started on web');
-              return true;
-            }
-          }
+          _isConnected = true;
+          _deviceName ??= 'Chromecast';
+          _isConnectedController?.add(true);
+          _deviceNameController?.add(_deviceName);
+          print('✅ Casting started on web');
+          return true;
         } else {
           print('❌ startCasting method not found in webCastAPI');
         }
@@ -888,6 +882,20 @@ class CastService {
     if (!isConnected) return false;
 
     try {
+      if (kIsWeb) {
+        // ignore: avoid_web_libraries_in_flutter
+        final window = web.window;
+        final webCastAPI = js_util.getProperty(window, 'webCastAPI');
+        if (webCastAPI != null) {
+          final stopResult = js_util.callMethod(webCastAPI, 'stopCasting', []);
+          await _awaitJsResult(stopResult);
+          _resetConnectionState();
+          print('Stopped casting (web)');
+          return true;
+        }
+        return false;
+      }
+
       // Cancel subscriptions before ending session
       await _sessionSubscription?.cancel();
       _sessionSubscription = null;

@@ -47,33 +47,68 @@
     let STREAM_URL = null;
     
     // Helper function to ensure Flutter is on top of video
+    let _flutterOnTopLogged = false;
+
     function _ensureFlutterOnTop() {
-      // Try multiple selectors to find Flutter elements
-      const selectors = [
-        'flt-scene-host',
-        'flt-scene-host flt-scene',
-        '#main',
-        'body > flt-scene-host',
-        '[class*="flutter"]'
-      ];
-      
-      selectors.forEach(selector => {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach(el => {
-          if (el) {
-            el.style.zIndex = '9999';
-            el.style.pointerEvents = 'auto';
-            el.style.position = el.style.position || 'relative';
-            console.log(`✅ Positioned Flutter element: ${selector}`, el);
-          }
+      const flutterHost = document.getElementById('flutter_host');
+      if (flutterHost) {
+        Object.assign(flutterHost.style, {
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          width: '100%',
+          height: '100%',
+          zIndex: '2',
+          pointerEvents: 'none',
         });
+      }
+
+      const sceneHost = document.querySelector('flt-scene-host');
+      if (sceneHost) {
+        Object.assign(sceneHost.style, {
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          width: '100%',
+          height: '100%',
+          zIndex: '2',
+          pointerEvents: 'auto',
+        });
+      }
+
+      const glassPane = document.querySelector('flt-glass-pane');
+      if (glassPane) {
+        Object.assign(glassPane.style, {
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          width: '100%',
+          height: '100%',
+          zIndex: '2',
+          pointerEvents: 'auto',
+        });
+      }
+
+      const canvases = document.querySelectorAll('canvas');
+      canvases.forEach((canvas) => {
+        canvas.style.pointerEvents = 'auto';
       });
-      
-      // Also ensure body and html allow proper stacking
-      document.body.style.position = 'relative';
-      document.body.style.zIndex = '0';
-      if (document.documentElement) {
-        document.documentElement.style.position = 'relative';
+
+      const loader = document.querySelector('.flutter-loader');
+      if (loader) {
+        loader.style.pointerEvents = 'none';
+        loader.style.zIndex = '0';
+      }
+
+      const video = document.getElementById('hls-video');
+      if (video) {
+        video.style.pointerEvents = 'none';
+        video.style.opacity = '1';
+      }
+
+      if (!_flutterOnTopLogged) {
+        console.log('✅ Flutter overlay set up');
+        _flutterOnTopLogged = true;
       }
     }
     
@@ -87,7 +122,26 @@
       STREAM_URL = streamUrl; // Set the provided stream URL
       
       console.log('🎬 Starting HLS player initialization...');
+
+      // If we already have an instance (previous playback), dispose it before reinitializing
+      if (hlsInstance) {
+        try {
+          console.log('♻️ Disposing existing HLS.js instance before reinitializing');
+          hlsInstance.destroy();
+        } catch (disposeError) {
+          console.warn('⚠️ Error while disposing existing hlsInstance:', disposeError);
+        }
+        hlsInstance = null;
+        window.hlsPlayerReady = false;
+      }
       
+      const videoContainer = document.getElementById('video-container');
+      if (!videoContainer) {
+        console.error('❌ Cannot initialize HLS player: video container not found');
+        window.hlsPlayerReady = false;
+        return;
+      }
+
       // Create video element (but keep it hidden initially)
       let video = document.getElementById('hls-video');
       if (!video) {
@@ -95,7 +149,7 @@
         video.id = 'hls-video';
         video.style.width = '100%';
         video.style.height = '100%';
-        video.style.position = 'fixed';
+        video.style.position = 'absolute';
         video.style.top = '0';
         video.style.left = '0';
         video.style.zIndex = '1'; // Lower z-index so Flutter controls appear on top
@@ -104,23 +158,14 @@
         video.playsInline = true;
         video.style.display = 'none'; // Hidden initially
         video.style.pointerEvents = 'none'; // Allow clicks to pass through to Flutter
-        // Append to body immediately (don't wait for Flutter)
-        if (document.body) {
-          document.body.appendChild(video);
-          console.log('✅ Video element added to body');
-        } else {
-          // If body not ready, wait a bit
-          setTimeout(() => {
-            if (document.body) {
-              document.body.appendChild(video);
-              console.log('✅ Video element added to body (delayed)');
-            }
-          }, 100);
-        }
+        videoContainer.appendChild(video);
+        console.log('✅ Video element added to container');
+      } else if (video.parentElement !== videoContainer) {
+        videoContainer.appendChild(video);
       }
       
       // Only initialize HLS if not already initialized
-      if (!hlsInstance && Hls.isSupported()) {
+      if (Hls.isSupported()) {
         console.log('🎬 Initializing HLS.js player with URL:', STREAM_URL);
         
         hlsInstance = new Hls({
@@ -167,12 +212,14 @@
             // Show video but keep Flutter visible for controls
             video.style.display = 'block';
             video.style.zIndex = '1'; // Video behind Flutter
+            video.style.opacity = '1';
             _ensureFlutterOnTop();
           }).catch(err => {
             console.log('⏸️ Autoplay blocked - user interaction required:', err.message);
             // Still show video and ensure Flutter is on top even if autoplay blocked
             video.style.display = 'block';
             video.style.zIndex = '1';
+            video.style.opacity = '1';
             _ensureFlutterOnTop();
           });
         });
@@ -237,8 +284,8 @@
                     hlsInstance.startLoad();
                   }, RETRY_DELAY);
                 } else {
-                  console.error('❌ Max retries reached. Stream may be offline.');
-                  showStreamError('Stream connection failed. Please check your connection.');
+                console.error('❌ Max retries reached. Stream may be offline.');
+                showStreamError('Stream connection failed. Please check your connection.');
                 }
                 break;
                 
@@ -261,7 +308,16 @@
                 
               default:
                 console.error('❌ Fatal error, cannot recover:', data.type);
-                showStreamError('Stream error. Please refresh the page.');
+                // Attempt a full reinitialization before giving up
+                if (retryCount < MAX_RETRIES) {
+                  retryCount++;
+                  setTimeout(() => {
+                    console.log(`🔄 Reinitializing player after fatal error (attempt ${retryCount}/${MAX_RETRIES})`);
+                    initializeHLSPlayer(STREAM_URL);
+                  }, RETRY_DELAY);
+                } else {
+                  showStreamError('Stream error. Please refresh the page.');
+                }
                 break;
             }
           }
@@ -278,8 +334,11 @@
                 video.style.display = 'block';
                 video.style.zIndex = '1'; // Video behind Flutter
                 video.style.pointerEvents = 'none'; // Allow clicks to pass through to Flutter
+                video.style.opacity = '1';
                 _ensureFlutterOnTop();
-              }).catch(console.error);
+              }).catch(error => {
+                console.error('❌ Error during video.play():', error);
+              });
             }
           },
           pause: () => video?.pause(),
@@ -287,6 +346,7 @@
             video.style.display = 'block';
             video.style.zIndex = '1'; // Keep video behind Flutter controls
             video.style.pointerEvents = 'none'; // Allow clicks to pass through to Flutter
+            video.style.opacity = '1';
             const flutterScene = document.querySelector('flt-scene-host flt-scene');
             if (flutterScene) {
               flutterScene.style.display = 'block'; // Keep Flutter visible for controls
@@ -335,6 +395,28 @@
                 video.pause();
               }
             }
+          },
+          dispose: () => {
+            try {
+              if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+              }
+            } catch (disposeError) {
+              console.error('❌ Error destroying HLS instance:', disposeError);
+            }
+            if (video) {
+              try {
+                video.pause();
+                video.removeAttribute('src');
+                video.load();
+                video.style.display = 'none';
+                video.style.opacity = '0';
+              } catch (videoError) {
+                console.error('❌ Error resetting video element:', videoError);
+              }
+            }
+            window.hlsPlayerReady = false;
           }
         };
         window.hlsPlayerReady = true;
@@ -405,6 +487,19 @@
                 video.pause();
               }
             }
+          },
+          dispose: () => {
+            if (video) {
+              try {
+                video.pause();
+                video.removeAttribute('src');
+                video.load();
+                video.style.display = 'none';
+              } catch (videoError) {
+                console.error('❌ Error resetting native HLS video:', videoError);
+              }
+            }
+            window.hlsPlayerReady = false;
           }
         };
         window.hlsPlayerReady = true;
@@ -783,7 +878,7 @@
     
     // Also add click listener to Flutter scene for better coverage
     function setupFlutterSceneClickHandler() {
-      const flutterScene = document.querySelector('flt-scene-host flt-scene');
+      const flutterScene = document.querySelector('flt-scene-host flt-scene') || document.getElementById('flutter_host');
       if (flutterScene) {
         flutterScene.addEventListener('click', function(e) {
           // Only trigger if clicking on the video area (not on controls)
@@ -808,13 +903,13 @@
         setupVideoClickHandler();
         setupFlutterSceneClickHandler();
         // Periodically ensure Flutter stays on top (in case it re-renders)
-        setInterval(_ensureFlutterOnTop, 1000);
+        setInterval(_ensureFlutterOnTop, 2000);
       });
     } else {
       setupVideoClickHandler();
       setupFlutterSceneClickHandler();
       // Periodically ensure Flutter stays on top
-      setInterval(_ensureFlutterOnTop, 1000);
+      setInterval(_ensureFlutterOnTop, 2000);
     }
     
     // Log that the function is available (for debugging)
@@ -822,9 +917,36 @@
   </script>
 
   <style>
-    body {
+    html, body {
       margin: 0;
+      height: 100%;
+      width: 100%;
       background-color: #000000;
+    }
+    #player-root {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #000000;
+    }
+    #video-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+      background-color: #000000;
+    }
+    #flutter_host {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      pointer-events: none;
     }
     #loading {
       color: #00ffff;
@@ -837,33 +959,15 @@
   </style>
 </head>
 <body>
+  <div id="player-root">
+    <div id="video-container"></div>
+    <div id="flutter_host"></div>
+  </div>
   <script>
-    var serviceWorkerVersion = null;
-    var serviceWorker = null;
-    var engineLoaded = false;
-
-    window.addEventListener('load', function(ev) {
-      _flutter.loader.loadEntrypoint({
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-        },
-        onEntrypointLoaded: function(engineInitializer) {
-          engineInitializer.initializeEngine().then(function(appRunner) {
-            engineLoaded = true;
-            appRunner.runApp();
-          });
-        }
-      });
+    window.addEventListener('load', () => {
+      _ensureFlutterOnTop();
     });
   </script>
-
-  <script>
-    // Install serviceWorker
-    if (serviceWorkerVersion != null) {
-      navigator.serviceWorker.register('/flutter_service_worker.js?v=${serviceWorkerVersion}');
-    }
-  </script>
-  
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

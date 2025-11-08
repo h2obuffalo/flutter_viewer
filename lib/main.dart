@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'config/theme.dart';
 import 'services/auth_service.dart';
 import 'services/notification_service.dart';
@@ -21,6 +23,10 @@ import 'services/lineup_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  if (kIsWeb) {
+    usePathUrlStrategy();
+  }
   
   // Initialize notification service
   await NotificationService().initialize();

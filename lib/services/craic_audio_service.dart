@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -200,6 +201,10 @@ class CraicAudioService {
 
   /// Get the cached file path for an audio URL if it exists
   Future<String?> _getCachedAudioPath(String audioUrl) async {
+    if (kIsWeb) {
+      // Web builds cannot access the local file system; skip caching.
+      return null;
+    }
     try {
       final cacheDir = await _getAudioCacheDir();
       final fileName = _getCacheFileName(audioUrl);
@@ -217,6 +222,10 @@ class CraicAudioService {
 
   /// Download and cache an audio file
   Future<void> _downloadAndCacheAudio(String audioUrl) async {
+    if (kIsWeb) {
+      // Skip download attempts on web where file system APIs are unavailable.
+      return;
+    }
     try {
       final cacheDir = await _getAudioCacheDir();
       final fileName = _getCacheFileName(audioUrl);
@@ -245,6 +254,9 @@ class CraicAudioService {
 
   /// Get the audio cache directory
   Future<Directory> _getAudioCacheDir() async {
+    if (kIsWeb) {
+      throw UnsupportedError('Audio cache directory is not available on web.');
+    }
     final appDir = await getApplicationDocumentsDirectory();
     final cacheDir = Directory(path.join(appDir.path, 'audio_cache'));
     if (!await cacheDir.exists()) {
