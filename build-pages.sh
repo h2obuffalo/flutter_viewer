@@ -64,7 +64,7 @@ flutter pub get
 
 # Build for web only
 echo "🏗️  Building Flutter web (release mode)..."
-flutter build web --release --base-href "/" --web-renderer canvaskit
+flutter build web --release --base-href "/"
 
 # Copy _redirects file for SPA routing
 echo "📋 Copying _redirects file..."
