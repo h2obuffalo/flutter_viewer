@@ -441,29 +441,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
           // Rave mode screen glitch overlay
           if (_isRaveMode) _buildScreenGlitchOverlay(),
           
-          // Bell icon in top-right corner
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 8,
-            right: 16,
-            child: _buildUpdatesBellIcon(),
-          ),
-          
-          // Settings cog icon in top-left corner
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 8,
-            left: 16,
-            child: _buildSettingsCogIcon(),
-          ),
-          
-          // Track info overlay at bottom
-          if (_showTrackInfo && _currentTrackName != null && _currentArtistName != null)
-            Positioned(
-              bottom: 40,
-              left: 0,
-              right: 0,
-              child: _buildTrackInfoOverlay(),
-            ),
-          
           // Main content
           LayoutBuilder(
             builder: (context, constraints) {
@@ -547,6 +524,29 @@ class _MainMenuScreenState extends State<MainMenuScreen> with TickerProviderStat
                 ),
               );
             },
+          ),
+          
+          // Track info overlay at bottom
+          if (_showTrackInfo && _currentTrackName != null && _currentArtistName != null)
+            Positioned(
+              bottom: 40,
+              left: 0,
+              right: 0,
+              child: _buildTrackInfoOverlay(),
+            ),
+          
+          // Bell icon in top-right corner
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            right: 16,
+            child: _buildUpdatesBellIcon(),
+          ),
+          
+          // Settings cog icon in top-left corner
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            left: 16,
+            child: _buildSettingsCogIcon(),
           ),
         ],
       ),
