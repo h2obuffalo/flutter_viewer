@@ -68,6 +68,12 @@ flutter pub get --no-example 2>/dev/null || flutter pub get
 echo "🏗️  Building Flutter web (release mode)..."
 flutter build web --release --base-href "/"
 
+# Remove large files that exceed Cloudflare Pages 25MB limit
+echo "🗑️  Removing large files that exceed Cloudflare Pages limits..."
+find build/web -type f -size +25M -exec rm -f {} \; 2>/dev/null || true
+find build/web -name "*.wav" -size +10M -exec rm -f {} \; 2>/dev/null || true
+find build/web -name "*.mp3" -size +10M -exec rm -f {} \; 2>/dev/null || true
+
 # Copy _redirects file for SPA routing
 echo "📋 Copying _redirects file..."
 if [ -f "web/_redirects" ]; then
