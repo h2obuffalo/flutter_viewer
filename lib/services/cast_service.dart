@@ -524,6 +524,17 @@ class CastService {
         
         print('✅ Cast SDK is available, requesting session...');
         
+        // Modify URL for Chromecast to use shorter playlist (60 chunks = ~6 minutes)
+        Uri castUrl = Uri.parse(hlsUrl);
+        if (castUrl.path.endsWith('playlist.m3u8')) {
+          final queryParams = Map<String, String>.from(castUrl.queryParameters);
+          queryParams['chunks'] = '60';
+          castUrl = castUrl.replace(queryParameters: queryParams);
+          print('📤 Modified URL for Chromecast (web): limiting to 60 chunks (~6 minutes)');
+          print('   Original: $hlsUrl');
+          print('   Modified: $castUrl');
+        }
+        
         // Request session first (this will show device picker if needed)
         final requestSessionMethod = js_util.getProperty(webCastAPI, 'requestSession');
         if (requestSessionMethod != null) {
@@ -547,10 +558,10 @@ class CastService {
           }
         }
         
-        // Now start casting
+        // Now start casting with modified URL
         final startCastingMethod = js_util.getProperty(webCastAPI, 'startCasting');
         if (startCastingMethod != null) {
-          final startResult = js_util.callMethod(webCastAPI, 'startCasting', [hlsUrl, title]);
+          final startResult = js_util.callMethod(webCastAPI, 'startCasting', [castUrl.toString(), title]);
           await _awaitJsResult(startResult);
           
           _isConnected = true;
@@ -630,34 +641,45 @@ class CastService {
       print('Attempting to cast HLS stream to $_deviceName');
       print('HLS URL: $hlsUrl');
       
-      // Chromecast may have issues with query parameters in URLs
-      // Try stripping auth token parameters for Chromecast (the broadcaster endpoint doesn't require auth)
-      // Use full URL with auth tokens - Chromecast needs them to access the playlist
-      // The broadcaster endpoint may require authentication for the playlist
-      print('📤 Using full URL with auth tokens: $hlsUrl');
+      // Modify URL for Chromecast to use shorter playlist (60 chunks = ~6 minutes)
+      // This ensures Chromecast starts from ~6 minutes behind live instead of ~10 minutes
+      // Chromecast labeled as "live" can't skip much, so starting closer to live prevents failures
+      // at the back edge or front edge of the stream buffer
+      Uri castUrl = Uri.parse(hlsUrl);
+      if (castUrl.path.endsWith('playlist.m3u8')) {
+        // Add chunks=60 parameter to limit playlist to last 60 chunks (~6 minutes @ 6s/chunk)
+        final queryParams = Map<String, String>.from(castUrl.queryParameters);
+        queryParams['chunks'] = '60';
+        castUrl = castUrl.replace(queryParameters: queryParams);
+        print('📤 Modified URL for Chromecast: limiting to 60 chunks (~6 minutes)');
+        print('   Original: $hlsUrl');
+        print('   Modified: $castUrl');
+      } else {
+        print('📤 Using full URL with auth tokens: $hlsUrl');
+      }
       
       // Based on GitHub example: use application/vnd.apple.mpegurl (primary) or application/x-mpegURL (fallback)
       // Include both contentId and contentUrl as per example
       final mediaInformation = GoogleCastMediaInformation(
-        contentId: hlsUrl, // Use full URL WITH auth tokens - Chromecast needs them
-        contentUrl: Uri.parse(hlsUrl), // Include contentUrl - required by Chromecast
+        contentId: castUrl.toString(), // Use modified URL with chunks parameter
+        contentUrl: castUrl, // Include contentUrl - required by Chromecast
         contentType: 'application/vnd.apple.mpegurl', // Primary MIME type for HLS as per GitHub example
         streamType: CastMediaStreamType.live,
         // Don't include metadata for live streams - can cause serialization issues
       );
 
       print('📤 Loading media with HLS configuration...');
-      print('   Content ID: $hlsUrl (with auth tokens)');
+      print('   Content ID: ${castUrl.toString()} (with chunks=60 parameter for Chromecast)');
       print('   Content URL: ${mediaInformation.contentUrl}');
       print('   Content Type: application/vnd.apple.mpegurl (as per GitHub example)');
       print('   Stream Type: ${CastMediaStreamType.live}');
       print('   Metadata: ${mediaInformation.metadata != null ? "Present" : "NULL"}');
-      print('   ✅ Using full URL with auth tokens (Chromecast needs them to access playlist)');
+      print('   ✅ Using modified URL with chunks=60 (limits playlist to ~6 minutes for better Chromecast compatibility)');
       print('   ✅ Including both contentId and contentUrl (as per GitHub example)');
       
       try {
         print('📤 Attempting to load media with information:');
-        print('   Content ID: ${mediaInformation.contentId}');
+        print('   Content ID: ${mediaInformation.contentId} (with chunks=60 for Chromecast)');
         print('   Content URL: ${mediaInformation.contentUrl ?? "NULL (not set - may help with serialization)"}');
         print('   Content Type: ${mediaInformation.contentType}');
         print('   Stream Type: ${mediaInformation.streamType}');
@@ -765,26 +787,27 @@ class CastService {
       print('❌ Error starting HLS cast: $e');
       print('Trying fallback method...');
 
-      // Fallback with alternative HLS MIME type (also use clean URL)
+      // Fallback with alternative HLS MIME type (use modified URL with chunks parameter)
       try {
-        final uri = Uri.parse(hlsUrl);
-        final cleanUrl = Uri(
-          scheme: uri.scheme,
-          host: uri.host,
-          port: uri.port,
-          path: uri.path,
-        ).toString();
+        // Use the same modified URL with chunks=60 parameter
+        Uri fallbackCastUrl = Uri.parse(hlsUrl);
+        if (fallbackCastUrl.path.endsWith('playlist.m3u8')) {
+          final queryParams = Map<String, String>.from(fallbackCastUrl.queryParameters);
+          queryParams['chunks'] = '60';
+          fallbackCastUrl = fallbackCastUrl.replace(queryParameters: queryParams);
+        }
         
         final mediaClient = GoogleCastRemoteMediaClient.instance;
         final fallbackMediaInfo = GoogleCastMediaInformation(
-          contentId: cleanUrl, // Use clean URL without query params
-          contentUrl: Uri.parse(cleanUrl), // Include contentUrl as per GitHub example
+          contentId: fallbackCastUrl.toString(), // Use modified URL with chunks parameter
+          contentUrl: fallbackCastUrl, // Include contentUrl as per GitHub example
           contentType: 'application/x-mpegURL', // Fallback MIME type if primary fails
           streamType: CastMediaStreamType.live,
           // Don't include metadata in fallback either
         );
         
         print('🔄 Fallback: Retrying with application/x-mpegURL (capital URL required by Chromecast)');
+        print('   Using modified URL with chunks=60: $fallbackCastUrl');
 
         // Reset state for fallback attempt
         _lastLoadMediaAttempt = DateTime.now();
