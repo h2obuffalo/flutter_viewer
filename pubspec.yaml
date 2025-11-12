@@ -1,7 +1,7 @@
 name: flutter_viewer
 description: P2P Live Streaming Viewer with Retro-Cyberpunk UI
 publish_to: 'none'
-version: 1.0.0+4
+version: 1.0.0+7
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -77,6 +77,14 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "app_icon.png"
+  adaptive_icon_background: "#1a1a2e"
+  adaptive_icon_foreground: "app_icon.png"
 
 flutter:
   uses-material-design: true
@@ -85,6 +93,9 @@ flutter:
     - assets/images/porkpie.jpg
     - assets/images/The X-Static Files A2.png
     - assets/images/bangface.gif
+    - assets/images/bf_logo_text_bw.svg
+    - assets/images/bf_logo_white.svg
+    - assets/images/bftv_eye.png
     - assets/fonts/
     - assets/sounds/
     - assets/lineup-photos/

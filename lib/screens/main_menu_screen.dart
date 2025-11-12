@@ -41,12 +41,12 @@ class _MainMenuScreenState extends State<MainMenuScreen>
   @override
   void initState() {
     super.initState();
-
+    
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
-
+    
     _buttonController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
@@ -72,15 +72,15 @@ class _MainMenuScreenState extends State<MainMenuScreen>
 
     // Detect device type for text sizing
     _detectDeviceType();
-
+    
     // Start periodic lineup change checks
     _startLineupChangeChecker();
-
+    
     // Check for unseen updates
     _checkUnseenUpdates();
     _startUpdatesChecker();
   }
-
+  
   Future<void> _detectDeviceType() async {
     try {
       final deviceInfo = DeviceInfoPlugin();
@@ -91,14 +91,14 @@ class _MainMenuScreenState extends State<MainMenuScreen>
         // iPhone SE (1st gen) and iPhone 7 also have small screens
         final isIPhone8 =
             iosInfo.model == 'iPhone10,1' || iosInfo.model == 'iPhone10,4';
-        final isSmallIPhone = iosInfo.model.contains('iPhone') &&
-            (isIPhone8 ||
-                iosInfo.model.contains('iPhone8,') || // iPhone SE, 7, 6s
-                iosInfo.model.contains('iPhone9,') || // iPhone 7, 8
+        final isSmallIPhone = iosInfo.model.contains('iPhone') && 
+                             (isIPhone8 || 
+                              iosInfo.model.contains('iPhone8,') || // iPhone SE, 7, 6s
+                              iosInfo.model.contains('iPhone9,') || // iPhone 7, 8
                 (double.tryParse(iosInfo.systemVersion.split('.').first) ??
                         13) <
                     13); // Older iPhones
-
+        
         if (mounted) {
           setState(() {
             _isSmallScreen = isSmallIPhone;
@@ -108,7 +108,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
       } catch (e) {
         // Not iOS, continue to check Android or use fallback
       }
-
+      
       // For Android or other platforms, screen size will be checked in build method
     } catch (e) {
       // Fallback will use screen size detection in build method
@@ -117,7 +117,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
       }
     }
   }
-
+  
   void _startUpdatesChecker() {
     // Check for unseen updates every 30 seconds
     _updatesCheckTimer =
@@ -129,7 +129,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
       await _checkUnseenUpdates();
     });
   }
-
+  
   Future<void> _checkUnseenUpdates() async {
     try {
       final count = await NotificationService().getUnseenUpdatesCount();
@@ -150,7 +150,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
         timer.cancel();
         return;
       }
-
+      
       try {
         final changed = await RemoteLineupSyncService().refreshIfChanged();
         if (changed && mounted) {
@@ -172,17 +172,17 @@ class _MainMenuScreenState extends State<MainMenuScreen>
   void _onLiveStreamPressed() async {
     // Haptic feedback
     HapticFeedback.mediumImpact();
-
+    
     // Button animation
     await _buttonController.forward();
     await _buttonController.reverse();
-
+    
     if (!mounted) return;
-
+    
     // Check if user already has valid token
     final authService = AuthService();
     final hasValidToken = await authService.isTokenValid();
-
+    
     if (hasValidToken) {
       // User already authenticated, go directly to player
       Navigator.pushReplacementNamed(context, '/player');
@@ -199,11 +199,11 @@ class _MainMenuScreenState extends State<MainMenuScreen>
   void _onLineupPressed() async {
     // Haptic feedback
     HapticFeedback.mediumImpact();
-
+    
     // Button animation
     await _buttonController.forward();
     await _buttonController.reverse();
-
+    
     // Navigate to lineup
     if (mounted) {
       Navigator.pushNamed(context, '/lineup');
@@ -213,11 +213,11 @@ class _MainMenuScreenState extends State<MainMenuScreen>
   void _onUpdatesPressed() async {
     // Haptic feedback
     HapticFeedback.mediumImpact();
-
+    
     // Button animation
     await _buttonController.forward();
     await _buttonController.reverse();
-
+    
     // Navigate to updates
     if (mounted) {
       Navigator.push(
@@ -231,16 +231,16 @@ class _MainMenuScreenState extends State<MainMenuScreen>
     print('=== WHATS THE CRAIC BUTTON PRESSED (NO AUDIO) ===');
     // Haptic feedback
     HapticFeedback.mediumImpact();
-
+    
     // Button animation
     await _buttonController.forward();
     await _buttonController.reverse();
-
+    
     if (!mounted) return;
-
+    
     // Load artists and check if there's scheduled content
     await NowPlayingService.loadArtists();
-
+    
     if (NowPlayingService.hasScheduledContent()) {
       // Show lineup with now playing filter
       Navigator.push(
@@ -253,7 +253,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
       // No scheduled content - check authentication first
       final authService = AuthService();
       final hasValidToken = await authService.isTokenValid();
-
+      
       if (!hasValidToken) {
         // Show ticket input dialog first
         final authResult = await showDialog<bool>(
@@ -261,12 +261,12 @@ class _MainMenuScreenState extends State<MainMenuScreen>
           barrierDismissible: true,
           builder: (context) => const TicketInputDialog(),
         );
-
+        
         // If user cancelled or dismissed, don't proceed
         if (!mounted || authResult != true) {
           return;
         }
-
+        
         // Re-check authentication after dialog
         final stillNotAuthenticated = !(await authService.isTokenValid());
         if (stillNotAuthenticated) {
@@ -274,7 +274,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
           return;
         }
       }
-
+      
       // User is authenticated (or was already authenticated), proceed to player
       if (mounted) {
         // Navigate to video player
@@ -284,7 +284,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
             builder: (context) => const SimplePlayerScreen(),
           ),
         );
-
+        
         // Show popup after a short delay to ensure player is loaded
         Future.delayed(const Duration(milliseconds: 500), () {
           if (mounted) {
@@ -301,19 +301,19 @@ class _MainMenuScreenState extends State<MainMenuScreen>
     print('=== RAVE BUTTON PRESSED (WITH AUDIO) ===');
     // Haptic feedback
     HapticFeedback.heavyImpact();
-
+    
     // If rave mode is already active, stop it early
     if (_isRaveMode) {
       _stopRaveMode();
       return;
     }
-
+    
     // Reload tracks first to get any new uploads, then get track info
     _raveAudioService.reloadTracks().then((_) {
       // Get track info AFTER reloading (so we show the correct track name)
       final trackName = _raveAudioService.currentTrackName;
       final artistName = _raveAudioService.currentArtistName;
-
+      
       // Update state to show track info and start rave mode
       if (mounted) {
         setState(() {
@@ -323,16 +323,16 @@ class _MainMenuScreenState extends State<MainMenuScreen>
           _isRaveMode = true;
         });
       }
-
+      
       // Start everything simultaneously
       _raveButtonController.forward(); // Start 6-second animation
       _strobeController.repeat(); // Start the rave mode strobe effects
       _screenGlitchController.repeat(); // Start screen glitch effects
-
+      
       // Start playing the track (don't await - let it start in parallel)
       _raveAudioService.playNextTrack(); // Fire and forget - starts immediately
     });
-
+    
     // Set up timer to stop after 6 seconds
     _raveModeTimer?.cancel();
     _raveModeTimer = Timer(const Duration(seconds: 6), () {
@@ -344,14 +344,14 @@ class _MainMenuScreenState extends State<MainMenuScreen>
     // Cancel the timer
     _raveModeTimer?.cancel();
     _raveModeTimer = null;
-
+    
     // Stop audio
     _raveAudioService.stop();
-
+    
     // Stop animations and reset state
-    if (mounted) {
-      setState(() {
-        _isRaveMode = false;
+        if (mounted) {
+          setState(() {
+            _isRaveMode = false;
         _showTrackInfo = false;
       });
       _strobeController.stop();
@@ -377,29 +377,29 @@ class _MainMenuScreenState extends State<MainMenuScreen>
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-
+    
     // Determine if this is a small screen device
     // Check cached value first, then fallback to screen size detection
     final isSmallScreen =
         _isSmallScreen ?? (screenHeight < 700 || screenWidth < 400);
-
+    
     // Adjust font sizes for smaller screens like iPhone 8
     final logoHeight = isSmallScreen ? 140.0 : 220.0;
     final verticalSpacing =
         isSmallScreen ? 30.0 : 60.0; // Reduced spacing for small screens
     final buttonSpacing =
         isSmallScreen ? 20.0 : 40.0; // Reduced spacing for small screens
-
+    
     return Scaffold(
       backgroundColor: _isRaveMode ? _getStrobeColor() : RetroTheme.darkBlue,
       body: Stack(
         children: [
           // CRT Scanlines effect
           _buildScanlines(),
-
+          
           // Rave mode screen glitch overlay
           if (_isRaveMode) _buildScreenGlitchOverlay(),
-
+          
           // Main content
           LayoutBuilder(
             builder: (context, constraints) {
@@ -416,7 +416,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Title with beta stamp
+                // Title with beta stamp
                           Semantics(
                             label: 'Bang Face TV 2025 logo',
                             child: Image.asset(
@@ -425,27 +425,27 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                               fit: BoxFit.contain,
                               color: Colors.white,
                               colorBlendMode: BlendMode.srcIn,
-                            ),
-                          ),
-                          SizedBox(height: verticalSpacing),
-
-                          // Menu buttons
+                                  ),
+                ),
+                SizedBox(height: verticalSpacing),
+                
+                // Menu buttons
                           _buildMenuButton('BANGFACETV STREAM',
                               _onLiveStreamPressed, RetroTheme.neonCyan),
-                          const SizedBox(height: 20),
+                const SizedBox(height: 20),
                           _buildMenuButton(
                               'LINEUP', _onLineupPressed, RetroTheme.hotPink),
-                          const SizedBox(height: 20),
+                const SizedBox(height: 20),
                           _buildMenuButton(
                               'WHAT\'S THE CRAIC',
                               _onWhatsTheCrackPressed,
                               RetroTheme.electricGreen),
-
-                          SizedBox(height: buttonSpacing),
-
-                          // Interactive Rave button
-                          _buildRaveButton(),
-                        ],
+                
+                SizedBox(height: buttonSpacing),
+                
+                // Interactive Rave button
+                _buildRaveButton(),
+              ],
                       ),
                     ),
                   ),
@@ -453,7 +453,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
               );
             },
           ),
-
+          
           // Track info overlay at bottom
           if (_showTrackInfo &&
               _currentTrackName != null &&
@@ -464,14 +464,14 @@ class _MainMenuScreenState extends State<MainMenuScreen>
               right: 0,
               child: _buildTrackInfoOverlay(),
             ),
-
+          
           // Bell icon in top-right corner
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
             right: 16,
             child: _buildUpdatesBellIcon(),
           ),
-
+          
           // Settings cog icon in top-left corner
           Positioned(
             top: MediaQuery.of(context).padding.top + 8,
@@ -482,12 +482,12 @@ class _MainMenuScreenState extends State<MainMenuScreen>
       ),
     );
   }
-
+  
   Widget _buildUpdatesBellIcon() {
     final hasUnseen = _unseenUpdatesCount > 0;
     final iconColor =
         hasUnseen ? RetroTheme.warningYellow : RetroTheme.neonCyan;
-
+    
     return GestureDetector(
       onTap: () {
         HapticFeedback.mediumImpact();
@@ -669,27 +669,27 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                   label: _isRaveMode
                       ? 'Raving button active'
                       : 'Ready to Rave button',
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
                         color: baseColor,
-                        width: 3,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
+                      width: 3,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
                           color: baseColor.withValues(
                               alpha: _isRaveMode ? 0.9 : 0.5),
-                          blurRadius: _isRaveMode ? 30 : 15,
-                          spreadRadius: _isRaveMode ? 5 : 2,
-                        ),
-                      ],
+                        blurRadius: _isRaveMode ? 30 : 15,
+                        spreadRadius: _isRaveMode ? 5 : 2,
+                      ),
+                    ],
                       borderRadius: BorderRadius.circular(10),
-                    ),
+                  ),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 18),
-                    child: AnimatedBuilder(
-                      animation: _strobeController,
-                      builder: (context, child) {
+                  child: AnimatedBuilder(
+                    animation: _strobeController,
+                    builder: (context, child) {
                         final textColor =
                             _isRaveMode ? _getStrobeColor() : baseColor;
                         return Text(
@@ -701,15 +701,15 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                             fontWeight: FontWeight.bold,
                             shadows: _isRaveMode
                                 ? [
-                                    Shadow(
+                              Shadow(
                                       color: textColor,
                                       blurRadius: 12,
-                                    ),
+                              ),
                                   ]
                                 : null,
-                          ),
-                        );
-                      },
+                        ),
+                      );
+                    },
                     ),
                   ),
                 ),
@@ -749,7 +749,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
       Colors.red,
       Colors.yellow,
     ];
-
+    
     final index =
         (_strobeController.value * colors.length).floor() % colors.length;
     return colors[index];
@@ -772,14 +772,14 @@ class ScreenGlitchPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final random = Random((animationValue * 1000).round());
-
+    
     // Create random glitch lines across the screen
     for (int i = 0; i < 20; i++) {
       final y = random.nextDouble() * size.height;
       final height = random.nextDouble() * 10 + 2;
       final width = random.nextDouble() * size.width * 0.3 + size.width * 0.1;
       final x = random.nextDouble() * (size.width - width);
-
+      
       canvas.drawRect(
         Rect.fromLTWH(x, y, width, height),
         paint,
@@ -790,7 +790,7 @@ class ScreenGlitchPainter extends CustomPainter {
     for (int i = 0; i < 100; i++) {
       final x = random.nextDouble() * size.width;
       final y = random.nextDouble() * size.height;
-
+      
       canvas.drawCircle(
         Offset(x, y),
         random.nextDouble() * 3 + 1,

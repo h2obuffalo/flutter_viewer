@@ -20,6 +20,7 @@ class CastService {
   DateTime? _lastLoadMediaAttempt;
   StreamSubscription? _sessionSubscription;
   StreamSubscription? _mediaStatusSubscription;
+  Timer? _playlistRefreshTimer; // Timer to periodically refresh playlist for Android TV
 
   // Streams for UI to listen to
   Stream<bool> get isConnectedStream => _isConnectedController!.stream;
@@ -309,7 +310,7 @@ class CastService {
                 // Check if the stream has ended or failed
                 if (status == null) return; // Skip if status is null
                 
-              final playerState = status.playerState?.toString();
+              final CastMediaPlayerState playerState = status.playerState;
               print('   Idle Reason: ${status.idleReason}');
               print('   Idle Reason Type: ${status.idleReason?.runtimeType}');
               print('   Playback Rate: ${status.playbackRate}');
@@ -335,7 +336,7 @@ class CastService {
                 }
               }
               
-              if (playerState == 'GoogleCastPlayerState.idle') {
+              if (playerState == CastMediaPlayerState.idle) {
                   print('⚠️  Chromecast is idle - stream may have failed to load');
                   // Check if there's an error in the media status
                   if (status.idleReason != null) {
@@ -410,14 +411,62 @@ class CastService {
                         }
                       });
                     }
+                  } else {
+                    // IDLE state but no error reason - might be end of playlist window for live stream
+                    // Try to resume playback to trigger playlist refresh
+                    if (status.mediaInformation?.streamType == CastMediaStreamType.live) {
+                      print('   🔄 Live stream idle (no error) - attempting auto-resume to refresh playlist...');
+                      Future.delayed(const Duration(milliseconds: 1000), () async {
+                        try {
+                          final mediaClient = GoogleCastRemoteMediaClient.instance;
+                          await mediaClient.play();
+                          print('   ✅ Auto-resumed live stream playback (from idle state)');
+                        } catch (e) {
+                          print('   ⚠️ Auto-resume from idle failed: $e');
+                        }
+                      });
+                    }
                   }
                   // Don't automatically disconnect here - let user control it
-                } else if (playerState == 'GoogleCastPlayerState.buffering') {
-                  print('🔄 Chromecast is buffering...');
-                } else if (playerState == 'GoogleCastPlayerState.playing') {
+                } else if (playerState == CastMediaPlayerState.buffering) {
+                  print('🔄 Chromecast/Android TV is buffering...');
+                  // For live streams, if buffering persists, try to resume to trigger playlist refresh
+                  // Android TV may stop buffering if it reaches end of playlist window
+                  if (status.mediaInformation?.streamType == CastMediaStreamType.live) {
+                    // Wait a bit to see if buffering resolves, then try to resume
+                    Future.delayed(const Duration(seconds: 3), () async {
+                      try {
+                        // Check if still buffering after delay
+                        final currentStatus = GoogleCastRemoteMediaClient.instance.mediaStatus;
+                        if (currentStatus?.playerState == CastMediaPlayerState.buffering) {
+                          print('   ⚠️ Still buffering after 3s - attempting resume to refresh playlist...');
+                          final mediaClient = GoogleCastRemoteMediaClient.instance;
+                          await mediaClient.play();
+                          print('   ✅ Resumed playback to trigger playlist refresh');
+                        }
+                      } catch (e) {
+                        print('   ⚠️ Resume during buffering failed: $e');
+                      }
+                    });
+                  }
+                } else if (playerState == CastMediaPlayerState.playing) {
                   print('▶️  Chromecast is playing');
-                } else if (playerState == 'GoogleCastPlayerState.paused') {
+                } else if (playerState == CastMediaPlayerState.paused) {
                   print('⏸️  Chromecast is paused');
+                  // For live streams, automatically resume if paused (Chromecast may pause when reaching end of playlist window)
+                  // This ensures continuous playback by triggering playlist refresh
+                  if (status.mediaInformation?.streamType == CastMediaStreamType.live) {
+                    print('   🔄 Live stream paused - attempting auto-resume to refresh playlist...');
+                    Future.delayed(const Duration(milliseconds: 500), () async {
+                      try {
+                        final mediaClient = GoogleCastRemoteMediaClient.instance;
+                        await mediaClient.play();
+                        print('   ✅ Auto-resumed live stream playback');
+                      } catch (e) {
+                        print('   ⚠️ Auto-resume failed: $e');
+                      }
+                    });
+                  }
                 }
               },
               onError: (error) {
@@ -524,13 +573,14 @@ class CastService {
         
         print('✅ Cast SDK is available, requesting session...');
         
-        // Modify URL for Chromecast to use shorter playlist (60 chunks = ~6 minutes)
+        // Modify URL for Chromecast to use shorter playlist (30 chunks = ~3 minutes)
+        // Keep stream.m3u8 (works with Android TV/Chromecast)
         Uri castUrl = Uri.parse(hlsUrl);
-        if (castUrl.path.endsWith('playlist.m3u8')) {
+        if (castUrl.path.endsWith('.m3u8')) {
           final queryParams = Map<String, String>.from(castUrl.queryParameters);
-          queryParams['chunks'] = '60';
+          queryParams['chunks'] = '30';
           castUrl = castUrl.replace(queryParameters: queryParams);
-          print('📤 Modified URL for Chromecast (web): limiting to 60 chunks (~6 minutes)');
+          print('📤 Modified URL for Chromecast (web): limiting to 30 chunks (~3 minutes)');
           print('   Original: $hlsUrl');
           print('   Modified: $castUrl');
         }
@@ -641,17 +691,17 @@ class CastService {
       print('Attempting to cast HLS stream to $_deviceName');
       print('HLS URL: $hlsUrl');
       
-      // Modify URL for Chromecast to use shorter playlist (60 chunks = ~6 minutes)
-      // This ensures Chromecast starts from ~6 minutes behind live instead of ~10 minutes
-      // Chromecast labeled as "live" can't skip much, so starting closer to live prevents failures
-      // at the back edge or front edge of the stream buffer
+      // Modify URL for Chromecast to use shorter playlist (30 chunks = ~3 minutes)
+      // Reduced from 60 to 30 chunks to minimize latency (8 minutes -> ~3 minutes)
+      // Keep stream.m3u8 (Android TV/Chromecast works with Owncast's format)
+      // Add chunks=30 parameter to limit playlist to last 30 chunks (~3 minutes @ 6s/chunk)
       Uri castUrl = Uri.parse(hlsUrl);
-      if (castUrl.path.endsWith('playlist.m3u8')) {
-        // Add chunks=60 parameter to limit playlist to last 60 chunks (~6 minutes @ 6s/chunk)
+      if (castUrl.path.endsWith('.m3u8')) {
+        // Add chunks=30 parameter to limit playlist to last 30 chunks (~3 minutes @ 6s/chunk)
         final queryParams = Map<String, String>.from(castUrl.queryParameters);
-        queryParams['chunks'] = '60';
+        queryParams['chunks'] = '30';
         castUrl = castUrl.replace(queryParameters: queryParams);
-        print('📤 Modified URL for Chromecast: limiting to 60 chunks (~6 minutes)');
+        print('📤 Modified URL for Android TV: limiting to 30 chunks (~3 minutes)');
         print('   Original: $hlsUrl');
         print('   Modified: $castUrl');
       } else {
@@ -669,17 +719,17 @@ class CastService {
       );
 
       print('📤 Loading media with HLS configuration...');
-      print('   Content ID: ${castUrl.toString()} (with chunks=60 parameter for Chromecast)');
+      print('   Content ID: ${castUrl.toString()} (with chunks=30 parameter for Chromecast)');
       print('   Content URL: ${mediaInformation.contentUrl}');
       print('   Content Type: application/vnd.apple.mpegurl (as per GitHub example)');
       print('   Stream Type: ${CastMediaStreamType.live}');
       print('   Metadata: ${mediaInformation.metadata != null ? "Present" : "NULL"}');
-      print('   ✅ Using modified URL with chunks=60 (limits playlist to ~6 minutes for better Chromecast compatibility)');
+      print('   ✅ Using modified URL with chunks=30 (limits playlist to ~3 minutes for lower latency)');
       print('   ✅ Including both contentId and contentUrl (as per GitHub example)');
       
       try {
         print('📤 Attempting to load media with information:');
-        print('   Content ID: ${mediaInformation.contentId} (with chunks=60 for Chromecast)');
+        print('   Content ID: ${mediaInformation.contentId} (with chunks=30 for Chromecast)');
         print('   Content URL: ${mediaInformation.contentUrl ?? "NULL (not set - may help with serialization)"}');
         print('   Content Type: ${mediaInformation.contentType}');
         print('   Stream Type: ${mediaInformation.streamType}');
@@ -789,11 +839,12 @@ class CastService {
 
       // Fallback with alternative HLS MIME type (use modified URL with chunks parameter)
       try {
-        // Use the same modified URL with chunks=60 parameter
+        // Use the same modified URL with chunks=30 parameter
+        // Keep stream.m3u8 (works with Android TV/Chromecast)
         Uri fallbackCastUrl = Uri.parse(hlsUrl);
-        if (fallbackCastUrl.path.endsWith('playlist.m3u8')) {
+        if (fallbackCastUrl.path.endsWith('.m3u8')) {
           final queryParams = Map<String, String>.from(fallbackCastUrl.queryParameters);
-          queryParams['chunks'] = '60';
+          queryParams['chunks'] = '30';
           fallbackCastUrl = fallbackCastUrl.replace(queryParameters: queryParams);
         }
         
@@ -807,7 +858,7 @@ class CastService {
         );
         
         print('🔄 Fallback: Retrying with application/x-mpegURL (capital URL required by Chromecast)');
-        print('   Using modified URL with chunks=60: $fallbackCastUrl');
+        print('   Using modified URL with chunks=30: $fallbackCastUrl');
 
         // Reset state for fallback attempt
         _lastLoadMediaAttempt = DateTime.now();

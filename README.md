@@ -86,6 +86,28 @@ flutter build apk --release
 flutter build appbundle --release
 ```
 
+### iOS App Icons
+
+Before building for iOS, you need to generate the app icons from the source image:
+
+```bash
+# Generate all iOS app icon sizes from bftv_eye.png
+bash scripts/generate_ios_icons.sh
+```
+
+This script generates all required iOS icon sizes (iPhone, iPad, and App Store) from `assets/images/bftv_eye.png` and places them in `ios/Runner/Assets.xcassets/AppIcon.appiconset/`.
+
+**Note:** The script uses macOS's built-in `sips` tool. If you need to regenerate icons after updating the source image, simply run the script again.
+
+### iOS Build
+```bash
+# For simulator
+flutter build ios --simulator
+
+# For device/App Store (requires code signing)
+flutter build ipa --release
+```
+
 ## Dependencies
 
 See `pubspec.yaml` for the complete list. Key packages:

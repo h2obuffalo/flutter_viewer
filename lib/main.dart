@@ -20,6 +20,7 @@ import 'screens/settings_screen.dart';
 import 'screens/privacy_policy_screen.dart';
 import 'screens/feedback_screen.dart';
 import 'services/lineup_service.dart';
+import 'utils/platform_utils.dart' if (dart.library.html) 'utils/platform_utils_web.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,8 +29,14 @@ void main() async {
     usePathUrlStrategy();
   }
   
-  // Initialize notification service
-  await NotificationService().initialize();
+  // Initialize notification service (skip on macOS/desktop)
+  if (!kIsWeb && (PlatformUtils.isAndroid || PlatformUtils.isIOS)) {
+    try {
+      await NotificationService().initialize();
+    } catch (e) {
+      print('Warning: Failed to initialize notifications: $e');
+    }
+  }
   
   // Preload lineup data in background if cached data exists
   // This makes the lineup screen load instantly when opened
@@ -40,22 +47,24 @@ void main() async {
     }
   });
   
-  // Configure system UI overlay style
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      statusBarBrightness: Brightness.dark,
-      systemNavigationBarColor: Colors.black,
-      systemNavigationBarIconBrightness: Brightness.light,
-    ),
-  );
-  
-  // Set preferred orientations (optional)
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+  // Configure system UI overlay style (mobile only)
+  if (!kIsWeb && (PlatformUtils.isAndroid || PlatformUtils.isIOS)) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.black,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+    );
+    
+    // Set preferred orientations (mobile only)
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
   
   runApp(const FlutterViewerApp());
 }

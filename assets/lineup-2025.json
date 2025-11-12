@@ -7,13 +7,20 @@
     "bandcamp": "https://maxcooper.bandcamp.com/",
     "blurb": "Max Cooper.\nLondon, UK.\nMax Cooper is an electronic composer, multi-disciplinary artist, music label founder and former scientist who has carved out a unique space in music and visual art.\nFor more information, follow here: \nhttps://maxcooper.net/\nand \nhttps://meshmeshmesh.net/",
     "stages": [
-      "Main Stage"
+      "Main Stage",
+      "BANG FACE TV Live"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T21:30:00.000Z",
-        "end": "2025-11-16T22:15:00.000Z",
+        "start": "2025-11-16T23:45:00.000Z",
+        "end": "2025-11-17T00:45:00.000Z",
         "stage": "Main Stage",
+        "status": "scheduled"
+      },
+      {
+        "start": "2025-11-15T21:00:00.000Z",
+        "end": "2025-11-15T21:45:00.000Z",
+        "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
     ]
@@ -30,8 +37,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T23:00:00.000Z",
-        "end": "2025-11-15T23:45:00.000Z",
+        "start": "2025-11-17T02:15:00.000Z",
+        "end": "2025-11-17T03:15:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -45,13 +52,20 @@
     "bandcamp": "https://theglitchmob.bandcamp.com/",
     "blurb": "The Glitch Mob.\nLos Angeles, California.",
     "stages": [
-      "Main Stage"
+      "Main Stage",
+      "Hard Crew Heroes"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T21:30:00.000Z",
-        "end": "2025-11-15T22:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
+        "status": "scheduled"
+      },
+      {
+        "start": "2025-11-15T20:00:00.000Z",
+        "end": "2025-11-15T20:30:00.000Z",
+        "stage": "Hard Crew Heroes",
         "status": "scheduled"
       }
     ]
@@ -68,8 +82,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T22:00:00.000Z",
-        "end": "2025-11-14T22:45:00.000Z",
+        "start": "2025-11-17T04:45:00.000Z",
+        "end": "2025-11-17T05:45:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -87,8 +101,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T00:00:00.000Z",
-        "end": "2025-11-15T00:45:00.000Z",
+        "start": "2025-11-15T20:00:00.000Z",
+        "end": "2025-11-15T21:00:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -106,8 +120,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T00:00:00.000Z",
-        "end": "2025-11-16T00:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -125,20 +139,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T18:30:00.000Z",
-        "end": "2025-11-15T19:15:00.000Z",
-        "stage": "Main Stage",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-15T19:30:00.000Z",
-        "end": "2025-11-15T20:15:00.000Z",
-        "stage": "Main Stage",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-16T17:30:00.000Z",
-        "end": "2025-11-16T18:15:00.000Z",
+        "start": "2025-11-16T21:15:00.000Z",
+        "end": "2025-11-16T22:15:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -156,8 +158,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T19:30:00.000Z",
-        "end": "2025-11-16T20:15:00.000Z",
+        "start": "2025-11-17T03:30:00.000Z",
+        "end": "2025-11-17T04:30:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -175,8 +177,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T23:00:00.000Z",
-        "end": "2025-11-14T23:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -194,8 +196,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T15:00:00.000Z",
-        "end": "2025-11-16T15:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -213,8 +215,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T20:30:00.000Z",
-        "end": "2025-11-16T21:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -232,8 +234,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T18:30:00.000Z",
-        "end": "2025-11-16T19:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -247,13 +249,13 @@
     "bandcamp": "https://ceephax.bandcamp.com/",
     "blurb": "Ceephax Acid Crew.\nEngland, UK.",
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T19:30:00.000Z",
-        "end": "2025-11-16T20:15:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -266,19 +268,12 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Pool Party",
       "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T16:00:00.000Z",
-        "end": "2025-11-15T16:45:00.000Z",
-        "stage": "Pool Party",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-15T20:30:00.000Z",
-        "end": "2025-11-15T21:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -292,13 +287,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T21:30:00.000Z",
-        "end": "2025-11-15T22:15:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -315,8 +310,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T21:30:00.000Z",
-        "end": "2025-11-15T22:15:00.000Z",
+        "start": "2025-11-16T22:30:00.000Z",
+        "end": "2025-11-16T23:30:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -334,8 +329,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T23:00:00.000Z",
-        "end": "2025-11-15T23:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -353,20 +348,27 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T00:00:00.000Z",
-        "end": "2025-11-16T00:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
-      },
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "name": "SamuraiBreaks",
+    "photo": "assets/lineup-photos/samuraibreaks.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
       {
-        "start": "2025-11-16T16:00:00.000Z",
-        "end": "2025-11-16T16:45:00.000Z",
-        "stage": "Main Stage",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-16T17:00:00.000Z",
-        "end": "2025-11-16T17:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -380,20 +382,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Pool Party",
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T18:00:00.000Z",
-        "end": "2025-11-15T18:45:00.000Z",
-        "stage": "Pool Party",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-16T02:00:00.000Z",
-        "end": "2025-11-16T02:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -406,13 +401,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T01:00:00.000Z",
-        "end": "2025-11-16T01:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -429,8 +424,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T20:30:00.000Z",
-        "end": "2025-11-15T21:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -444,13 +439,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T21:30:00.000Z",
-        "end": "2025-11-16T22:15:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -463,13 +458,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T04:00:00.000Z",
-        "end": "2025-11-15T04:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -482,20 +477,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Main Stage",
-      "Pool Party"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T01:00:00.000Z",
-        "end": "2025-11-15T01:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-15T18:30:00.000Z",
-        "end": "2025-11-15T19:15:00.000Z",
-        "stage": "Pool Party",
         "status": "scheduled"
       }
     ]
@@ -512,8 +500,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T19:30:00.000Z",
-        "end": "2025-11-15T20:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -527,13 +515,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T20:30:00.000Z",
-        "end": "2025-11-16T21:15:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -550,14 +538,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T17:00:00.000Z",
-        "end": "2025-11-15T17:45:00.000Z",
-        "stage": "Main Stage",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-15T18:00:00.000Z",
-        "end": "2025-11-15T18:45:00.000Z",
+        "start": "2025-11-16T20:00:00.000Z",
+        "end": "2025-11-16T21:00:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -571,13 +553,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Pool Party"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T12:00:00.000Z",
-        "end": "2025-11-15T12:45:00.000Z",
-        "stage": "Pool Party",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -594,8 +576,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T02:00:00.000Z",
-        "end": "2025-11-16T02:45:00.000Z",
+        "start": "2025-11-16T01:00:00.000Z",
+        "end": "2025-11-16T02:00:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -613,8 +595,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T01:00:00.000Z",
-        "end": "2025-11-16T01:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -632,8 +614,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T04:00:00.000Z",
-        "end": "2025-11-16T04:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -651,8 +633,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T01:00:00.000Z",
-        "end": "2025-11-16T01:45:00.000Z",
+        "start": "2025-11-16T02:15:00.000Z",
+        "end": "2025-11-16T03:15:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -670,8 +652,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T03:00:00.000Z",
-        "end": "2025-11-16T03:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -685,13 +667,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T23:00:00.000Z",
-        "end": "2025-11-15T23:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-17T01:00:00.000Z",
+        "end": "2025-11-17T02:00:00.000Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -704,13 +686,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T01:00:00.000Z",
-        "end": "2025-11-15T01:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -723,13 +705,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T20:30:00.000Z",
-        "end": "2025-11-15T21:15:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -742,20 +724,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Main Stage",
-      "Pool Party"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T21:00:00.000Z",
-        "end": "2025-11-14T21:45:00.000Z",
+        "start": "2025-11-16T03:30:00.000Z",
+        "end": "2025-11-16T04:30:00.000Z",
         "stage": "Main Stage",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-15T13:00:00.000Z",
-        "end": "2025-11-15T13:45:00.000Z",
-        "stage": "Pool Party",
         "status": "scheduled"
       }
     ]
@@ -768,20 +743,32 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Pool Party",
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T15:00:00.000Z",
-        "end": "2025-11-15T15:45:00.000Z",
-        "stage": "Pool Party",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
-      },
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "name": "DJ Scotch Egg",
+    "photo": "assets/lineup-photos/dj-scotch-egg.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
       {
-        "start": "2025-11-16T00:00:00.000Z",
-        "end": "2025-11-16T00:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:30:00Z",
+        "end": "2025-11-16T21:30:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -794,13 +781,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T00:00:00.000Z",
-        "end": "2025-11-15T00:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -813,13 +800,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T03:00:00.000Z",
-        "end": "2025-11-15T03:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -832,13 +819,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T23:00:00.000Z",
-        "end": "2025-11-16T23:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -851,13 +838,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T23:00:00.000Z",
-        "end": "2025-11-14T23:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T04:45:00.000Z",
+        "end": "2025-11-16T05:45:00.000Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -870,13 +857,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T20:00:00.000Z",
-        "end": "2025-11-14T20:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -893,8 +880,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T18:30:00.000Z",
-        "end": "2025-11-15T19:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -908,13 +895,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T19:30:00.000Z",
-        "end": "2025-11-15T20:15:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -927,13 +914,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T03:00:00.000Z",
-        "end": "2025-11-16T03:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -946,13 +933,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T17:00:00.000Z",
-        "end": "2025-11-16T17:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -965,13 +952,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T21:00:00.000Z",
-        "end": "2025-11-14T21:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -984,13 +971,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T22:00:00.000Z",
-        "end": "2025-11-14T22:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1003,13 +990,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T18:30:00.000Z",
-        "end": "2025-11-15T19:15:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-15T23:45:00.000Z",
+        "end": "2025-11-16T00:45:00.000Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1022,13 +1009,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T04:00:00.000Z",
-        "end": "2025-11-16T04:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1045,8 +1032,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T18:00:00.000Z",
-        "end": "2025-11-15T18:45:00.000Z",
+        "start": "2025-11-14T20:00:00.000Z",
+        "end": "2025-11-14T21:00:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1060,13 +1047,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T18:00:00.000Z",
-        "end": "2025-11-15T18:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-15T03:30:00.000Z",
+        "end": "2025-11-15T04:30:00.000Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1079,26 +1066,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Main Stage",
-      "BANG FACE TV Live"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T18:00:00.000Z",
-        "end": "2025-11-14T18:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-14T19:00:00.000Z",
-        "end": "2025-11-14T19:45:00.000Z",
-        "stage": "Main Stage",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-16T16:00:00.000Z",
-        "end": "2025-11-16T16:45:00.000Z",
-        "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
     ]
@@ -1115,14 +1089,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T23:00:00.000Z",
-        "end": "2025-11-16T23:45:00.000Z",
-        "stage": "Main Stage",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-17T00:00:00.000Z",
-        "end": "2025-11-17T00:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1140,8 +1108,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T02:00:00.000Z",
-        "end": "2025-11-15T02:45:00.000Z",
+        "start": "2025-11-14T21:15:00.000Z",
+        "end": "2025-11-14T22:15:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1159,8 +1127,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T01:00:00.000Z",
-        "end": "2025-11-15T01:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1178,8 +1146,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T03:00:00.000Z",
-        "end": "2025-11-15T03:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1197,8 +1165,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T04:00:00.000Z",
-        "end": "2025-11-15T04:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1216,8 +1184,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T22:00:00.000Z",
-        "end": "2025-11-14T22:45:00.000Z",
+        "start": "2025-11-15T01:00:00.000Z",
+        "end": "2025-11-15T02:00:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1235,8 +1203,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T23:00:00.000Z",
-        "end": "2025-11-14T23:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1254,8 +1222,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T21:00:00.000Z",
-        "end": "2025-11-14T21:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1273,8 +1241,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T00:00:00.000Z",
-        "end": "2025-11-15T00:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1292,8 +1260,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T20:00:00.000Z",
-        "end": "2025-11-14T20:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1307,13 +1275,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T17:30:00.000Z",
-        "end": "2025-11-16T18:15:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1326,13 +1294,51 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T18:30:00.000Z",
-        "end": "2025-11-16T19:15:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 69,
+    "name": "M M O",
+    "photo": "assets/lineup-photos/m-m-o.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-11-15T22:30:00.000Z",
+        "end": "2025-11-15T23:30:00.000Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 70,
+    "name": "D J A D H D",
+    "photo": "assets/lineup-photos/d-j-a-d-h-d.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1345,13 +1351,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T15:00:00.000Z",
-        "end": "2025-11-16T15:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1364,13 +1370,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "Hard Crew Heroes"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T14:00:00.000Z",
-        "end": "2025-11-16T14:45:00.000Z",
-        "stage": "Hard Crew Heroes",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1387,8 +1393,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T13:00:00.000Z",
-        "end": "2025-11-16T13:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1406,8 +1412,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T17:00:00.000Z",
-        "end": "2025-11-16T17:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1425,8 +1431,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T16:00:00.000Z",
-        "end": "2025-11-16T16:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1444,8 +1450,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T17:30:00.000Z",
-        "end": "2025-11-16T18:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1463,14 +1469,27 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T20:30:00.000Z",
-        "end": "2025-11-16T21:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
-      },
+      }
+    ]
+  },
+  {
+    "id": 78,
+    "name": "D J Storm",
+    "photo": "assets/lineup-photos/d-j-storm.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
       {
-        "start": "2025-11-16T21:30:00.000Z",
-        "end": "2025-11-16T22:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1488,8 +1507,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T19:30:00.000Z",
-        "end": "2025-11-16T20:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1507,8 +1526,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T18:30:00.000Z",
-        "end": "2025-11-16T19:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1526,8 +1545,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-17T03:00:00.000Z",
-        "end": "2025-11-17T03:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1545,8 +1564,27 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-17T02:00:00.000Z",
-        "end": "2025-11-17T02:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 83,
+    "name": "T Cuts",
+    "photo": "assets/lineup-photos/t-cuts.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Main Stage"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1564,8 +1602,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T23:00:00.000Z",
-        "end": "2025-11-16T23:45:00.000Z",
+        "start": "2025-11-15T04:45:00.000Z",
+        "end": "2025-11-15T05:45:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1583,8 +1621,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-17T00:00:00.000Z",
-        "end": "2025-11-17T00:45:00.000Z",
+        "start": "2025-11-14T22:30:00.000Z",
+        "end": "2025-11-14T23:30:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1602,8 +1640,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T14:00:00.000Z",
-        "end": "2025-11-16T14:45:00.000Z",
+        "start": "2025-11-15T02:15:00.000Z",
+        "end": "2025-11-15T03:15:00.000Z",
         "stage": "Main Stage",
         "status": "scheduled"
       }
@@ -1617,13 +1655,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T21:30:00.000Z",
-        "end": "2025-11-15T22:15:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1636,13 +1674,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T23:00:00.000Z",
-        "end": "2025-11-15T23:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1655,13 +1693,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T00:00:00.000Z",
-        "end": "2025-11-16T00:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1674,13 +1712,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T01:00:00.000Z",
-        "end": "2025-11-16T01:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1693,13 +1731,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T03:00:00.000Z",
-        "end": "2025-11-16T03:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-14T23:45:00.000Z",
+        "end": "2025-11-15T00:45:00.000Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1712,13 +1750,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T02:00:00.000Z",
-        "end": "2025-11-16T02:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1731,13 +1769,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Main Stage"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T20:30:00.000Z",
-        "end": "2025-11-15T21:15:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
+        "stage": "Main Stage",
         "status": "scheduled"
       }
     ]
@@ -1750,13 +1788,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Jungyals'n'Gays"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T16:00:00.000Z",
-        "end": "2025-11-15T16:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T18:15:00.000Z",
+        "end": "2025-11-16T18:45:00.000Z",
+        "stage": "Jungyals'n'Gays",
         "status": "scheduled"
       }
     ]
@@ -1769,13 +1807,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Jungyals'n'Gays"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T14:00:00.000Z",
-        "end": "2025-11-15T14:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T16:45:00.000Z",
+        "end": "2025-11-16T17:15:00.000Z",
+        "stage": "Jungyals'n'Gays",
         "status": "scheduled"
       }
     ]
@@ -1788,13 +1826,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Jungyals'n'Gays"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T18:00:00.000Z",
-        "end": "2025-11-15T18:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T22:00:00.000Z",
+        "end": "2025-11-16T22:30:00.000Z",
+        "stage": "Jungyals'n'Gays",
         "status": "scheduled"
       }
     ]
@@ -1807,13 +1845,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Jungyals'n'Gays"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T13:00:00.000Z",
-        "end": "2025-11-15T13:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T16:00:00.000Z",
+        "end": "2025-11-16T16:30:00.000Z",
+        "stage": "Jungyals'n'Gays",
         "status": "scheduled"
       }
     ]
@@ -1826,13 +1864,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Jungyals'n'Gays"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T18:30:00.000Z",
-        "end": "2025-11-15T19:15:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T21:15:00.000Z",
+        "end": "2025-11-16T21:45:00.000Z",
+        "stage": "Jungyals'n'Gays",
         "status": "scheduled"
       }
     ]
@@ -1845,13 +1883,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Jungyals'n'Gays"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T19:30:00.000Z",
-        "end": "2025-11-15T20:15:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T17:30:00.000Z",
+        "end": "2025-11-16T18:00:00.000Z",
+        "stage": "Jungyals'n'Gays",
         "status": "scheduled"
       }
     ]
@@ -1864,13 +1902,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Jungyals'n'Gays"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T17:00:00.000Z",
-        "end": "2025-11-15T17:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T19:00:00.000Z",
+        "end": "2025-11-16T19:30:00.000Z",
+        "stage": "Jungyals'n'Gays",
         "status": "scheduled"
       }
     ]
@@ -1883,13 +1921,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Jungyals'n'Gays"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T15:00:00.000Z",
-        "end": "2025-11-15T15:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T20:30:00.000Z",
+        "end": "2025-11-16T21:00:00.000Z",
+        "stage": "Jungyals'n'Gays",
         "status": "scheduled"
       }
     ]
@@ -1902,13 +1940,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Jungyals'n'Gays"
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T11:00:00.000Z",
-        "end": "2025-11-15T11:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T19:45:00.000Z",
+        "end": "2025-11-16T20:15:00.000Z",
+        "stage": "Jungyals'n'Gays",
         "status": "scheduled"
       }
     ]
@@ -1925,8 +1963,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T03:00:00.000Z",
-        "end": "2025-11-15T03:45:00.000Z",
+        "start": "2025-11-16T19:15:00.000Z",
+        "end": "2025-11-16T19:45:00.000Z",
         "stage": "MAD",
         "status": "scheduled"
       }
@@ -1944,8 +1982,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T00:00:00.000Z",
-        "end": "2025-11-15T00:45:00.000Z",
+        "start": "2025-11-16T21:30:00.000Z",
+        "end": "2025-11-16T22:00:00.000Z",
         "stage": "MAD",
         "status": "scheduled"
       }
@@ -1963,8 +2001,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T22:00:00.000Z",
-        "end": "2025-11-14T22:45:00.000Z",
+        "start": "2025-11-16T22:15:00.000Z",
+        "end": "2025-11-16T22:45:00.000Z",
         "stage": "MAD",
         "status": "scheduled"
       }
@@ -1982,8 +2020,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T02:00:00.000Z",
-        "end": "2025-11-15T02:45:00.000Z",
+        "start": "2025-11-16T17:45:00.000Z",
+        "end": "2025-11-16T18:15:00.000Z",
         "stage": "MAD",
         "status": "scheduled"
       }
@@ -2001,8 +2039,14 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T01:00:00.000Z",
-        "end": "2025-11-15T01:45:00.000Z",
+        "start": "2025-11-16T20:00:00.000Z",
+        "end": "2025-11-16T20:30:00.000Z",
+        "stage": "MAD",
+        "status": "scheduled"
+      },
+      {
+        "start": "2025-11-16T20:45:00.000Z",
+        "end": "2025-11-16T21:15:00.000Z",
         "stage": "MAD",
         "status": "scheduled"
       }
@@ -2020,8 +2064,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T19:00:00.000Z",
-        "end": "2025-11-14T19:45:00.000Z",
+        "start": "2025-11-16T23:45:00.000Z",
+        "end": "2025-11-17T00:15:00.000Z",
         "stage": "MAD",
         "status": "scheduled"
       }
@@ -2039,8 +2083,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T23:00:00.000Z",
-        "end": "2025-11-14T23:45:00.000Z",
+        "start": "2025-11-16T18:30:00.000Z",
+        "end": "2025-11-16T19:00:00.000Z",
         "stage": "MAD",
         "status": "scheduled"
       }
@@ -2058,8 +2102,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T20:00:00.000Z",
-        "end": "2025-11-14T20:45:00.000Z",
+        "start": "2025-11-16T17:00:00.000Z",
+        "end": "2025-11-16T17:30:00.000Z",
         "stage": "MAD",
         "status": "scheduled"
       }
@@ -2077,8 +2121,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T21:00:00.000Z",
-        "end": "2025-11-14T21:45:00.000Z",
+        "start": "2025-11-16T23:00:00.000Z",
+        "end": "2025-11-16T23:30:00.000Z",
         "stage": "MAD",
         "status": "scheduled"
       }
@@ -2096,8 +2140,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T18:00:00.000Z",
-        "end": "2025-11-14T18:45:00.000Z",
+        "start": "2025-11-17T00:30:00.000Z",
+        "end": "2025-11-17T01:00:00.000Z",
         "stage": "MAD",
         "status": "scheduled"
       }
@@ -2115,8 +2159,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T17:00:00.000Z",
-        "end": "2025-11-14T17:45:00.000Z",
+        "start": "2025-11-17T01:15:00.000Z",
+        "end": "2025-11-17T01:45:00.000Z",
         "stage": "MAD",
         "status": "scheduled"
       }
@@ -2130,13 +2174,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Hard Crew Heroes"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T18:30:00.000Z",
-        "end": "2025-11-16T19:15:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T18:00:00.000Z",
+        "end": "2025-11-16T18:30:00.000Z",
+        "stage": "Hard Crew Heroes",
         "status": "scheduled"
       }
     ]
@@ -2149,13 +2193,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Hard Crew Heroes"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T19:30:00.000Z",
-        "end": "2025-11-16T20:15:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T21:45:00.000Z",
+        "end": "2025-11-16T22:15:00.000Z",
+        "stage": "Hard Crew Heroes",
         "status": "scheduled"
       }
     ]
@@ -2168,13 +2212,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Hard Crew Heroes"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T20:30:00.000Z",
-        "end": "2025-11-16T21:15:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-17T00:45:00.000Z",
+        "end": "2025-11-17T01:15:00.000Z",
+        "stage": "Hard Crew Heroes",
         "status": "scheduled"
       }
     ]
@@ -2187,13 +2231,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Hard Crew Heroes"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T23:00:00.000Z",
-        "end": "2025-11-16T23:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T19:30:00.000Z",
+        "end": "2025-11-16T20:00:00.000Z",
+        "stage": "Hard Crew Heroes",
         "status": "scheduled"
       }
     ]
@@ -2206,13 +2250,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Hard Crew Heroes"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T15:00:00.000Z",
-        "end": "2025-11-16T15:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T22:30:00.000Z",
+        "end": "2025-11-16T23:00:00.000Z",
+        "stage": "Hard Crew Heroes",
         "status": "scheduled"
       }
     ]
@@ -2225,13 +2269,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Hard Crew Heroes"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T17:30:00.000Z",
-        "end": "2025-11-16T18:15:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T20:15:00.000Z",
+        "end": "2025-11-16T20:45:00.000Z",
+        "stage": "Hard Crew Heroes",
         "status": "scheduled"
       }
     ]
@@ -2244,13 +2288,32 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Hard Crew Heroes"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T21:30:00.000Z",
-        "end": "2025-11-16T22:15:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-17T01:30:00.000Z",
+        "end": "2025-11-17T02:00:00.000Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 122,
+    "name": "A.N.T",
+    "photo": "assets/lineup-photos/ant.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "Hard Crew Heroes"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-11-17T02:15:00.000Z",
+        "end": "2025-11-17T02:45:00.000Z",
+        "stage": "Hard Crew Heroes",
         "status": "scheduled"
       }
     ]
@@ -2263,13 +2326,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Hard Crew Heroes"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T16:00:00.000Z",
-        "end": "2025-11-16T16:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T23:15:00.000Z",
+        "end": "2025-11-16T23:45:00.000Z",
+        "stage": "Hard Crew Heroes",
         "status": "scheduled"
       }
     ]
@@ -2282,13 +2345,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Hard Crew Heroes"
     ],
     "setTimes": [
       {
-        "start": "2025-11-17T00:00:00.000Z",
-        "end": "2025-11-17T00:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T21:00:00.000Z",
+        "end": "2025-11-16T21:30:00.000Z",
+        "stage": "Hard Crew Heroes",
         "status": "scheduled"
       }
     ]
@@ -2301,13 +2364,13 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Hard Crew Heroes"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T13:00:00.000Z",
-        "end": "2025-11-16T13:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-16T18:45:00.000Z",
+        "end": "2025-11-16T19:15:00.000Z",
+        "stage": "Hard Crew Heroes",
         "status": "scheduled"
       }
     ]
@@ -2320,13 +2383,32 @@
     "bandcamp": null,
     "blurb": null,
     "stages": [
-      "MAD"
+      "Hard Crew Heroes"
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T14:00:00.000Z",
-        "end": "2025-11-16T14:45:00.000Z",
-        "stage": "MAD",
+        "start": "2025-11-17T00:00:00.000Z",
+        "end": "2025-11-17T00:30:00.000Z",
+        "stage": "Hard Crew Heroes",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 127,
+    "name": "Wrong TV",
+    "photo": "assets/lineup-photos/wrong-tv.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-11-15T03:00:00.000Z",
+        "end": "2025-11-15T03:45:00.000Z",
+        "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
     ]
@@ -2343,20 +2425,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T19:00:00.000Z",
-        "end": "2025-11-14T19:45:00.000Z",
-        "stage": "BANG FACE TV Live",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-14T20:00:00.000Z",
-        "end": "2025-11-14T20:45:00.000Z",
-        "stage": "BANG FACE TV Live",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-14T22:00:00.000Z",
-        "end": "2025-11-14T22:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2374,8 +2444,27 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T19:30:00.000Z",
-        "end": "2025-11-15T20:15:00.000Z",
+        "start": "2025-11-16T22:00:00.000Z",
+        "end": "2025-11-16T22:45:00.000Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 130,
+    "name": "Brain Rays & Quiet",
+    "photo": "assets/lineup-photos/brain-rays-quiet.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-11-17T02:00:00.000Z",
+        "end": "2025-11-17T02:45:00.000Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2393,8 +2482,27 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T16:00:00.000Z",
-        "end": "2025-11-15T16:45:00.000Z",
+        "start": "2025-11-15T19:00:00.000Z",
+        "end": "2025-11-15T19:45:00.000Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 132,
+    "name": "Diazepamela",
+    "photo": "assets/lineup-photos/diazepamela.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-11-17T01:00:00.000Z",
+        "end": "2025-11-17T01:45:00.000Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2412,14 +2520,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-14T14:00:00.000Z",
-        "end": "2025-11-14T14:45:00.000Z",
-        "stage": "BANG FACE TV Live",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-14T15:00:00.000Z",
-        "end": "2025-11-14T15:45:00.000Z",
+        "start": "2025-11-14T22:00:00.000Z",
+        "end": "2025-11-14T22:45:00.000Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2437,20 +2539,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T08:00:00.000Z",
-        "end": "2025-11-15T08:45:00.000Z",
-        "stage": "BANG FACE TV Live",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-15T09:00:00.000Z",
-        "end": "2025-11-15T09:45:00.000Z",
-        "stage": "BANG FACE TV Live",
-        "status": "scheduled"
-      },
-      {
-        "start": "2025-11-15T10:00:00.000Z",
-        "end": "2025-11-15T10:45:00.000Z",
+        "start": "2025-11-16T20:00:00.000Z",
+        "end": "2025-11-16T20:45:00.000Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2468,8 +2558,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T12:00:00.000Z",
-        "end": "2025-11-15T12:45:00.000Z",
+        "start": "2025-11-17T03:00:00.000Z",
+        "end": "2025-11-17T03:45:00.000Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2487,8 +2577,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T15:00:00.000Z",
-        "end": "2025-11-15T15:45:00.000Z",
+        "start": "2025-11-15T23:00:00.000Z",
+        "end": "2025-11-15T23:45:00.000Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2506,8 +2596,27 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T14:00:00.000Z",
-        "end": "2025-11-15T14:45:00.000Z",
+        "start": "2025-11-16T04:00:00.000Z",
+        "end": "2025-11-16T04:45:00.000Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 138,
+    "name": "In Bed With My Brother",
+    "photo": "assets/lineup-photos/in-bed-with-my-brother.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-11-16T01:00:00.000Z",
+        "end": "2025-11-16T01:45:00.000Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2525,8 +2634,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T21:30:00.000Z",
-        "end": "2025-11-16T22:15:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2544,8 +2653,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T11:00:00.000Z",
-        "end": "2025-11-15T11:45:00.000Z",
+        "start": "2025-11-16T20:00:00Z",
+        "end": "2025-11-16T21:00:00Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2563,8 +2672,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T18:00:00.000Z",
-        "end": "2025-11-15T18:45:00.000Z",
+        "start": "2025-11-15T22:00:00.000Z",
+        "end": "2025-11-15T22:45:00.000Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2582,8 +2691,27 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T20:30:00.000Z",
-        "end": "2025-11-16T21:15:00.000Z",
+        "start": "2025-11-16T23:00:00.000Z",
+        "end": "2025-11-16T23:45:00.000Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 143,
+    "name": "Space Cassette",
+    "photo": "assets/lineup-photos/space-cassette.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-11-17T04:00:00.000Z",
+        "end": "2025-11-17T04:45:00.000Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2601,8 +2729,46 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T17:00:00.000Z",
-        "end": "2025-11-15T17:45:00.000Z",
+        "start": "2025-11-14T19:00:00.000Z",
+        "end": "2025-11-14T19:45:00.000Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 145,
+    "name": "Tina",
+    "photo": "assets/lineup-photos/tina.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-11-14T20:00:00.000Z",
+        "end": "2025-11-14T20:45:00.000Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 146,
+    "name": "Turbo",
+    "photo": "assets/lineup-photos/turbo.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-11-15T21:00:00.000Z",
+        "end": "2025-11-15T21:45:00.000Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2620,8 +2786,8 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-16T17:00:00.000Z",
-        "end": "2025-11-16T17:45:00.000Z",
+        "start": "2025-11-17T00:00:00.000Z",
+        "end": "2025-11-17T00:45:00.000Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }
@@ -2639,8 +2805,27 @@
     ],
     "setTimes": [
       {
-        "start": "2025-11-15T13:00:00.000Z",
-        "end": "2025-11-15T13:45:00.000Z",
+        "start": "2025-11-16T21:00:00.000Z",
+        "end": "2025-11-16T21:45:00.000Z",
+        "stage": "BANG FACE TV Live",
+        "status": "scheduled"
+      }
+    ]
+  },
+  {
+    "id": 149,
+    "name": "BDSM Gardener",
+    "photo": "assets/lineup-photos/bdsm-gardener.jpg",
+    "website": null,
+    "bandcamp": null,
+    "blurb": null,
+    "stages": [
+      "BANG FACE TV Live"
+    ],
+    "setTimes": [
+      {
+        "start": "2025-11-16T19:00:00.000Z",
+        "end": "2025-11-16T19:45:00.000Z",
         "stage": "BANG FACE TV Live",
         "status": "scheduled"
       }

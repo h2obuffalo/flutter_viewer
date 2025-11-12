@@ -7,7 +7,13 @@ class Window {
 
 class Document {
   dynamic get defaultView => null;
+  dynamic getElementById(String id) => null;
+  dynamic get documentElement => null;
+  dynamic get fullscreenElement => null;
 }
 
 // Stub window object - matches dart:html's window structure
 final Window window = Window();
+
+// Stub document object - matches dart:html's top-level document
+final Document document = Document();

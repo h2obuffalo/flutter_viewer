@@ -31,11 +31,38 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        create("release") {
+            // key.properties is in the android directory (rootProject)
+            val keystorePropertiesFile = rootProject.file("key.properties")
+            if (keystorePropertiesFile.exists()) {
+                val props = HashMap<String, String>()
+                keystorePropertiesFile.forEachLine { line ->
+                    if (line.contains("=") && !line.trim().startsWith("#")) {
+                        val (key, value) = line.split("=", limit = 2)
+                        props[key.trim()] = value.trim()
+                    }
+                }
+                val storeFileProp = props["storeFile"]
+                if (storeFileProp != null && storeFileProp.isNotEmpty()) {
+                    // storeFile path is relative to android directory (rootProject)
+                    val storeFileAbsolute = rootProject.file(storeFileProp)
+                    if (storeFileAbsolute.exists()) {
+                        keyAlias = props["keyAlias"] ?: ""
+                        keyPassword = props["keyPassword"] ?: ""
+                        storeFile = storeFileAbsolute
+                        storePassword = props["storePassword"] ?: ""
+                    }
+                }
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }
