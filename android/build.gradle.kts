@@ -1,9 +1,6 @@
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
+// Note: allprojects is deprecated in Gradle 8+
+// Repositories are now managed in settings.gradle.kts via dependencyResolutionManagement
+// However, Flutter plugins may still require this for compatibility
 
 val newBuildDir: Directory =
     rootProject.layout.buildDirectory
@@ -14,7 +11,14 @@ rootProject.layout.buildDirectory.value(newBuildDir)
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
+    
+    // Apply repositories to subprojects (for Flutter plugin compatibility)
+    repositories {
+        google()
+        mavenCentral()
+    }
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }

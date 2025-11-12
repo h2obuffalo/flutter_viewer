@@ -17,6 +17,16 @@ pluginManagement {
     }
 }
 
+// Configure dependency resolution for all projects
+// Use PREFER_PROJECT to allow Flutter plugins to declare their own repositories
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
 plugins {
     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
     id("com.android.application") version "8.9.1" apply false
